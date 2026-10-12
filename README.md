@@ -28,7 +28,7 @@ Each room is one tabletop scene rather than a page of boxes.
 - **Removing players.** In the lobby, the host taps a player's seat and taps *Remove* twice. The second tap is there so nobody gets kicked by a stray touch. The removed player is told why they're back at the join screen, and can rejoin with the code while the room is still in the lobby. Players can't be removed mid-game, because their seat holds a secret role; the host can end the game early from the chronicle instead.
 - **Reactions.** Emoji pop up over your seat for the whole table, for when a vote goes sideways.
 - **Your role** is dealt face down. Tap to turn it over, so you choose when to look.
-- **Table talk** (chat) is docked on wide screens and slides in from the side on phones. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play.
+- **Table talk** (chat) is docked on wide screens and slides in from the side on phones. Each message shows the speaker's crest, and their name is written in a light version of their avatar colour, so you can match a line to a seat at a glance. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play.
 
 ### What stays secret
 

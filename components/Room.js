@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LobbyHand, LobbyTable } from './Lobby';
 import RoundTable from './RoundTable';
-import Avatar, { AvatarPicker } from './Avatar';
+import Avatar, { AvatarPicker, inkColor, tintColor } from './Avatar';
 import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
@@ -114,7 +114,7 @@ export default function Room({ view, act, netError }) {
         )}
 
         <aside className={`drawer drawer-chat ${drawer === 'chat' ? 'is-open' : ''}`} aria-label="Table talk">
-          <Chat view={view} act={act} onClose={() => setDrawer(null)} />
+          <Chat view={view} act={act} avatarOf={avatarOf} onClose={() => setDrawer(null)} />
         </aside>
       </div>
 
@@ -794,7 +794,7 @@ function SeatSheet({ view, id, nameOf, avatarOf, setAvatar, note, setNote, onClo
   );
 }
 
-function Chat({ view, act, onClose }) {
+function Chat({ view, act, avatarOf, onClose }) {
   const [text, setText] = useState('');
   const logRef = useRef(null);
   const lastId = view.chat.at(-1)?.id;
@@ -822,17 +822,34 @@ function Chat({ view, act, onClose }) {
       </div>
       <div className="chat-log" ref={logRef} aria-live="polite">
         {view.chat.length === 0 && <p className="muted small">No messages yet.</p>}
-        {view.chat.map((m) =>
-          m.system ? (
-            <p key={m.id} className="msg is-system">
-              {m.text}
-            </p>
-          ) : (
-            <p key={m.id} className={`msg ${m.pid === view.you ? 'is-me' : ''}`}>
-              <b>{m.name}</b> {m.text}
-            </p>
-          )
-        )}
+        {view.chat.map((m, i) => {
+          if (m.system) {
+            return (
+              <p key={m.id} className="msg is-system">
+                {m.text}
+              </p>
+            );
+          }
+          // Each speaker's name takes the colour of their avatar. Consecutive lines from the
+          // same person are grouped under one crest.
+          const prev = view.chat[i - 1];
+          const grouped = prev && !prev.system && prev.pid === m.pid;
+          const avatar = avatarOf(m.pid);
+          return (
+            <div key={m.id} className={`msg ${grouped ? 'is-grouped' : ''}`} style={{ '--tint': tintColor(avatar), '--ink': inkColor(avatar) }}>
+              {grouped ? <span className="msg-gutter" /> : <Avatar avatar={avatar} name={m.name} className="avatar-xs" />}
+              <p className="msg-body">
+                {!grouped && (
+                  <b className="msg-name">
+                    {m.name}
+                    {m.pid === view.you && <span className="msg-you"> (you)</span>}
+                  </b>
+                )}
+                {m.text}
+              </p>
+            </div>
+          );
+        })}
       </div>
       <form className="chat-form" onSubmit={send}>
         <input id="chat-input" aria-label="Message" className="input" value={text} maxLength={300} placeholder="Say something…" autoComplete="off" onChange={(e) => setText(e.target.value)} />

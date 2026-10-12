@@ -30,7 +30,8 @@ Lady of the Lake and assassination. Deployed on Vercel.
 - `app/page.js`: home. `app/r/[code]/page.js`: polling, joining and the toast.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
   `Lobby.js`, `RoundTable.js`, `Avatar.js` (avatar and picker), `Fan.js`, `Reactions.js`,
-  `art.js`. Avatar crest ids and colours live in `lib/rules.js` (the drawings are in
+  `art.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
+  live in `lib/rules.js` (the drawings are in
   `components/crests.js`) and are validated by
   `cleanAvatar()` on the server.
 - `scripts/simulate.mjs`: plays full games through the HTTP API and checks the rules.

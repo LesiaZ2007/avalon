@@ -1,6 +1,6 @@
 'use client';
 
-import { AVATAR_ICONS, AVATAR_NAMES, AVATAR_TINTS } from '@/lib/rules';
+import { AVATAR_ICONS, AVATAR_INKS, AVATAR_NAMES, AVATAR_TINTS } from '@/lib/rules';
 import { Crest } from './crests';
 
 export const initials = (name = '') =>
@@ -13,6 +13,7 @@ export const initials = (name = '') =>
     .toUpperCase();
 
 export const tintColor = (avatar) => AVATAR_TINTS[avatar?.tint ?? 0] ?? AVATAR_TINTS[0];
+export const inkColor = (avatar) => AVATAR_INKS[avatar?.tint ?? 0] ?? AVATAR_INKS[0];
 
 /** A player's avatar: their chosen crest (or initials) on their chosen colour. */
 export default function Avatar({ avatar, name, className = '', children, ...rest }) {
