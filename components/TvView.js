@@ -188,6 +188,15 @@ export default function TvView({ code }) {
             Waiting on {waiting.map((id) => nameOf(id) + (online(id) ? '' : ' (away)')).join(', ')}
           </p>
         )}
+        {(!g || view.phase === 'over') && view.scores.good + view.scores.evil > 0 && (
+          <p className="tv-tally">
+            <span className="good-text">Good {view.scores.good}</span>
+            <span className="tally-sep" aria-hidden="true">
+              –
+            </span>
+            <span className="evil-text">Evil {view.scores.evil}</span>
+          </p>
+        )}
         {(!g || view.phase === 'over') && (
           <div className="tv-join">
             {qr && <div className="tv-qr" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code to join this room" />}

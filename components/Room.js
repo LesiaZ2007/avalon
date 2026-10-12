@@ -9,6 +9,7 @@ import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
 import Tutorial from './Tutorial';
+import { Recap, Scoreboard } from './Recap';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
 
@@ -61,6 +62,7 @@ export default function Room({ view, act, netError }) {
   const [roleOpen, setRoleOpen] = useState(false);
   const [learning, setLearning] = useState(false);
   const [inspect, setInspect] = useState(null);
+  const [recapOpen, setRecapOpen] = useState(false);
   const wide = useWide();
   const names = useMemo(() => Object.fromEntries(view.players.map((p) => [p.id, p.name])), [view.players]);
   const nameOf = (id) => names[id] ?? 'Someone';
@@ -73,6 +75,9 @@ export default function Room({ view, act, netError }) {
   const g = view.game;
   const [notes, setNote] = useNotes(view.code, g?.id);
   useTurnAlert(view);
+  useEffect(() => {
+    if (view.phase !== 'over') setRecapOpen(false);
+  }, [view.phase]);
 
   // Unread chat badge.
   const lastChatId = view.chat.at(-1)?.id ?? 0;
@@ -110,11 +115,11 @@ export default function Room({ view, act, netError }) {
               <ReactionBar act={act} />
             </div>
             <section className="hand" aria-label="Lobby">
-              <LobbyHand view={view} act={act} />
+              <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} />
             </section>
           </div>
         ) : (
-          <GameStage view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} notes={notes} onInspect={setInspect} />
+          <GameStage view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} notes={notes} onInspect={setInspect} onRecap={() => setRecapOpen(true)} />
         )}
 
         <aside className={`drawer drawer-chat ${drawer === 'chat' ? 'is-open' : ''}`} aria-label="Table talk">
@@ -139,6 +144,7 @@ export default function Room({ view, act, netError }) {
       )}
       {drawer && <button className="drawer-scrim" aria-label="Close panel" onClick={() => setDrawer(null)} />}
 
+      {recapOpen && g?.roles && <Recap view={view} nameOf={nameOf} avatarOf={avatarOf} onClose={() => setRecapOpen(false)} />}
       {roleOpen && g?.myRole && <RoleModal view={view} nameOf={nameOf} onClose={() => setRoleOpen(false)} />}
       {inspect && g && (
         <SeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} note={notes[inspect]} setNote={setNote} onClose={() => setInspect(null)} />
@@ -220,7 +226,7 @@ function pickRules(view) {
   return null;
 }
 
-function GameStage({ view, act, nameOf, avatarOf, notes, onInspect }) {
+function GameStage({ view, act, nameOf, avatarOf, notes, onInspect, onRecap }) {
   const g = view.game;
   const rules = pickRules(view);
   const leaderPicking = view.phase === 'team' && g.leader === view.you;
@@ -249,7 +255,7 @@ function GameStage({ view, act, nameOf, avatarOf, notes, onInspect }) {
         <ReactionBar act={act} />
       </div>
       <section className="hand" aria-label="Your move">
-        <ActionPanel view={view} act={act} nameOf={nameOf} rules={rules} picked={picked} setPicked={setPicked} />
+        <ActionPanel view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} rules={rules} picked={picked} setPicked={setPicked} onRecap={onRecap} />
       </section>
     </div>
   );
@@ -382,7 +388,7 @@ function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, on
   );
 }
 
-function ActionPanel({ view, act, nameOf, rules, picked, setPicked }) {
+function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, onRecap }) {
   const g = view.game;
   const me = view.you;
   const [busy, setBusy] = useState(false);
@@ -563,6 +569,10 @@ function ActionPanel({ view, act, nameOf, rules, picked, setPicked }) {
           <div className="winner-art">{g.winner === 'good' ? <Grail size={80} /> : <RoleEmblem role="mordred" size={80} />}</div>
           <h2>{g.winner === 'good' ? 'Arthur prevails' : 'Mordred prevails'}</h2>
           <p>{g.reason}</p>
+          <Scoreboard view={view} nameOf={nameOf} avatarOf={avatarOf} compact />
+          <button className="btn btn-lg" onClick={onRecap}>
+            See the recap
+          </button>
           {view.hostId === me ? (
             <button className="btn btn-primary btn-lg" onClick={() => send({ type: 'lobby' })}>
               Back to the lobby

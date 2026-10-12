@@ -2472,6 +2472,157 @@ body:has(.scene) .landscape::after {
   }
 }
 
+/* ---------- Scores and recap ---------- */
+.tally {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: min(100%, 420px);
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(6, 11, 12, 0.55);
+}
+.tally.is-compact {
+  border: 0;
+  padding: 0;
+  background: none;
+}
+.tally-score {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.tally.is-compact .tally-score {
+  font-size: 22px;
+}
+.tally-sep {
+  color: var(--dim);
+}
+.standings {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+.standings summary {
+  cursor: pointer;
+  color: var(--dim);
+  font-size: 15px;
+  text-align: center;
+}
+.standings ol {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.standings li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  font-size: 15px;
+}
+.standings-wins {
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.standings .btn {
+  justify-self: center;
+}
+.recap .tally {
+  width: 100%;
+}
+.recap-sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 460px) {
+  .recap-sides {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.recap-side {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+}
+.recap-side.is-good {
+  border-color: var(--loyal-fill);
+  background: var(--loyal-soft);
+}
+.recap-side.is-evil {
+  border-color: var(--evil-fill);
+  background: var(--evil-soft);
+}
+.recap-side.is-good .eyebrow {
+  color: var(--loyal-hi);
+}
+.recap-side.is-evil .eyebrow {
+  color: var(--evil-hi);
+}
+.recap-side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.recap-side li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.recap-who {
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+.recap-who strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recap-who .small {
+  color: var(--dim);
+}
+.recap-quests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.recap-quest-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.tv-tally {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: clamp(28px, 2.6vw, 52px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

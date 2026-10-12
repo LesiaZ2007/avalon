@@ -114,6 +114,29 @@ async function game(n, mode, lady, strategy) {
     const quiet = (await call(`/api/room/${host.data.code}?v=${ver}`, { token: players[0].token })).data;
     assert(quiet.unchanged && typeof quiet.online[players[1].playerId] === 'boolean', 'unchanged polls carry presence');
   }
+  // Scores: one finished game is counted for its winners; a game the host ends early isn't; only
+  // the host can reset the tally.
+  async function checkScores(s) {
+    const loser = s.game.winner === 'good' ? 'evil' : 'good';
+    assert(s.scores[s.game.winner] === 1 && s.scores[loser] === 0, 'side tally ' + JSON.stringify(s.scores));
+    for (const id of ids) {
+      const team = EVIL.includes(roles[id]) ? 'evil' : 'good';
+      const rec = s.scores.players[id];
+      assert(rec && rec.played === 1 && rec.wins === (team === s.game.winner ? 1 : 0), 'player record ' + JSON.stringify(rec));
+    }
+    assert((await call(`/api/room/${code}/tv`)).data.scores[s.game.winner] === 1, 'tv shows the tally');
+    assert((await act(players[0], { type: 'lobby' })).status === 200, 'back to lobby');
+    assert((await act(players[0], { type: 'start' })).status === 200, 'second game');
+    assert((await act(players[0], { type: 'lobby' })).status === 200, 'end early');
+    const after = await v(players[1]);
+    assert(after.scores[s.game.winner] === 1 && after.scores[loser] === 0, 'early end not counted');
+    assert(Object.values(after.scores.players).every((r) => r.played === 1), 'early end not in records');
+    assert((await act(players[1], { type: 'resetScores' })).status === 400, 'non-host reset refused');
+    assert((await act(players[0], { type: 'resetScores' })).status === 200, 'host reset');
+    const reset = await v(players[1]);
+    assert(reset.scores.good === 0 && reset.scores.evil === 0 && Object.keys(reset.scores.players).length === 0, 'scores reset');
+  }
+
   const byId = Object.fromEntries(players.map(p => [p.playerId, p]));
   let guard = 0;
   while (guard++ < 60) {
@@ -122,6 +145,7 @@ async function game(n, mode, lady, strategy) {
       console.log(`  -> ${s.game.winner} wins: ${s.game.reason}`);
       assert(s.game.roles, 'roles revealed at end');
       assert((await call(`/api/room/${host.data.code}/tv`)).data.game.roles, 'tv shows roles at the end');
+      await checkScores(s);
       return s;
     }
     const g = s.game;

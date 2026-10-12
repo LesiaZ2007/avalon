@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import RoundTable from './RoundTable';
 import Fan from './Fan';
+import { Scoreboard } from './Recap';
 import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, lineup } from '@/lib/rules';
 
 const ROLE_HINTS = {
@@ -41,7 +42,7 @@ export function LobbyTable({ view, nameOf, avatarOf, onInspect }) {
   );
 }
 
-export function LobbyHand({ view, act }) {
+export function LobbyHand({ view, act, nameOf, avatarOf }) {
   const isHost = view.hostId === view.you;
   const s = view.settings;
   const count = view.players.length;
@@ -92,6 +93,8 @@ export function LobbyHand({ view, act }) {
           {QUEST_SIZES[count].join(', ')}.
         </p>
       )}
+
+      <Scoreboard view={view} nameOf={nameOf} avatarOf={avatarOf} act={act} />
 
       <div className="pills" role="group" aria-label="Role setup">
         {Object.entries(MODES).map(([key, m]) => (
