@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import RoundTable from './RoundTable';
 import { EventOverlay, QuestRow, waitingOn } from './Room';
-import { inkColor } from './Avatar';
+import { nameColors } from './Avatar';
+import { useTheme } from './Theme';
 import TimerBadge from './Timer';
 import { api } from '@/lib/client';
 import { MAX_PLAYERS, MIN_PLAYERS, ROLES, isEvilRole } from '@/lib/rules';
@@ -67,6 +68,7 @@ export default function TvView({ code }) {
   }, [joinUrl]);
 
   const names = useMemo(() => Object.fromEntries((view?.players ?? []).map((p) => [p.id, p])), [view?.players]);
+  useTheme(view?.settings?.theme);
   const nameOf = (id) => names[id]?.name ?? 'Someone';
   const avatarOf = (id) => names[id]?.avatar;
 
@@ -216,7 +218,7 @@ export default function TvView({ code }) {
             .slice(-6)
             .map((m) => (
               <li key={m.id}>
-                <b style={{ color: inkColor(names[m.pid]?.avatar) }}>{m.name}</b> {m.text}
+                <b className="msg-name" style={nameColors(names[m.pid]?.avatar)}>{m.name}</b> {m.text}
               </li>
             ))}
         </ol>

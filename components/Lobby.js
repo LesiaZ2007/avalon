@@ -5,7 +5,7 @@ import RoundTable from './RoundTable';
 import Fan from './Fan';
 import { Scoreboard } from './Recap';
 import TvLink from './TvLink';
-import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, TIMER_CHOICES, formatSeconds, lineup } from '@/lib/rules';
+import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, THEMES, TIMER_CHOICES, formatSeconds, lineup, themeOf } from '@/lib/rules';
 
 const TIMERS = {
   talk: { label: 'Talk timer', hint: 'How long the leader has to pick a team, and evil has to name Merlin.' },
@@ -140,7 +140,16 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
         ))}
         {(s.timers?.talk > 0 || s.timers?.vote > 0) && <p className="hand-text small">When time runs out, the table sees it and the players being waited on get a buzz. Nothing is played for them.</p>}
       </div>
-      {!isHost && <p className="hand-text small">The host chooses the roles and timers.</p>}
+      <div className="pills" role="group" aria-label="Look">
+        <span className="pills-label">Look</span>
+        {Object.entries(THEMES).map(([key, t]) => (
+          <button key={key} type="button" className="pill pill-sm pill-theme" aria-pressed={themeOf(s) === key} disabled={!isHost} onClick={() => act({ type: 'theme', theme: key })} title={t.hint}>
+            <span className={`theme-swatch is-${key}`} aria-hidden="true" />
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {!isHost && <p className="hand-text small">The host chooses the roles, timers and look.</p>}
 
       <div className="row row-center">
         {isHost && (

@@ -4,13 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LobbyHand, LobbyTable } from './Lobby';
 import RoundTable from './RoundTable';
-import Avatar, { AvatarPicker, inkColor } from './Avatar';
+import Avatar, { AvatarPicker, nameColors } from './Avatar';
 import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
 import Tutorial from './Tutorial';
 import { Recap, Scoreboard, VoteSplit } from './Recap';
 import TimerBadge from './Timer';
+import { useTheme } from './Theme';
 import TvLink from './TvLink';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
@@ -96,6 +97,8 @@ export default function Room({ view, act, netError }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [drawer]);
+
+  useTheme(view.settings?.theme);
 
   return (
     <main className={`scene phase-${view.phase}`}>
@@ -998,7 +1001,7 @@ function Chat({ view, act, avatarOf, onClose }) {
           const grouped = prev && !prev.system && prev.pid === m.pid;
           const avatar = avatarOf(m.pid);
           return (
-            <p key={m.id} className={`msg ${grouped ? 'is-grouped' : ''}`} style={{ '--ink': inkColor(avatar) }}>
+            <p key={m.id} className={`msg ${grouped ? 'is-grouped' : ''}`} style={nameColors(avatar)}>
               {!grouped && (
                 <b className="msg-name">
                   {m.name}

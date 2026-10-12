@@ -10,7 +10,7 @@ Lady of the Lake and assassination. Deployed on Vercel.
 | --- | --- |
 | Framework | Next.js 15 (App Router), React 19, plain JavaScript |
 | Styling | One hand-written stylesheet, `app/globals.css` (no Tailwind) |
-| Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC, Alegreya Sans |
+| Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC (headings, buttons), Alegreya (body) |
 | Storage | Redis: Upstash REST API via `fetch` when available, otherwise a `redis://` URL via the `redis` client; in-memory fallback locally |
 | Realtime | Clients poll `GET /api/room/[code]` about once a second; no websockets |
 | Artwork | Inline SVG in `components/art.js`; no image files |
@@ -32,7 +32,7 @@ Lady of the Lake and assassination. Deployed on Vercel.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
   `Lobby.js`, `RoundTable.js`, `Avatar.js` (avatar and picker), `Fan.js`, `Reactions.js`,
   `Tutorial.js` (the eight-step walkthrough with a practice table; keep it in step with the
-  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
+  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `Theme.js` (`useTheme()`, which puts the room's look on `<html data-theme>`), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
   live in `lib/rules.js` (the drawings are in
   `components/crests.js`) and are validated by
   `cleanAvatar()` on the server.
@@ -132,11 +132,27 @@ Never commit secrets. `.env*.local` is gitignored and must stay that way.
 
 ## Style
 
-Match the existing look: lake at night, oak and brass for the table, blue for Arthur's side
-and red for Mordred's. The scene is a tabletop rather than stacked boxes. Uncial Antiqua is
-reserved for the wordmark, because its letterforms (t, E) are hard to read elsewhere. Every
-colour is a token on `:root` in `globals.css`, and surfaces use flat fills from those tokens:
-no gradients and no literal hex values outside `:root`. New artwork follows the line style of
+The look is medieval game pieces, not app chrome: heraldic shields for seats, swallowtail
+banners for names, ruled sheets (outer border plus a fine inner rule) for every panel, gilt
+plates for primary buttons, square-ish corners rather than pills. Labels are italic "rubrics" in
+gold ink, never tracked capitals; gold rather than red, because red means Mordred's side.
+Oak and brass for the table, blue for Arthur's side and red for Mordred's. Uncial Antiqua is
+reserved for the wordmark, because its letterforms (t, E) are hard to read elsewhere.
+
+There are three themes (`THEMES` in `lib/rules.js`), set as `data-theme` on `<html>`:
+parchment (default; vellum sheets over the night lake), night (dark sheets with brass trim) and
+tabletop (no lake; everything on a tan table). The host picks one with the `theme` action, at
+any phase. Themes are cosmetic and must never change what information is shown.
+
+How the theming works in `globals.css`: fixed colours (night, brass, vellum, oak, the sides)
+are tokens on `:root` and never change. Context tokens (`--fg`, `--dim`, `--line`,
+`--surface`, `--label`, `--brass-hi`/`--loyal-hi`/`--evil-hi`, the `*-soft` tints, `--well`,
+`--plate`, `--field`) are the ink of whatever a piece sits on. They're defined once for dark
+ground and once for vellum, and a theme switches by choosing which elements get which set.
+Pieces with their own dark fill (cards, shields, medals) are listed in the dark set so they
+read the same inside any sheet. Style new components with context tokens, and add new panels
+to the sheet selector lists rather than giving them their own colours. No literal hex values
+outside the token blocks; no decorative gradients (the paper grain is the one texture). New artwork follows the line style of
 `art.js` and `crests.js` (3 to 3.5px rounded strokes in `currentColor`, a faint fill, brass
 accents). Read neighbouring components before adding a
 new pattern.

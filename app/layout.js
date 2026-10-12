@@ -1,10 +1,11 @@
-import { Alegreya_SC, Alegreya_Sans, Uncial_Antiqua } from 'next/font/google';
+import { Alegreya, Alegreya_SC, Uncial_Antiqua } from 'next/font/google';
 import { Landscape } from '@/components/art';
+import { DEFAULT_THEME } from '@/lib/rules';
 import './globals.css';
 
 const display = Uncial_Antiqua({ weight: '400', subsets: ['latin'], variable: '--font-display', display: 'swap' });
 const heading = Alegreya_SC({ weight: ['500', '700'], subsets: ['latin'], variable: '--font-heading', display: 'swap' });
-const body = Alegreya_Sans({ weight: ['400', '500', '700', '800'], subsets: ['latin'], variable: '--font-body', display: 'swap' });
+const body = Alegreya({ weight: ['400', '500', '700', '800'], style: ['normal', 'italic'], subsets: ['latin'], variable: '--font-body', display: 'swap' });
 
 export const metadata = {
   title: 'Avalon',
@@ -23,7 +24,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${display.variable} ${heading.variable} ${body.variable}`}>
+    <html lang="en" data-theme={DEFAULT_THEME} className={`${display.variable} ${heading.variable} ${body.variable}`}>
       <body>
         <Landscape />
         {children}

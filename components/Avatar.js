@@ -14,6 +14,8 @@ export const initials = (name = '') =>
 
 export const tintColor = (avatar) => AVATAR_TINTS[avatar?.tint ?? 0] ?? AVATAR_TINTS[0];
 export const inkColor = (avatar) => AVATAR_INKS[avatar?.tint ?? 0] ?? AVATAR_INKS[0];
+/** A chat name's colours: the light ink for dark ground and the tint itself for vellum. */
+export const nameColors = (avatar) => ({ '--name-ink': inkColor(avatar), '--name-tint': tintColor(avatar) });
 
 /** A player's avatar: their chosen crest (or initials) on their chosen colour. */
 export default function Avatar({ avatar, name, className = '', children, ...rest }) {

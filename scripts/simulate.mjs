@@ -60,6 +60,12 @@ async function game(n, mode, lady, strategy) {
   timers = (await v(players[1])).settings.timers;
   assert(timers.talk === 180 && timers.vote === 30, 'timers set ' + JSON.stringify(timers));
   assert((await act(players[1], { type: 'settings', timers: { talk: 300 } })).status === 400, 'non-host timers refused');
+  // Theme: only the host picks the look, and only a known one.
+  assert((await v(players[1])).settings.theme === 'parchment', 'parchment by default');
+  assert((await act(players[1], { type: 'theme', theme: 'night' })).status === 400, 'non-host theme refused');
+  assert((await act(players[0], { type: 'theme', theme: 'neon' })).status === 400, 'unknown theme refused');
+  assert((await act(players[0], { type: 'theme', theme: 'tabletop' })).status === 200, 'theme set');
+  assert((await v(players[1])).settings.theme === 'tabletop', 'theme seen by everyone');
   // Reactions: a known icon shows over the sender's seat; anything else is refused.
   assert((await act(players[2], { type: 'react', icon: 'sus' })).status === 200, 'react');
   assert((await v(players[0])).reactions[players[2].playerId]?.icon === 'sus', 'reaction visible');
@@ -68,6 +74,8 @@ async function game(n, mode, lady, strategy) {
   await act(players[2], { type: 'chat', text: 'hello table' });
   const st = await act(players[0], { type: 'start' });
   assert(st.status === 200, 'start ' + JSON.stringify(st.data));
+  // The look is cosmetic, so it can change mid-game too.
+  assert((await act(players[0], { type: 'theme', theme: 'night' })).status === 200, 'theme mid-game');
 
   // Collect roles via each player's own view
   const views = await Promise.all(players.map(v));
@@ -97,6 +105,7 @@ async function game(n, mode, lady, strategy) {
   {
     const tv = (await call(`/api/room/${host.data.code}/tv`)).data;
     assert(tv.game && tv.game.myRole === null && tv.game.known.length === 0 && tv.game.roles === null, 'tv hides roles');
+    assert(tv.settings.theme === 'night', 'tv follows the theme');
     assert(Object.keys(tv.rejoinCodes).length === 0, 'tv sees no rejoin codes');
     const raw = JSON.stringify(tv);
     assert(!raw.includes('"token"') && !raw.includes('"myRole":"') && !raw.includes('"roles":{') && !raw.includes('"evil":true'), 'tv leaks no roles');
