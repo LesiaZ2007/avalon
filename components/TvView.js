@@ -60,6 +60,8 @@ export default function TvView({ code }) {
   }, []);
 
   const joinUrl = typeof window === 'undefined' ? '' : `${window.location.origin}/r/${code}`;
+  // What to type to join without the QR code: the site, then the room code on its home page.
+  const site = typeof window === 'undefined' ? '' : window.location.host;
   useEffect(() => {
     if (!joinUrl) return;
     QRCode.toString(joinUrl, { type: 'svg', margin: 1, color: { dark: '#e8dcbb', light: '#00000000' } })
@@ -203,12 +205,18 @@ export default function TvView({ code }) {
         )}
         {(!g || view.phase === 'over') && (
           <div className="tv-join">
-            {qr && <div className="tv-qr" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code to join this room" />}
-            <div>
-              <p className="eyebrow">Join at</p>
-              <p className="tv-url">{joinUrl.replace(/^https?:\/\//, '')}</p>
-              <p className="eyebrow">Room code</p>
-              <p className="tv-code">{view.code}</p>
+            <div className="tv-join-row">
+              {qr && <div className="tv-qr" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code to join this room" />}
+              <div>
+                <p className="eyebrow">Room code</p>
+                <p className="tv-code">{view.code}</p>
+              </div>
+            </div>
+            <div className="tv-join-at">
+              <p className="eyebrow">Or join at</p>
+              <p className="tv-url" style={{ '--chars': site.length || 1 }}>
+                {site}
+              </p>
             </div>
           </div>
         )}
