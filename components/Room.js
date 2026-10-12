@@ -667,7 +667,7 @@ function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose })
           <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-lg" />
           <div>
             <h2>{isMe ? 'Your seat' : nameOf(id)}</h2>
-            <p className="muted small">{isMe ? 'Pick a creature and a colour. Everyone at the table sees it.' : id === view.hostId ? 'Host' : 'Waiting at the table'}</p>
+            <p className="muted small">{isMe ? 'Pick a crest and a colour. Everyone at the table sees it.' : id === view.hostId ? 'Host' : 'Waiting at the table'}</p>
           </div>
           <button className="btn btn-sm btn-ghost" onClick={onClose}>
             {isMe ? 'Done' : 'Close'}

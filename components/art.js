@@ -189,10 +189,6 @@ export function Landscape() {
             <stop offset="0" stopColor="#f1ead0" stopOpacity="0.35" />
             <stop offset="1" stopColor="#f1ead0" stopOpacity="0" />
           </radialGradient>
-          <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#14282c" />
-            <stop offset="1" stopColor="#0a1315" />
-          </linearGradient>
           <filter id="mist" x="-20%" y="-200%" width="140%" height="500%">
             <feGaussianBlur stdDeviation="14" />
           </filter>
@@ -224,7 +220,7 @@ export function Landscape() {
         <path d="M757 278 L776 248 L795 278 Z" fill="#0d1c1f" />
         <rect x="773" y="292" width="6" height="10" rx="3" fill="#d3ab57" />
 
-        <rect x="0" y="456" width="1440" height="184" fill="url(#lake)" />
+        <rect x="0" y="456" width="1440" height="184" fill="#112326" />
         <g fill="#ece5c9">
           <rect x="1078" y="476" width="64" height="2" opacity="0.35" />
           <rect x="1090" y="494" width="40" height="2" opacity="0.28" />

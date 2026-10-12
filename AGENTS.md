@@ -30,7 +30,8 @@ Lady of the Lake and assassination. Deployed on Vercel.
 - `app/page.js`: home. `app/r/[code]/page.js`: polling, joining and the toast.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
   `Lobby.js`, `RoundTable.js`, `Avatar.js` (avatar and picker), `Fan.js`, `Reactions.js`,
-  `art.js`. Avatar creatures and colours live in `lib/rules.js` and are validated by
+  `art.js`. Avatar crest ids and colours live in `lib/rules.js` (the drawings are in
+  `components/crests.js`) and are validated by
   `cleanAvatar()` on the server.
 - `scripts/simulate.mjs`: plays full games through the HTTP API and checks the rules.
 - `README.md`: player-facing features and deploy steps. Keep it current with every change.
@@ -121,7 +122,10 @@ Never commit secrets. `.env*.local` is gitignored and must stay that way.
 Match the existing look: lake at night, oak and brass for the table, blue for Arthur's side
 and red for Mordred's. The scene is a tabletop rather than stacked boxes. Uncial Antiqua is
 reserved for the wordmark, because its letterforms (t, E) are hard to read elsewhere. Every
-colour is a token on `:root` in `globals.css`. Read neighbouring components before adding a
+colour is a token on `:root` in `globals.css`, and surfaces use flat fills from those tokens:
+no gradients and no literal hex values outside `:root`. New artwork follows the line style of
+`art.js` and `crests.js` (3 to 3.5px rounded strokes in `currentColor`, a faint fill, brass
+accents). Read neighbouring components before adding a
 new pattern.
 
 The UI must never reveal hidden information through layout. For example, good and evil

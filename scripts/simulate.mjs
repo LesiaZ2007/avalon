@@ -29,17 +29,17 @@ async function game(n, mode, lady, strategy) {
 
   if (n < 10) {
     // Avatars: a valid choice is kept, junk falls back to initials, and anyone can change theirs.
-    const extra = await call('/api/room', { body: { action: 'join', code, name: 'Extra', avatar: { icon: '🐉', tint: 3 } } });
+    const extra = await call('/api/room', { body: { action: 'join', code, name: 'Extra', avatar: { icon: 'stag', tint: 3 } } });
     assert(extra.status === 200, 'join with avatar');
     let lobby = await v(players[0]);
     const seen = lobby.players.find((p) => p.id === extra.data.playerId);
-    assert(seen.avatar.icon === '🐉' && seen.avatar.tint === 3, 'avatar kept');
+    assert(seen.avatar.icon === 'stag' && seen.avatar.tint === 3, 'avatar kept');
     await act(players[1], { type: 'avatar', avatar: { icon: '<script>', tint: 99 } });
     lobby = await v(players[0]);
     const junk = lobby.players.find((p) => p.id === players[1].playerId).avatar;
     assert(junk.icon === null && junk.tint >= 0 && junk.tint < 10, 'junk avatar cleaned');
-    await act(players[1], { type: 'avatar', avatar: { icon: '🦉', tint: 0 } });
-    assert((await v(players[0])).players.find((p) => p.id === players[1].playerId).avatar.icon === '🦉', 'avatar changed');
+    await act(players[1], { type: 'avatar', avatar: { icon: 'owl', tint: 0 } });
+    assert((await v(players[0])).players.find((p) => p.id === players[1].playerId).avatar.icon === 'owl', 'avatar changed');
 
     // Kicking: only the host can, and the removed player loses access.
     assert((await act(players[1], { type: 'kick', target: extra.data.playerId })).status === 400, 'nonhost kick');

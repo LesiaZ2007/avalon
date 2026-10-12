@@ -4,32 +4,45 @@
    A deliberate single dark theme: a lake at night, oak and brass for the table, Arthur's blue
    and Mordred's red for the two sides. */
 :root {
-  --bg: #0a1214;
-  --surface: rgba(15, 26, 29, 0.86);
-  --surface-solid: #101c1f;
-  --raised: #1b2d31;
-  --line: #2a4041;
-  --fg: #e8ede7;
-  --dim: #9aaca7;
-  --brass: #d8b05c;
-  --brass-hi: #f0d595;
-  --brass-ink: #1d1505;
-  --brass-soft: rgba(216, 176, 92, 0.16);
-  --loyal: #7ba7ea;
-  --loyal-hi: #b4cdf6;
-  --loyal-deep: #1d355a;
-  --loyal-soft: rgba(123, 167, 234, 0.16);
-  --evil: #e2625a;
-  --evil-hi: #ffaaa2;
-  --evil-deep: #4a1714;
-  --evil-soft: rgba(226, 98, 90, 0.16);
-  --oak: #3d2c19;
-  --oak-dark: #20160b;
+  /* Night lake */
+  --bg: #0e1719;
+  --surface: rgba(19, 32, 35, 0.92);
+  --surface-solid: #132023;
+  --raised: #1c2c30;
+  --line: #2b3e41;
+  --fg: #ebeee6;
+  --dim: #9eaea8;
+  /* Brass: the table's furniture and every primary action */
+  --brass: #d2aa5c;
+  --brass-hi: #ecd29b;
+  --brass-ink: #21190b;
+  --brass-soft: rgba(210, 170, 92, 0.15);
+  /* Arthur's blue and Mordred's red, at matching depths */
+  --loyal: #7da2dc;
+  --loyal-hi: #bccff1;
+  --loyal-fill: #2c4a73;
+  --loyal-card: #1c3150;
+  --loyal-soft: rgba(125, 162, 220, 0.15);
+  --evil: #d86a62;
+  --evil-hi: #f5b3ac;
+  --evil-fill: #6e2b27;
+  --evil-card: #43191a;
+  --evil-soft: rgba(216, 106, 98, 0.15);
+  /* Oak table, stone medallions, vote tokens */
+  --oak: #48341f;
+  --oak-rim: #5e452a;
+  --stone: #2a2822;
+  --stone-rim: #6a5734;
+  --parchment: #e8dcbb;
+  --parchment-ink: #34432a;
+  --iron: #242424;
+  --iron-rim: #4e4a43;
+  --iron-ink: #e3d8bf;
   --font-display-stack: var(--font-display), 'Luminari', 'Papyrus', serif;
   --font-heading-stack: var(--font-heading), 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --font-body-stack: var(--font-body), 'Gill Sans', 'Segoe UI', system-ui, sans-serif;
   --radius: 10px;
-  --shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.75);
+  --shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.7);
   --dock: 380px;
   color-scheme: dark;
 }
@@ -93,7 +106,7 @@ input {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(120% 70% at 75% 0%, #16303a 0%, var(--bg) 60%);
+  background: var(--bg);
 }
 .landscape svg {
   position: absolute;
@@ -112,7 +125,7 @@ body:has(.scene) .landscape::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 45%, rgba(10, 18, 20, 0.35), rgba(10, 18, 20, 0.85) 75%);
+  background: rgba(14, 23, 25, 0.6);
 }
 
 /* ---------- Type helpers ---------- */
@@ -166,19 +179,19 @@ body:has(.scene) .landscape::after {
   cursor: not-allowed;
 }
 .btn-primary {
-  background: linear-gradient(180deg, #e6c272, var(--brass));
-  border-color: #ecca80;
+  background: var(--brass);
+  border-color: var(--brass);
   color: var(--brass-ink);
-  box-shadow: 0 8px 22px -10px rgba(216, 176, 92, 0.8);
 }
 .btn-primary:hover:not(:disabled) {
-  border-color: #fff1c9;
+  border-color: var(--brass-hi);
+  background: var(--brass-hi);
 }
 .btn-ghost {
   background: rgba(8, 14, 15, 0.4);
 }
 .btn-evil {
-  background: linear-gradient(180deg, #8a2b25, #5e1b17);
+  background: var(--evil-fill);
   border-color: var(--evil);
 }
 .btn-block {
@@ -347,7 +360,7 @@ body:has(.scene) .landscape::after {
 .hero-lede {
   max-width: 28em;
   font-size: clamp(18px, 2vw, 22px);
-  color: #c8d4cf;
+  color: var(--fg);
   margin-top: 14px;
 }
 .home-cast {
@@ -392,7 +405,7 @@ body:has(.scene) .landscape::after {
 .how {
   grid-area: how;
   max-width: 70ch;
-  color: #c8d4cf;
+  color: var(--fg);
 }
 .how summary {
   cursor: pointer;
@@ -465,15 +478,15 @@ body:has(.scene) .landscape::after {
   z-index: 2;
 }
 .fan-card.is-good {
-  background: linear-gradient(165deg, #2f5891, var(--loyal-deep) 70%);
+  background: var(--loyal-fill);
   border: 1.5px solid var(--loyal);
-  color: #eaf1ff;
+  color: var(--loyal-hi);
   box-shadow: inset 0 0 0 4px rgba(0, 0, 0, 0.18), inset 0 0 0 5px rgba(255, 255, 255, 0.12), 0 10px 20px rgba(0, 0, 0, 0.45);
 }
 .fan-card.is-evil {
-  background: linear-gradient(165deg, #932e27, var(--evil-deep) 70%);
+  background: var(--evil-fill);
   border: 1.5px solid var(--evil);
-  color: #ffeae6;
+  color: var(--evil-hi);
   box-shadow: inset 0 0 0 4px rgba(0, 0, 0, 0.18), inset 0 0 0 5px rgba(255, 255, 255, 0.1), 0 10px 20px rgba(0, 0, 0, 0.45);
 }
 .fan-art svg {
@@ -606,18 +619,13 @@ body:has(.scene) .landscape::after {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1.4cqw solid #4f3b21;
-  background:
-    radial-gradient(circle at 50% 30%, rgba(255, 214, 140, 0.16), transparent 55%),
-    repeating-conic-gradient(from 9deg, rgba(255, 255, 255, 0.022) 0 7.5deg, rgba(0, 0, 0, 0.05) 7.5deg 15deg),
-    radial-gradient(circle at 50% 45%, #4b3822, var(--oak) 50%, var(--oak-dark) 100%);
+  border: 1.4cqw solid var(--oak-rim);
+  background: var(--oak);
   box-shadow:
-    inset 0 0 0 2px rgba(216, 176, 92, 0.4),
-    inset 0 0 0 3cqw rgba(0, 0, 0, 0.12),
-    inset 0 0 0 calc(3cqw + 1px) rgba(216, 176, 92, 0.22),
-    inset 0 2cqw 6cqw rgba(0, 0, 0, 0.55),
-    0 4cqw 8cqw rgba(0, 0, 0, 0.6),
-    0 0 14cqw rgba(255, 196, 110, 0.07);
+    inset 0 0 0 2px rgba(210, 170, 92, 0.35),
+    inset 0 0 0 3cqw rgba(0, 0, 0, 0.1),
+    inset 0 0 0 calc(3cqw + 1px) rgba(210, 170, 92, 0.2),
+    0 3cqw 6cqw rgba(0, 0, 0, 0.45);
 }
 .table-center {
   display: grid;
@@ -631,7 +639,7 @@ body:has(.scene) .landscape::after {
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #c2ad80;
+  color: var(--brass);
 }
 .center-code {
   font-family: var(--font-heading-stack);
@@ -659,7 +667,7 @@ body:has(.scene) .landscape::after {
 .center-line {
   min-height: 1.3em;
   font-size: max(12px, 2.1cqw);
-  color: #dccdaa;
+  color: var(--brass-hi);
   line-height: 1.3;
   text-wrap: balance;
 }
@@ -677,13 +685,13 @@ body:has(.scene) .landscape::after {
   aspect-ratio: 1;
   padding: 0;
   border-radius: 50%;
-  border: 2px solid #6b5631;
-  background: radial-gradient(circle at 40% 35%, #4b4436, #23201a 70%);
-  box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.08), inset 0 -4px 10px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--stone-rim);
+  background: var(--stone);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
   font-family: var(--font-heading-stack);
   font-weight: 700;
   font-size: max(15px, 3.6cqw);
-  color: #efe3c4;
+  color: var(--brass-hi);
   cursor: pointer;
   transition: transform 0.15s;
 }
@@ -703,15 +711,15 @@ body:has(.scene) .landscape::after {
   animation: glow 2.4s ease-in-out infinite;
 }
 .medal.is-success {
-  background: radial-gradient(circle at 40% 35%, #5d8ed6, #1d3b6c 75%);
+  background: var(--loyal-fill);
   border-color: var(--loyal);
-  color: #eef4ff;
+  color: var(--loyal-hi);
   animation: pop 0.45s ease-out;
 }
 .medal.is-fail {
-  background: radial-gradient(circle at 40% 35%, #d0574d, #5a1814 75%);
+  background: var(--evil-fill);
   border-color: var(--evil);
-  color: #ffeae6;
+  color: var(--evil-hi);
   animation: pop 0.45s ease-out;
 }
 .medal-star {
@@ -737,7 +745,7 @@ body:has(.scene) .landscape::after {
   width: max(9px, 1.8cqw);
   aspect-ratio: 1;
   border-radius: 50%;
-  border: 1.5px solid #7c6640;
+  border: 1.5px solid var(--stone-rim);
 }
 .reject-pip.is-on {
   background: var(--brass);
@@ -784,13 +792,12 @@ body:has(.scene) .landscape::after {
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--tint);
-  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tint) 65%, white 25%), var(--tint) 70%);
-  border: 2px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
   font-family: var(--font-heading-stack);
   font-weight: 700;
   font-size: max(15px, 3.6cqw);
-  color: #f5f1e6;
+  color: var(--fg);
   transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
 }
 .seat-node:not(:disabled):hover .avatar {
@@ -798,7 +805,7 @@ body:has(.scene) .landscape::after {
   border-color: rgba(255, 255, 255, 0.45);
 }
 .seat-node.is-you .avatar {
-  border-color: #f5f1e6;
+  border-color: var(--fg);
 }
 .avatar.ring-evil {
   box-shadow: 0 0 0 3px var(--evil), 0 6px 14px rgba(0, 0, 0, 0.5);
@@ -849,7 +856,7 @@ body:has(.scene) .landscape::after {
   top: -4px;
   right: -8px;
   background: var(--loyal);
-  color: #0b1a33;
+  color: var(--loyal-card);
 }
 .badge-team {
   bottom: -4px;
@@ -869,13 +876,13 @@ body:has(.scene) .landscape::after {
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 .badge-vote.is-approve {
-  background: radial-gradient(circle at 38% 32%, #fbf4dd, #d9c99c 70%);
-  color: #2f4a26;
+  background: var(--parchment);
+  color: var(--parchment-ink);
 }
 .badge-vote.is-reject {
-  background: radial-gradient(circle at 38% 32%, #4a4a48, #161616 70%);
-  color: #e7dcc0;
-  border: 1px solid #5d5a52;
+  background: var(--iron);
+  color: var(--iron-ink);
+  border: 1px solid var(--iron-rim);
 }
 .seat-name {
   max-width: 100%;
@@ -926,7 +933,7 @@ body:has(.scene) .landscape::after {
 }
 .note-dot.is-trust {
   background: var(--loyal);
-  color: #0b1a33;
+  color: var(--loyal-card);
 }
 .note-dot.is-suspect {
   background: var(--evil);
@@ -987,9 +994,7 @@ body:has(.scene) .landscape::after {
   margin-top: 6px;
   padding: 22px 20px 24px;
   border-radius: 28px 28px 22px 22px;
-  background:
-    radial-gradient(120% 90% at 50% 0%, rgba(216, 176, 92, 0.1), transparent 60%),
-    linear-gradient(180deg, rgba(20, 33, 36, 0.92), rgba(12, 20, 22, 0.94));
+  background: var(--surface);
   border: 1px solid rgba(216, 176, 92, 0.35);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow);
   backdrop-filter: blur(10px);
@@ -1021,7 +1026,7 @@ body:has(.scene) .landscape::after {
 }
 .hand-text {
   max-width: 46ch;
-  color: #c8d4cf;
+  color: var(--fg);
 }
 .hand-text.small {
   font-size: 15px;
@@ -1072,16 +1077,16 @@ body:has(.scene) .landscape::after {
   transition: transform 0.18s, box-shadow 0.18s;
 }
 .vote-token.is-approve .token-face {
-  background: radial-gradient(circle at 38% 32%, #fbf4dd, #d9c99c 70%);
-  border: 4px solid #b3a271;
-  color: #2f4a26;
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.4), 0 10px 20px rgba(0, 0, 0, 0.5);
+  background: var(--parchment);
+  border: 4px solid var(--parchment);
+  color: var(--parchment-ink);
+  box-shadow: inset 0 0 0 3px var(--parchment), inset 0 0 0 5px rgba(52, 67, 42, 0.25), 0 8px 16px rgba(0, 0, 0, 0.35);
 }
 .vote-token.is-reject .token-face {
-  background: radial-gradient(circle at 38% 32%, #4a4a48, #161616 70%);
-  border: 4px solid #5d5a52;
-  color: #e7dcc0;
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.06), 0 10px 20px rgba(0, 0, 0, 0.5);
+  background: var(--iron);
+  border: 4px solid var(--iron-rim);
+  color: var(--iron-ink);
+  box-shadow: inset 0 0 0 3px var(--iron), inset 0 0 0 5px rgba(255, 255, 255, 0.08), 0 8px 16px rgba(0, 0, 0, 0.35);
 }
 .vote-token:hover:not(:disabled) .token-face {
   transform: translateY(-4px) rotate(-4deg);
@@ -1116,16 +1121,16 @@ body:has(.scene) .landscape::after {
 }
 .quest-choice.is-success {
   transform: rotate(-6deg);
-  background: linear-gradient(160deg, #3463a8, var(--loyal-deep));
+  background: var(--loyal-fill);
   border: 2px solid var(--loyal);
-  color: #eaf1ff;
+  color: var(--loyal-hi);
   box-shadow: inset 0 0 0 6px rgba(0, 0, 0, 0.18), inset 0 0 0 7px rgba(255, 255, 255, 0.18), 0 14px 26px rgba(0, 0, 0, 0.55);
 }
 .quest-choice.is-fail {
   transform: rotate(6deg);
-  background: linear-gradient(160deg, #a5352d, var(--evil-deep));
+  background: var(--evil-fill);
   border: 2px solid var(--evil);
-  color: #ffeae6;
+  color: var(--evil-hi);
   box-shadow: inset 0 0 0 6px rgba(0, 0, 0, 0.18), inset 0 0 0 7px rgba(255, 255, 255, 0.14), 0 14px 26px rgba(0, 0, 0, 0.55);
 }
 .quest-choice:hover:not(:disabled) {
@@ -1144,10 +1149,8 @@ body:has(.scene) .landscape::after {
 }
 .card-slot.is-in {
   border-style: solid;
-  border-color: #6b5631;
-  background:
-    repeating-linear-gradient(45deg, rgba(216, 176, 92, 0.2) 0 4px, transparent 4px 8px),
-    linear-gradient(160deg, #3a2c19, #1d150c);
+  border-color: var(--stone-rim);
+  background: var(--oak);
   animation: pop 0.35s ease-out;
 }
 
@@ -1226,11 +1229,11 @@ body:has(.scene) .landscape::after {
   animation: pop 0.5s ease-out;
 }
 .winner.is-good .winner-art {
-  background: radial-gradient(circle, rgba(123, 167, 234, 0.35), transparent 70%);
+  background: var(--loyal-soft);
   color: var(--loyal);
 }
 .winner.is-evil .winner-art {
-  background: radial-gradient(circle, rgba(226, 98, 90, 0.35), transparent 70%);
+  background: var(--evil-soft);
   color: var(--evil);
 }
 .winner h2 {
@@ -1492,14 +1495,14 @@ body:has(.scene) .landscape::after {
   animation: flip 0.55s ease-out backwards;
 }
 .quest-card.is-success {
-  background: linear-gradient(160deg, #3463a8, var(--loyal-deep));
+  background: var(--loyal-fill);
   border: 1.5px solid var(--loyal);
-  color: #eaf1ff;
+  color: var(--loyal-hi);
 }
 .quest-card.is-fail {
-  background: linear-gradient(160deg, #a5352d, var(--evil-deep));
+  background: var(--evil-fill);
   border: 1.5px solid var(--evil);
-  color: #ffeae6;
+  color: var(--evil-hi);
 }
 .vote-reveal {
   width: 100%;
@@ -1528,14 +1531,14 @@ body:has(.scene) .landscape::after {
   flex: none;
 }
 .mini-token.is-approve {
-  background: radial-gradient(circle at 38% 32%, #fbf4dd, #d9c99c 70%);
-  border: 2px solid #b3a271;
-  color: #2f4a26;
+  background: var(--parchment);
+  border: 2px solid var(--parchment);
+  color: var(--parchment-ink);
 }
 .mini-token.is-reject {
-  background: radial-gradient(circle at 38% 32%, #4a4a48, #161616 70%);
-  border: 2px solid #5d5a52;
-  color: #e7dcc0;
+  background: var(--iron);
+  border: 2px solid var(--iron-rim);
+  color: var(--iron-ink);
 }
 
 /* Seat details */
@@ -1686,12 +1689,12 @@ body:has(.scene) .landscape::after {
   text-align: center;
 }
 .role-card.is-good {
-  background: linear-gradient(180deg, #24416c, #111e2e 65%);
+  background: var(--loyal-card);
   border: 2px solid var(--loyal);
   box-shadow: inset 0 0 0 7px rgba(0, 0, 0, 0.2), inset 0 0 0 8px rgba(123, 167, 234, 0.35), 0 30px 60px rgba(0, 0, 0, 0.6);
 }
 .role-card.is-evil {
-  background: linear-gradient(180deg, #5c1d19, #1d1010 65%);
+  background: var(--evil-card);
   border: 2px solid var(--evil);
   box-shadow: inset 0 0 0 7px rgba(0, 0, 0, 0.2), inset 0 0 0 8px rgba(226, 98, 90, 0.35), 0 30px 60px rgba(0, 0, 0, 0.6);
 }
@@ -1713,14 +1716,14 @@ body:has(.scene) .landscape::after {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  color: #f2ecdc;
+  color: var(--fg);
 }
 .is-good .role-art {
-  background: radial-gradient(circle, rgba(123, 167, 234, 0.35), rgba(123, 167, 234, 0.05) 70%);
+  background: var(--loyal-soft);
   border: 1px solid rgba(123, 167, 234, 0.5);
 }
 .is-evil .role-art {
-  background: radial-gradient(circle, rgba(226, 98, 90, 0.35), rgba(226, 98, 90, 0.05) 70%);
+  background: var(--evil-soft);
   border: 1px solid rgba(226, 98, 90, 0.5);
 }
 .role-name {
@@ -1730,7 +1733,7 @@ body:has(.scene) .landscape::after {
   line-height: 1.05;
 }
 .role-blurb {
-  color: #d5ddd7;
+  color: var(--fg);
   max-width: 34ch;
 }
 .role-section {
@@ -1764,9 +1767,7 @@ body:has(.scene) .landscape::after {
   padding: 30px 22px;
   border-radius: 22px;
   border: 2px solid var(--brass);
-  background:
-    repeating-linear-gradient(45deg, rgba(216, 176, 92, 0.08) 0 10px, transparent 10px 20px),
-    radial-gradient(circle at 50% 40%, #3a2c19, #150f08 80%);
+  background: var(--oak);
   box-shadow: inset 0 0 0 8px rgba(0, 0, 0, 0.25), inset 0 0 0 9px rgba(216, 176, 92, 0.35), 0 30px 60px rgba(0, 0, 0, 0.6);
   color: var(--brass);
   cursor: pointer;
@@ -1783,7 +1784,7 @@ body:has(.scene) .landscape::after {
   height: 130px;
   border-radius: 50%;
   border: 2px solid rgba(216, 176, 92, 0.5);
-  background: radial-gradient(circle, rgba(216, 176, 92, 0.2), transparent 70%);
+  background: var(--brass-soft);
   transition: transform 0.2s;
 }
 .card-back-title {
@@ -1793,7 +1794,7 @@ body:has(.scene) .landscape::after {
 }
 .card-back-hint {
   max-width: 24ch;
-  color: #d8c9a6;
+  color: var(--brass-hi);
   font-size: 15px;
 }
 
@@ -1837,15 +1838,17 @@ body:has(.scene) .landscape::after {
 }
 
 /* ---------- Avatars ---------- */
-.avatar.has-icon {
-  background: var(--tint);
-  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tint) 55%, white 30%), var(--tint) 75%);
-}
 .avatar-icon {
-  font-size: 1.75em;
-  line-height: 1;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  display: grid;
+  place-items: center;
+  width: 70%;
+  height: 70%;
+  color: var(--fg);
+}
+.avatar-icon svg,
+.picker-icon svg {
+  width: 100%;
+  height: 100%;
 }
 .avatar-xl {
   width: 96px;
@@ -1903,10 +1906,11 @@ body:has(.scene) .landscape::after {
   display: grid;
   place-items: center;
   aspect-ratio: 1;
+  padding: 7px;
+  color: var(--fg);
   border-radius: 12px;
   border: 1px solid var(--line);
   background: rgba(6, 11, 12, 0.6);
-  font-size: 24px;
   cursor: pointer;
   transition: transform 0.12s, border-color 0.12s;
 }
