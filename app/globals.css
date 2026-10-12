@@ -40,6 +40,10 @@
   --iron-ink: #e3d8bf;
   /* Inputs and selects */
   --field: rgba(6, 11, 12, 0.7);
+  /* Scrollbars: a brass-dark thumb in the lake */
+  --scroll-thumb: var(--stone-rim);
+  --scroll-thumb-hover: #8a7244;
+  --scroll-track: var(--bg);
   --font-display-stack: var(--font-display), 'Luminari', 'Papyrus', serif;
   --font-heading-stack: var(--font-heading), 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --font-body-stack: var(--font-body), 'Gill Sans', 'Segoe UI', system-ui, sans-serif;
@@ -60,6 +64,38 @@ body {
   min-height: 100%;
   /* Fanned cards and seat badges may poke past the edge; never let them scroll the page sideways. */
   overflow-x: clip;
+}
+/* Scrollbars in the look's own colours. The page's bar sits on the ground; bars inside panels
+   (chat, drawers, sheets) float on whatever surface holds them. */
+html {
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+html * {
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+/* Safari doesn't know scrollbar-color yet. */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background: transparent;
+  }
+  html::-webkit-scrollbar {
+    background: var(--scroll-track);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 body {
   background: var(--bg);
