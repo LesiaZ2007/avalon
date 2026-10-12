@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "simulate": "node scripts/simulate.mjs"
+    "simulate": "node scripts/simulate.mjs",
+    "build:check": "node -e \"process.env.NEXT_DIST_DIR='.next-check'; require('child_process').execSync('next build', {stdio: 'inherit', env: process.env, shell: true})\""
   },
   "dependencies": {
     "next": "^15.5.0",

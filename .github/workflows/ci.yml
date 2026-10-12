@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Play simulated games against the production server
+        run: |
+          npx next start -p 3000 > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/ > /dev/null && break; sleep 1; done
+          npm run simulate
+      - name: Server log on failure
+        if: failure()
+        run: cat server.log

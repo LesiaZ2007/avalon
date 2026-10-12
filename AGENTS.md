@@ -41,14 +41,17 @@ Lady of the Lake and assassination. Deployed on Vercel.
 ## Commands
 
 ```bash
-npm run dev       # dev server on :3000 (rooms kept in memory)
-npm run build     # production build
-npm run simulate  # with the dev server running: plays 5 full games and checks the rules
+npm run dev          # dev server on :3000 (rooms kept in memory)
+npm run build        # production build (into .next; don't run while `next dev` is up)
+npm run build:check  # the same build into .next-check, safe while the dev server runs
+npm run simulate     # with a server running: plays full games (5-15 players) and checks the rules
 ```
 
 ## Before you commit
 
-`npm run build` must pass, and `npm run simulate` must pass against a running dev server.
+`npm run build:check` must pass, and `npm run simulate` must pass against a running dev server.
+GitHub Actions (`.github/workflows/ci.yml`) runs the same build and simulation on every push;
+check it went green after pushing.
 If either fails, fix it or say plainly that it fails and why. Never commit over a failure,
 and never report work as done without running both.
 
@@ -59,7 +62,8 @@ Changes to `lib/game.js` should come with a matching check in `scripts/simulate.
 Restart it after changes so they're visible locally.
 
 This repo lives inside OneDrive, which sometimes locks `.next` and makes Next.js fail with
-`EPERM`. Running `next build` while `next dev` is running also corrupts `.next`. The reliable
+`EPERM` or `EBUSY`. Running `next build` while `next dev` is running also corrupts `.next`, which
+is why `build:check` builds into `.next-check` instead. The reliable
 sequence:
 
 1. Stop the running server (find the PID on port 3000, then `taskkill /PID <pid> /F`).
