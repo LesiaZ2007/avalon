@@ -1,7 +1,7 @@
 import { Alegreya_SC, Alegreya_Sans, Big_Shoulders, UnifrakturMaguntia, Uncial_Antiqua } from 'next/font/google';
 import { Landscape } from '@/components/art';
 import Parallax from '@/components/Parallax';
-import { DEFAULT_THEME, PRINTED_THEMES, THEMES, THEME_KEY } from '@/lib/rules';
+import { DEFAULT_THEME, PRINTED_THEMES, THEMES } from '@/lib/rules';
 import './globals.css';
 import './themes.css';
 
@@ -25,19 +25,20 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#0b1315',
+  themeColor: THEMES[DEFAULT_THEME].chrome,
 };
-
-// Runs before first paint: put this device's last look on the page, so a loading or join screen
-// never flashes night first. The room's own look takes over once it loads (components/Theme.js).
-const themeScript = `try{var t=localStorage.getItem(${JSON.stringify(THEME_KEY)});if(${JSON.stringify(Object.keys(THEMES))}.indexOf(t)>-1){var r=document.documentElement;r.dataset.theme=t;if(${JSON.stringify(PRINTED_THEMES)}.indexOf(t)>-1)r.dataset.printed=''}}catch(e){}`;
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme={DEFAULT_THEME} suppressHydrationWarning className={`${display.variable} ${heading.variable} ${body.variable} ${plaque.variable} ${blackletter.variable}`}>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
+    // Every page starts in the default look, already in the HTML so nothing flashes. A room page
+    // switches to the room's look before it paints (components/RoomThemeScript.js).
+    <html
+      lang="en"
+      data-theme={DEFAULT_THEME}
+      data-printed={PRINTED_THEMES.includes(DEFAULT_THEME) ? '' : undefined}
+      suppressHydrationWarning
+      className={`${display.variable} ${heading.variable} ${body.variable} ${plaque.variable} ${blackletter.variable}`}
+    >
       <body>
         <Landscape />
         <Parallax />

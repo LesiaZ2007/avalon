@@ -7,6 +7,8 @@ import Avatar, { AvatarPicker } from '@/components/Avatar';
 import Fan from '@/components/Fan';
 import Tutorial from '@/components/Tutorial';
 import InstallButton from '@/components/InstallButton';
+import { useTheme } from '@/components/Theme';
+import { DEFAULT_THEME } from '@/lib/rules';
 
 const CAST = ['merlin', 'percival', 'servant', 'assassin', 'morgana', 'mordred', 'oberon'];
 
@@ -19,6 +21,7 @@ export default function Home() {
   const [avatar, setAvatar] = useState(null);
   const [picking, setPicking] = useState(false);
   const [learning, setLearning] = useState(false);
+  useTheme(DEFAULT_THEME);
 
   useEffect(() => {
     setName(loadName());
