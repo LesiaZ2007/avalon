@@ -87,6 +87,9 @@
   --font-heading-stack: var(--font-plaque-stack);
   --radius: 2px;
   --shadow: var(--p-shadow);
+  --scroll-thumb: var(--p-rule);
+  --scroll-thumb-hover: var(--p-ink-2);
+  --scroll-track: var(--p-page);
   color-scheme: light;
 }
 
