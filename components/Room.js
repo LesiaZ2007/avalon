@@ -13,6 +13,7 @@ import { Recap, Scoreboard, VoteSplit } from './Recap';
 import TimerBadge from './Timer';
 import { useTheme } from './Theme';
 import TvLink from './TvLink';
+import Celebration, { useCelebration } from './Celebration';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole, takenAvatars } from '@/lib/rules';
 
@@ -66,6 +67,8 @@ export default function Room({ view, act, netError }) {
   const [learning, setLearning] = useState(false);
   const [inspect, setInspect] = useState(null);
   const [recapOpen, setRecapOpen] = useState(false);
+  const [revealing, setRevealing] = useState(false);
+  const celebrating = useCelebration(view, revealing);
   const wide = useWide();
   const names = useMemo(() => Object.fromEntries(view.players.map((p) => [p.id, p.name])), [view.players]);
   const nameOf = (id) => names[id] ?? 'Someone';
@@ -101,7 +104,7 @@ export default function Room({ view, act, netError }) {
   useTheme(view.settings?.theme);
 
   return (
-    <main className={`scene phase-${view.phase}`}>
+    <main className={`scene phase-${view.phase}${celebrating ? ` fx-${celebrating}` : ''}`}>
       <TopBar
         view={view}
         unread={unread}
@@ -157,7 +160,8 @@ export default function Room({ view, act, netError }) {
       {inspect && !g && view.players.some((p) => p.id === inspect) && (
         <LobbySeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} onClose={() => setInspect(null)} />
       )}
-      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => setRoleOpen(true)} />
+      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => setRoleOpen(true)} onShown={setRevealing} />
+      <Celebration side={celebrating} />
       {learning && <Tutorial onClose={() => setLearning(false)} />}
     </main>
   );
@@ -1143,11 +1147,13 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
   );
 }
 
-export function EventOverlay({ view, nameOf, avatarOf, onRole, tv = false }) {
+export function EventOverlay({ view, nameOf, avatarOf, onRole, onShown, tv = false }) {
   const ev = view.event;
   const [shown, setShown] = useState(null);
   const handled = useRef(null);
   const key = `avalon:${tv ? 'tv-event' : 'event'}:${view.code}`;
+  // Lets the end-of-game celebration wait for the final reveal to finish.
+  useEffect(() => onShown?.(!!shown), [shown, onShown]);
 
   useEffect(() => {
     if (!ev) {
@@ -1170,11 +1176,13 @@ export function EventOverlay({ view, nameOf, avatarOf, onRole, tv = false }) {
     if (ev.type === 'vote' || ev.type === 'quest' || (ev.type === 'start' && !tv)) setShown(ev);
   }, [ev?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The reveal that ends the game steps aside sooner, for the celebration (components/Celebration.js).
+  const final = view.phase === 'over';
   useEffect(() => {
     if (!shown || shown.type === 'start') return;
-    const t = setTimeout(() => setShown(null), 10000);
+    const t = setTimeout(() => setShown(null), final ? 5000 : 10000);
     return () => clearTimeout(t);
-  }, [shown]);
+  }, [shown, final]);
 
   if (!shown) return null;
   const close = () => setShown(null);

@@ -7,6 +7,7 @@ import { EventOverlay, QuestRow, waitingOn } from './Room';
 import { inkColor, tintColor } from './Avatar';
 import { useTheme } from './Theme';
 import TimerBadge from './Timer';
+import Celebration, { useCelebration } from './Celebration';
 import { api } from '@/lib/client';
 import { MAX_PLAYERS, MIN_PLAYERS, ROLES, isEvilRole } from '@/lib/rules';
 
@@ -69,6 +70,8 @@ export default function TvView({ code }) {
 
   const names = useMemo(() => Object.fromEntries((view?.players ?? []).map((p) => [p.id, p])), [view?.players]);
   useTheme(view?.settings?.theme);
+  const [revealing, setRevealing] = useState(false);
+  const celebrating = useCelebration(view, revealing, { tv: true });
   const nameOf = (id) => names[id]?.name ?? 'Someone';
   const avatarOf = (id) => names[id]?.avatar;
 
@@ -151,7 +154,7 @@ export default function TvView({ code }) {
       }[view.phase];
 
   return (
-    <main className={`tv phase-${view.phase}`}>
+    <main className={`tv phase-${view.phase}${celebrating ? ` fx-${celebrating}` : ''}`}>
       <div className="tv-table">
         <RoundTable
           seats={seats}
@@ -224,7 +227,8 @@ export default function TvView({ code }) {
         </ol>
       </aside>
 
-      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} tv />
+      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} onShown={setRevealing} tv />
+      <Celebration side={celebrating} />
     </main>
   );
 }

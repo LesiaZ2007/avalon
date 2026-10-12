@@ -2486,6 +2486,274 @@ body:has(.scene) .landscape::after {
   }
 }
 
+/* ---------- End of game (components/Celebration.js) ----------
+   One pass over the whole screen, never in the way of a tap. Every layer rests invisible, so
+   with reduced motion (which stops every animation) nothing shows at all. */
+.fx {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fx-wash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.fx.is-good .fx-wash {
+  background: var(--brass-hi);
+  animation: fx-flash 1.5s ease-out;
+}
+.fx.is-evil .fx-wash {
+  background: var(--evil);
+  box-shadow: inset 0 0 18vmax 6vmax var(--evil-card);
+  animation: fx-flood 4.6s ease-out;
+}
+.fx-ring {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 30vmin;
+  height: 30vmin;
+  margin: -15vmin 0 0 -15vmin;
+  border: 3px solid var(--brass-hi);
+  border-radius: 50%;
+  opacity: 0;
+  animation: fx-ring 1.7s ease-out;
+}
+.fx-ring.is-late {
+  border-color: var(--loyal-hi);
+  animation-delay: 0.3s;
+}
+.fx-slash {
+  position: absolute;
+  top: 42%;
+  left: -20vw;
+  right: -20vw;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--evil-hi);
+  box-shadow: 0 0 18px var(--evil);
+  opacity: 0;
+  transform-origin: left center;
+  --tilt: -24deg;
+  animation: fx-slash 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s;
+}
+.fx-slash.is-late {
+  transform-origin: right center;
+  --tilt: 24deg;
+  animation-delay: 0.34s;
+}
+.fx-bit {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: var(--size);
+  height: calc(var(--size) * 1.6);
+  opacity: 0;
+  animation: fx-fall var(--dur) cubic-bezier(0.25, 0.4, 0.45, 1) var(--delay);
+}
+.fx-bit i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  animation: fx-flutter 0.45s ease-in-out var(--delay) infinite alternate;
+}
+.fx.is-good .fx-bit:nth-child(4n + 1) {
+  color: var(--loyal);
+}
+.fx.is-good .fx-bit:nth-child(4n + 2) {
+  color: var(--brass);
+}
+.fx.is-good .fx-bit:nth-child(4n + 3) {
+  color: var(--loyal-hi);
+}
+.fx.is-good .fx-bit:nth-child(4n) {
+  color: var(--brass-hi);
+}
+.fx.is-evil .fx-bit {
+  top: auto;
+  bottom: 0;
+  height: var(--size);
+  animation-name: fx-rise;
+}
+.fx.is-evil .fx-bit i {
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  animation-name: fx-flicker;
+  animation-duration: 0.3s;
+}
+.fx.is-evil .fx-bit:nth-child(3n + 1) {
+  color: var(--evil);
+}
+.fx.is-evil .fx-bit:nth-child(3n + 2) {
+  color: var(--evil-hi);
+}
+.fx.is-evil .fx-bit:nth-child(3n) {
+  color: var(--brass);
+}
+.fx-title {
+  position: absolute;
+  top: 30%;
+  left: 16px;
+  right: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  opacity: 0;
+  animation: fx-title 3.6s ease-out 0.25s;
+}
+.fx.is-good .fx-title {
+  color: var(--loyal-hi);
+}
+.fx.is-evil .fx-title {
+  color: var(--evil-hi);
+}
+.fx-art {
+  display: grid;
+  place-items: center;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  box-shadow: 0 0 0 3px currentColor, 0 0 40px currentColor;
+}
+.fx-title p {
+  margin: 0;
+  font-family: var(--font-display-stack);
+  font-size: clamp(40px, 11vw, 96px);
+  line-height: 1;
+  text-shadow: 0 2px 0 var(--bg), 0 0 18px var(--bg), 0 0 36px var(--bg);
+}
+/* The table shakes when evil wins. `translate` leaves the table's own transform alone. */
+.fx-evil .table-wrap {
+  animation: fx-quake 0.6s linear 0.15s;
+}
+
+@keyframes fx-flash {
+  10% {
+    opacity: 0.45;
+  }
+}
+@keyframes fx-flood {
+  7% {
+    opacity: 0.6;
+  }
+  17% {
+    opacity: 0.28;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  45% {
+    opacity: 0.32;
+  }
+}
+@keyframes fx-ring {
+  from {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(4.5);
+    opacity: 0;
+  }
+}
+@keyframes fx-slash {
+  0% {
+    transform: rotate(var(--tilt)) scaleX(0);
+    opacity: 1;
+  }
+  30% {
+    transform: rotate(var(--tilt)) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--tilt)) scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes fx-fall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--sway), 105vh, 0) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+@keyframes fx-flutter {
+  to {
+    transform: scaleY(0.2);
+  }
+}
+@keyframes fx-rise {
+  0% {
+    transform: translate3d(0, 6vh, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--sway), -95vh, 0);
+    opacity: 0;
+  }
+}
+@keyframes fx-flicker {
+  to {
+    opacity: 0.4;
+  }
+}
+@keyframes fx-title {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  12% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(1);
+  }
+  82% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 0;
+  }
+}
+@keyframes fx-quake {
+  10%,
+  90% {
+    translate: -2px 0;
+  }
+  20%,
+  80% {
+    translate: 4px 1px;
+  }
+  30%,
+  50%,
+  70% {
+    translate: -8px -1px;
+  }
+  40%,
+  60% {
+    translate: 8px 1px;
+  }
+}
+
 /* ---------- Scores and recap ---------- */
 .tally {
   display: grid;
