@@ -157,7 +157,7 @@ export default function TvView({ code }) {
 
   return (
     <>
-      <main className={`tv phase-${view.phase}`}>
+      <main className={`tv phase-${view.phase}${celebrating ? ` fx-${celebrating}` : ''}`}>
         <div className="tv-table">
           <RoundTable
             seats={seats}
@@ -241,7 +241,8 @@ export default function TvView({ code }) {
           </ol>
         </aside>
 
-        <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} tv />
+        <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} onShown={setRevealing} tv />
+        <Celebration side={celebrating} />
       </main>
       {recap && (
         <div className="tv-recap" id="recap">
