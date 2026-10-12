@@ -308,7 +308,7 @@ const STEPS = [
             <Grail size={26} />
           </span>
           <span>
-            <strong>The chronicle</strong> lists every proposal, vote and quest result in order.
+            <strong>The chronicle</strong> lists every proposal and quest result in order. Who voted which way is yours to remember.
           </span>
         </li>
       </ul>
