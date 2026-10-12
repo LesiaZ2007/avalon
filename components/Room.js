@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LobbyHand, LobbyTable } from './Lobby';
-import RoundTable, { initials, tintFor } from './RoundTable';
+import RoundTable from './RoundTable';
+import Avatar, { AvatarPicker } from './Avatar';
+import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
@@ -60,6 +62,12 @@ export default function Room({ view, act, netError }) {
   const wide = useWide();
   const names = useMemo(() => Object.fromEntries(view.players.map((p) => [p.id, p.name])), [view.players]);
   const nameOf = (id) => names[id] ?? 'Someone';
+  const avatars = useMemo(() => Object.fromEntries(view.players.map((p) => [p.id, p.avatar])), [view.players]);
+  const avatarOf = (id) => avatars[id];
+  const setAvatar = (avatar) => {
+    saveAvatar(avatar);
+    act({ type: 'avatar', avatar });
+  };
   const g = view.game;
   const [notes, setNote] = useNotes(view.code, g?.id);
 
@@ -94,7 +102,7 @@ export default function Room({ view, act, netError }) {
         {view.phase === 'lobby' ? (
           <div className="stage">
             <div className="table-zone">
-              <LobbyTable view={view} nameOf={nameOf} />
+              <LobbyTable view={view} nameOf={nameOf} avatarOf={avatarOf} onInspect={setInspect} />
               <ReactionBar act={act} />
             </div>
             <section className="hand" aria-label="Lobby">
@@ -102,7 +110,7 @@ export default function Room({ view, act, netError }) {
             </section>
           </div>
         ) : (
-          <GameStage view={view} act={act} nameOf={nameOf} notes={notes} onInspect={setInspect} />
+          <GameStage view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} notes={notes} onInspect={setInspect} />
         )}
 
         <aside className={`drawer drawer-chat ${drawer === 'chat' ? 'is-open' : ''}`} aria-label="Table talk">
@@ -118,7 +126,12 @@ export default function Room({ view, act, netError }) {
       {drawer && <button className="drawer-scrim" aria-label="Close panel" onClick={() => setDrawer(null)} />}
 
       {roleOpen && g?.myRole && <RoleModal view={view} nameOf={nameOf} onClose={() => setRoleOpen(false)} />}
-      {inspect && g && <SeatSheet view={view} id={inspect} nameOf={nameOf} note={notes[inspect]} setNote={setNote} onClose={() => setInspect(null)} />}
+      {inspect && g && (
+        <SeatSheet view={view} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} note={notes[inspect]} setNote={setNote} onClose={() => setInspect(null)} />
+      )}
+      {inspect && !g && view.players.some((p) => p.id === inspect) && (
+        <LobbySeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} onClose={() => setInspect(null)} />
+      )}
       <EventOverlay view={view} nameOf={nameOf} onRole={() => setRoleOpen(true)} />
     </main>
   );
@@ -189,7 +202,7 @@ function pickRules(view) {
   return null;
 }
 
-function GameStage({ view, act, nameOf, notes, onInspect }) {
+function GameStage({ view, act, nameOf, avatarOf, notes, onInspect }) {
   const g = view.game;
   const rules = pickRules(view);
   const leaderPicking = view.phase === 'team' && g.leader === view.you;
@@ -214,7 +227,7 @@ function GameStage({ view, act, nameOf, notes, onInspect }) {
   return (
     <div className="stage">
       <div className="table-zone">
-        <GameTable view={view} nameOf={nameOf} rules={rules} picked={picked} setPicked={setPicked} notes={notes} onInspect={onInspect} />
+        <GameTable view={view} nameOf={nameOf} avatarOf={avatarOf} rules={rules} picked={picked} setPicked={setPicked} notes={notes} onInspect={onInspect} />
         <ReactionBar act={act} />
       </div>
       <section className="hand" aria-label="Your move">
@@ -249,7 +262,7 @@ function QuestRow({ view, open, setOpen }) {
   );
 }
 
-function GameTable({ view, nameOf, rules, picked, setPicked, notes, onInspect }) {
+function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, onInspect }) {
   const g = view.game;
   const [open, setOpen] = useState(null);
   useEffect(() => {
@@ -327,6 +340,7 @@ function GameTable({ view, nameOf, rules, picked, setPicked, notes, onInspect })
     <RoundTable
       seats={g.seats}
       nameOf={nameOf}
+      avatarOf={avatarOf}
       you={view.you}
       info={info}
       reactions={view.reactions}
@@ -622,7 +636,61 @@ function RoleModal({ view, nameOf, onClose }) {
   );
 }
 
-function SeatSheet({ view, id, nameOf, note, setNote, onClose }) {
+/** Tapping a seat in the lobby: your own seat changes your avatar; the host can remove others. */
+function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose }) {
+  const isMe = id === view.you;
+  const [confirm, setConfirm] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+  useEffect(() => {
+    if (!confirm) return;
+    const t = setTimeout(() => setConfirm(false), 4000);
+    return () => clearTimeout(t);
+  }, [confirm]);
+
+  async function remove() {
+    if (!confirm) return setConfirm(true);
+    setBusy(true);
+    if (await act({ type: 'kick', target: id })) onClose();
+    setBusy(false);
+  }
+
+  return (
+    <div className="overlay overlay-sheet" onClick={onClose} role="dialog" aria-modal="true" aria-label={isMe ? 'Your avatar' : nameOf(id)}>
+      <div className="sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="sheet-head">
+          <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-lg" />
+          <div>
+            <h2>{isMe ? 'Your seat' : nameOf(id)}</h2>
+            <p className="muted small">{isMe ? 'Pick a creature and a colour. Everyone at the table sees it.' : id === view.hostId ? 'Host' : 'Waiting at the table'}</p>
+          </div>
+          <button className="btn btn-sm btn-ghost" onClick={onClose}>
+            {isMe ? 'Done' : 'Close'}
+          </button>
+        </div>
+        {isMe ? (
+          <AvatarPicker avatar={avatarOf(id)} name={nameOf(id)} onChange={setAvatar} />
+        ) : (
+          <div className="kick">
+            <p className="muted">
+              Removing {nameOf(id)} sends them back to the join screen. They can rejoin with the room code while you&rsquo;re still in the lobby.
+            </p>
+            <button className={`btn btn-lg btn-block ${confirm ? 'btn-evil' : 'btn-ghost'}`} disabled={busy} onClick={remove}>
+              {confirm ? `Tap again to remove ${nameOf(id)}` : `Remove ${nameOf(id)} from the room`}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SeatSheet({ view, id, nameOf, avatarOf, setAvatar, note, setNote, onClose }) {
   const g = view.game;
   const seatIdx = g.seats.indexOf(id);
   const proposals = g.history.map((h, i) => ({ ...h, n: g.history.filter((x, j) => j <= i && x.quest === h.quest).length }));
@@ -642,9 +710,7 @@ function SeatSheet({ view, id, nameOf, note, setNote, onClose }) {
     <div className="overlay overlay-sheet" onClick={onClose} role="dialog" aria-modal="true" aria-label={`${nameOf(id)}'s record`}>
       <div className="sheet" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-head">
-          <span className="avatar avatar-lg" style={{ '--tint': tintFor(seatIdx) }}>
-            {initials(nameOf(id))}
-          </span>
+          <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-lg" />
           <div>
             <h2>
               {nameOf(id)} {id === view.you && <span className="muted">(you)</span>}
@@ -676,6 +742,13 @@ function SeatSheet({ view, id, nameOf, note, setNote, onClose }) {
             <span>teams proposed</span>
           </div>
         </div>
+
+        {id === view.you && (
+          <div className="note-picker">
+            <p className="eyebrow">Your avatar</p>
+            <AvatarPicker avatar={avatarOf(id)} name={nameOf(id)} onChange={setAvatar} />
+          </div>
+        )}
 
         {id !== view.you && !role && (
           <div className="note-picker">

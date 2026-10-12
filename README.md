@@ -24,6 +24,8 @@ Each room is one tabletop scene rather than a page of boxes.
 - **Live team building.** As the leader taps seats, everyone watches the shields appear. The team forms in front of the table instead of arriving all at once.
 - **Last vote on the seats.** While a quest is underway, or after a team is rejected, each seat shows how that player voted. Reading votes is most of the game, so the votes stay where people are looking.
 - **Player records.** Tap anyone to see every vote they cast, the quests they joined, and how many of those failed. You can mark them **Trust** or **Suspect**. Your marks are private and stay on your phone for that game only.
+- **Avatars.** Pick a creature and a colour before you create or join a room, or keep your initials. Your phone remembers the choice for next time. Tap your own seat at any point to change it.
+- **Removing players.** In the lobby, the host taps a player's seat and taps *Remove* twice. The second tap is there so nobody gets kicked by a stray touch. The removed player is told why they're back at the join screen, and can rejoin with the code while the room is still in the lobby. Players can't be removed mid-game, because their seat holds a secret role; the host can end the game early from the chronicle instead.
 - **Reactions.** Emoji pop up over your seat for the whole table, for when a vote goes sideways.
 - **Your role** is dealt face down. Tap to turn it over, so you choose when to look.
 - **Table talk** (chat) is docked on wide screens and slides in from the side on phones. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play.

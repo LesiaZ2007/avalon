@@ -13,14 +13,19 @@ const ROLE_HINTS = {
   oberon: 'Evil, but unknown to the other evil players.',
 };
 
-export function LobbyTable({ view, nameOf }) {
+export function LobbyTable({ view, nameOf, avatarOf, onInspect }) {
   const count = view.players.length;
+  const isHost = view.hostId === view.you;
   const needed = Math.max(0, MIN_PLAYERS - count);
   return (
     <RoundTable
       seats={view.players.map((p) => p.id)}
       nameOf={nameOf}
+      avatarOf={avatarOf}
       you={view.you}
+      onInspect={onInspect}
+      canInspect={(id) => id === view.you || isHost}
+      inspectLabel={(name, id) => (id === view.you ? 'Change your avatar' : `Remove ${name}`)}
       reactions={view.reactions}
       info={(id) => ({ leader: id === view.hostId })}
       center={
@@ -120,23 +125,9 @@ export function LobbyHand({ view, act }) {
         </button>
       </div>
 
-      {isHost && count > 1 && (
-        <details className="manage">
-          <summary>Remove a player</summary>
-          <ul>
-            {view.players
-              .filter((p) => p.id !== view.you)
-              .map((p) => (
-                <li key={p.id}>
-                  <span>{p.name}</span>
-                  <button className="btn btn-sm btn-ghost" onClick={() => act({ type: 'kick', target: p.id })}>
-                    Remove
-                  </button>
-                </li>
-              ))}
-          </ul>
-        </details>
-      )}
+      <p className="hand-text small">
+        {isHost && count > 1 ? 'Tap a player’s seat to remove them, or your own to change your avatar.' : 'Tap your seat to change your avatar.'}
+      </p>
     </div>
   );
 }

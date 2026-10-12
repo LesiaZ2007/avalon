@@ -1836,6 +1836,117 @@ body:has(.scene) .landscape::after {
   font-size: 28px;
 }
 
+/* ---------- Avatars ---------- */
+.avatar.has-icon {
+  background: var(--tint);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tint) 55%, white 30%), var(--tint) 75%);
+}
+.avatar-icon {
+  font-size: 1.75em;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+.avatar-xl {
+  width: 96px;
+  font-size: 34px;
+}
+.identity {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+}
+.identity .field {
+  flex: 1;
+  min-width: 0;
+}
+.identity-avatar {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.identity-avatar:hover .avatar {
+  transform: translateY(-2px) rotate(-4deg);
+}
+.identity-edit {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brass-hi);
+}
+.picker {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.28);
+  animation: rise 0.25s ease-out;
+}
+.picker-preview {
+  display: grid;
+  place-items: center;
+}
+.picker-preview .avatar {
+  animation: pop 0.3s ease-out;
+}
+.picker-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 6px;
+}
+.picker-icon {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(6, 11, 12, 0.6);
+  font-size: 24px;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+.picker-icon:hover {
+  transform: scale(1.08);
+}
+.picker-icon[aria-checked='true'] {
+  border-color: var(--brass);
+  background: var(--brass-soft);
+  box-shadow: inset 0 0 0 1px var(--brass);
+}
+.picker-initials {
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--fg);
+}
+.picker-tints {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.picker-tint {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--tint);
+  cursor: pointer;
+}
+.picker-tint[aria-checked='true'] {
+  border-color: var(--fg);
+  box-shadow: 0 0 0 3px var(--brass);
+}
+.kick {
+  display: grid;
+  gap: 14px;
+}
+
 /* ---------- Motion ---------- */
 @keyframes fade {
   from {

@@ -1,27 +1,28 @@
 'use client';
 
 import { ApproveMark, Check, Crown, LadyDrop, RejectMark, ShieldMark } from './art';
-
-// Muted heraldic tints, so seats are easy to tell apart without suggesting a team colour.
-const TINTS = ['#3e5b6b', '#5b4b6f', '#4f6348', '#6c5a3d', '#3e5f5a', '#6a4b57', '#4a5678', '#5e6440', '#55606c', '#6f5147'];
-
-export const initials = (name) =>
-  name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase();
-
-export const tintFor = (index) => TINTS[index % TINTS.length];
+import Avatar from './Avatar';
 
 /**
  * Players seated clockwise around a round table, starting at the top.
  * `info(id)` describes a seat: { leader, lady, team, picked, done, vote, note, ring, tag, tagKind, muted }.
- * Seats call `onPick` while choosing (team, Lady, Assassin) and `onInspect` otherwise.
+ * Seats call `onPick` while choosing (team, Lady, Assassin), and otherwise `onInspect` for the
+ * seats `canInspect` allows.
  */
-export default function RoundTable({ seats, nameOf, you, info = () => ({}), center, onPick, canPick = () => false, onInspect, reactions = {} }) {
+export default function RoundTable({
+  seats,
+  nameOf,
+  avatarOf = () => null,
+  you,
+  info = () => ({}),
+  center,
+  onPick,
+  canPick = () => false,
+  onInspect,
+  canInspect = () => true,
+  inspectLabel = (name) => `${name}: details`,
+  reactions = {},
+}) {
   const n = seats.length;
   const radius = n <= 6 ? 37 : 39.5;
 
@@ -37,10 +38,10 @@ export default function RoundTable({ seats, nameOf, you, info = () => ({}), cent
         const s = info(id);
         const picking = Boolean(onPick);
         const pickable = picking && canPick(id);
-        const clickable = pickable || (!picking && onInspect);
+        const clickable = pickable || (!picking && onInspect && canInspect(id));
         const name = nameOf(id);
         const reaction = reactions[id];
-        const label = pickable ? `${s.picked ? 'Remove' : 'Choose'} ${name}` : `${name}: details`;
+        const label = pickable ? `${s.picked ? 'Remove' : 'Choose'} ${name}` : clickable ? inspectLabel(name, id) : name;
         return (
           <button
             key={id}
@@ -61,8 +62,7 @@ export default function RoundTable({ seats, nameOf, you, info = () => ({}), cent
             aria-pressed={pickable ? !!s.picked : undefined}
             aria-label={label}
           >
-            <span className={`avatar ${s.ring ? `ring-${s.ring}` : ''}`} style={{ '--tint': tintFor(i) }}>
-              {initials(name)}
+            <Avatar avatar={avatarOf(id)} name={name} className={s.ring ? `ring-${s.ring}` : ''}>
               {s.leader && (
                 <span className="badge-icon badge-leader" title="Leader">
                   <Crown size={20} />
@@ -88,7 +88,7 @@ export default function RoundTable({ seats, nameOf, you, info = () => ({}), cent
                   {s.vote ? <ApproveMark size={16} /> : <RejectMark size={16} />}
                 </span>
               )}
-            </span>
+            </Avatar>
             {reaction && (
               <span key={reaction.n} className="bubble" aria-hidden="true">
                 {reaction.emoji}

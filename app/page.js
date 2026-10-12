@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, loadName, saveName, saveSeat } from '@/lib/client';
+import { api, loadAvatar, loadName, saveAvatar, saveName, saveSeat } from '@/lib/client';
+import Avatar, { AvatarPicker } from '@/components/Avatar';
 import Fan from '@/components/Fan';
 
 const CAST = ['merlin', 'percival', 'servant', 'assassin', 'morgana', 'mordred', 'oberon'];
@@ -13,8 +14,17 @@ export default function Home() {
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [avatar, setAvatar] = useState(null);
+  const [picking, setPicking] = useState(false);
 
-  useEffect(() => setName(loadName()), []);
+  useEffect(() => {
+    setName(loadName());
+    setAvatar(loadAvatar() ?? { icon: null, tint: Math.floor(Math.random() * 10) });
+  }, []);
+  const chooseAvatar = (next) => {
+    setAvatar(next);
+    saveAvatar(next);
+  };
 
   async function enter(action) {
     setError('');
@@ -23,7 +33,7 @@ export default function Home() {
     setBusy(action);
     try {
       saveName(name.trim());
-      const seat = await api('/api/room', { method: 'POST', body: { action, name, code } });
+      const seat = await api('/api/room', { method: 'POST', body: { action, name, code, avatar } });
       saveSeat(seat.code, { playerId: seat.playerId, token: seat.token });
       router.push(`/r/${seat.code}`);
     } catch (err) {
@@ -45,10 +55,17 @@ export default function Home() {
       </div>
 
       <section className="gate" aria-label="Start or join a game">
-        <div className="field">
-          <label htmlFor="name">Your name</label>
-          <input id="name" className="input" value={name} maxLength={20} autoComplete="nickname" placeholder="e.g. Gawain" onChange={(e) => setName(e.target.value)} />
+        <div className="identity">
+          <button type="button" className="identity-avatar" onClick={() => setPicking((p) => !p)} aria-expanded={picking} aria-label="Choose your avatar">
+            <Avatar avatar={avatar} name={name || '?'} className="avatar-lg" />
+            <span className="identity-edit">{picking ? 'Done' : 'Change'}</span>
+          </button>
+          <div className="field">
+            <label htmlFor="name">Your name</label>
+            <input id="name" className="input" value={name} maxLength={20} autoComplete="nickname" placeholder="e.g. Gawain" onChange={(e) => setName(e.target.value)} />
+          </div>
         </div>
+        {picking && <AvatarPicker avatar={avatar} name={name} onChange={chooseAvatar} />}
 
         <div className="gate-col">
           <p className="gate-title">Host a game</p>

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { api, clearSeat, loadName, loadSeat, saveName, saveSeat } from '@/lib/client';
+import { api, clearSeat, loadAvatar, loadName, loadSeat, saveName, saveSeat } from '@/lib/client';
 import Room from '@/components/Room';
 
 export default function RoomPage() {
@@ -16,6 +16,7 @@ export default function RoomPage() {
   const [status, setStatus] = useState('loading'); // loading | ok | missing
   const [netError, setNetError] = useState('');
   const [toast, setToast] = useState('');
+  const [removed, setRemoved] = useState(false);
   const versionRef = useRef(null);
 
   useEffect(() => setSeat(loadSeat(code)), [code]);
@@ -43,6 +44,7 @@ export default function RoomPage() {
         if (stopped) return;
         if (err.status === 403) {
           running = false;
+          setRemoved(true);
           clearSeat(code);
           versionRef.current = null;
           setView(null);
@@ -108,7 +110,17 @@ export default function RoomPage() {
     );
   }
 
-  if (seat === null) return <JoinHere code={code} onJoined={setSeat} />;
+  if (seat === null)
+    return (
+      <JoinHere
+        code={code}
+        notice={removed ? 'You’re no longer in this room. The host may have removed you; you can rejoin while they’re in the lobby.' : ''}
+        onJoined={(s) => {
+          setRemoved(false);
+          setSeat(s);
+        }}
+      />
+    );
 
   if (!view) {
     return (
@@ -132,7 +144,7 @@ export default function RoomPage() {
   );
 }
 
-function JoinHere({ code, onJoined }) {
+function JoinHere({ code, notice, onJoined }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -145,7 +157,7 @@ function JoinHere({ code, onJoined }) {
     setBusy(true);
     try {
       saveName(name.trim());
-      const seat = await api('/api/room', { method: 'POST', body: { action: 'join', code, name } });
+      const seat = await api('/api/room', { method: 'POST', body: { action: 'join', code, name, avatar: loadAvatar() } });
       const s = { playerId: seat.playerId, token: seat.token };
       saveSeat(code, s);
       onJoined(s);
@@ -159,6 +171,7 @@ function JoinHere({ code, onJoined }) {
     <main className="shell">
       <form className="panel" style={{ maxWidth: 440, margin: '8vh auto 0' }} onSubmit={join}>
         <p className="eyebrow">Room {code}</p>
+        {notice && <p className="banner">{notice}</p>}
         <h2>Take a seat</h2>
         <div className="field">
           <label htmlFor="join-name">Your name</label>

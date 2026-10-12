@@ -27,6 +27,27 @@ async function game(n, mode, lady, strategy) {
   const act = (p, body) => call(`/api/room/${code}`, { token: p.token, body });
   const v = async (p) => (await call(`/api/room/${code}`, { token: p.token })).data;
 
+  if (n < 10) {
+    // Avatars: a valid choice is kept, junk falls back to initials, and anyone can change theirs.
+    const extra = await call('/api/room', { body: { action: 'join', code, name: 'Extra', avatar: { icon: '🐉', tint: 3 } } });
+    assert(extra.status === 200, 'join with avatar');
+    let lobby = await v(players[0]);
+    const seen = lobby.players.find((p) => p.id === extra.data.playerId);
+    assert(seen.avatar.icon === '🐉' && seen.avatar.tint === 3, 'avatar kept');
+    await act(players[1], { type: 'avatar', avatar: { icon: '<script>', tint: 99 } });
+    lobby = await v(players[0]);
+    const junk = lobby.players.find((p) => p.id === players[1].playerId).avatar;
+    assert(junk.icon === null && junk.tint >= 0 && junk.tint < 10, 'junk avatar cleaned');
+    await act(players[1], { type: 'avatar', avatar: { icon: '🦉', tint: 0 } });
+    assert((await v(players[0])).players.find((p) => p.id === players[1].playerId).avatar.icon === '🦉', 'avatar changed');
+
+    // Kicking: only the host can, and the removed player loses access.
+    assert((await act(players[1], { type: 'kick', target: extra.data.playerId })).status === 400, 'nonhost kick');
+    assert((await act(players[0], { type: 'kick', target: extra.data.playerId })).status === 200, 'host kick');
+    assert((await call(`/api/room/${code}`, { token: extra.data.token })).status === 403, 'kicked player locked out');
+    assert(!(await v(players[0])).players.some((p) => p.id === extra.data.playerId), 'kicked player gone');
+  }
+
   // non-host can't start
   assert((await act(players[1], { type: 'start' })).status === 400, 'nonhost start');
   await act(players[0], { type: 'settings', mode, lady });
