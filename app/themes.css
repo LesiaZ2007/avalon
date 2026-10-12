@@ -1,7 +1,7 @@
 /* The room's looks, chosen by the host (data-theme on <html>).
 
-   night (the default) is globals.css exactly as written: the lake at night, oak and brass.
-   parchment is a skin over the very same layout. They change colour, typeface,
+   night is globals.css exactly as written: the lake at night, oak and brass.
+   parchment (the default) is a skin over the very same layout. They change colour, typeface,
    background, texture, corner shape and shadow, and never a size, padding, margin, gap or
    border width, so every look lays out identically. Every rule is scoped to [data-printed]
    (set for parchment), so night is untouched.

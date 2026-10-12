@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTheme } from '@/components/Theme';
+import { DEFAULT_THEME } from '@/lib/rules';
 
 /** Type a room code on a TV or laptop to show that table, at any point in the game. */
 export default function TvStart() {
   const router = useRouter();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  useTheme(DEFAULT_THEME);
 
   function submit(e) {
     e.preventDefault();
