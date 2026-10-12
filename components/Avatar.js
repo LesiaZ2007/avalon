@@ -33,8 +33,11 @@ export default function Avatar({ avatar, name, className = '', children, ...rest
   );
 }
 
-/** Pick a crest and a colour. Calls onChange with the full avatar on every tap. */
-export function AvatarPicker({ avatar, name, onChange }) {
+/**
+ * Pick a crest and a colour. Calls onChange with the full avatar on every tap. `taken` holds the
+ * crests and colours other players in the room already have; those show but can't be chosen.
+ */
+export function AvatarPicker({ avatar, name, onChange, taken = { icons: new Set(), tints: new Set() } }) {
   const current = { icon: avatar?.icon ?? null, tint: avatar?.tint ?? 0 };
   return (
     <div className="picker">
@@ -58,9 +61,10 @@ export function AvatarPicker({ avatar, name, onChange }) {
             type="button"
             role="radio"
             aria-checked={current.icon === icon}
-            aria-label={AVATAR_NAMES[icon]}
-            title={AVATAR_NAMES[icon]}
+            aria-label={taken.icons.has(icon) ? `${AVATAR_NAMES[icon]} (taken)` : AVATAR_NAMES[icon]}
+            title={taken.icons.has(icon) ? `${AVATAR_NAMES[icon]}: someone else has this` : AVATAR_NAMES[icon]}
             className="picker-icon"
+            disabled={taken.icons.has(icon)}
             onClick={() => onChange({ ...current, icon })}
           >
             <Crest id={icon} />
@@ -74,9 +78,11 @@ export function AvatarPicker({ avatar, name, onChange }) {
             type="button"
             role="radio"
             aria-checked={current.tint === tint}
-            aria-label={`Colour ${tint + 1}`}
+            aria-label={taken.tints.has(tint) ? `Colour ${tint + 1} (taken)` : `Colour ${tint + 1}`}
+            title={taken.tints.has(tint) ? 'Someone else has this colour' : undefined}
             className="picker-tint"
             style={{ '--tint': color }}
+            disabled={taken.tints.has(tint)}
             onClick={() => onChange({ ...current, tint })}
           />
         ))}

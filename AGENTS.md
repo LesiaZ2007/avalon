@@ -32,10 +32,12 @@ Lady of the Lake and assassination. Deployed on Vercel.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
   `Lobby.js`, `RoundTable.js`, `Avatar.js` (avatar and picker), `Fan.js`, `Reactions.js`,
   `Tutorial.js` (the eight-step walkthrough with a practice table; keep it in step with the
-  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `Theme.js` (`useTheme()`, which puts the room's look on `<html data-theme>`), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
+  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `Theme.js` (`useTheme()`, which puts the room's look on `<html data-theme>` and remembers it on the device), `RoomThemeScript.js` (server-rendered: stamps a room's look into room and TV pages before first paint), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
   live in `lib/rules.js` (the drawings are in
   `components/crests.js`) and are validated by
-  `cleanAvatar()` on the server.
+  `cleanAvatar()` on the server. No two players in a room share a crest or a colour
+  (`takenAvatars()`): joining swaps a taken choice for a free one, and the `avatar` action refuses
+  it. There are 15 colours so a full table always fits.
 - `scripts/simulate.mjs`: plays full games through the HTTP API and checks the rules.
 - `README.md`: player-facing features and deploy steps. Keep it current with every change.
 
@@ -133,7 +135,9 @@ Never commit secrets. `.env*.local` is gitignored and must stay that way.
 ## Style
 
 There are two looks (`THEMES` in `lib/rules.js`), set by `useTheme()` as `data-theme` on
-`<html>`. The host picks one with the `theme` action, at any phase. Looks are cosmetic and must
+`<html>`. Before first paint, an inline script in `app/layout.js` applies the device's last look
+(`localStorage` `avalon:theme`), and room and TV pages apply the room's own look server-side
+(`RoomThemeScript`), so no screen flashes the wrong look. The host picks one with the `theme` action, at any phase. Looks are cosmetic and must
 never change what information is shown.
 
 - **night** (the default) is `app/globals.css`: lake at night, oak and brass for the table, blue

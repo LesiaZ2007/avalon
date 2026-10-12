@@ -1951,6 +1951,18 @@ body:has(.scene) .landscape::after {
   background: var(--tint);
   cursor: pointer;
 }
+/* Crests and colours someone else has: shown, struck through, not choosable. */
+.picker-icon:disabled,
+.picker-tint:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.picker-icon:disabled:hover {
+  transform: none;
+}
+.picker-tint:disabled {
+  background-image: linear-gradient(to top right, transparent 45%, var(--fg) 46% 54%, transparent 55%);
+}
 .picker-tint[aria-checked='true'] {
   border-color: var(--fg);
   box-shadow: 0 0 0 3px var(--brass);

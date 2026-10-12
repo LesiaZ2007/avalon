@@ -28,18 +28,29 @@ async function game(n, mode, lady, strategy) {
   const v = async (p) => (await call(`/api/room/${code}`, { token: p.token })).data;
 
   if (n < 15) {
-    // Avatars: a valid choice is kept, junk falls back to initials, and anyone can change theirs.
-    const extra = await call('/api/room', { body: { action: 'join', code, name: 'Extra', avatar: { icon: 'stag', tint: 3 } } });
-    assert(extra.status === 200, 'join with avatar');
+    // Avatars: nobody shares a crest or a colour. A free choice is kept, a taken one falls back
+    // (initials, another colour) on joining and is refused when changing, and junk is cleaned.
     let lobby = await v(players[0]);
-    const seen = lobby.players.find((p) => p.id === extra.data.playerId);
-    assert(seen.avatar.icon === 'stag' && seen.avatar.tint === 3, 'avatar kept');
+    const avatarOf = (id) => lobby.players.find((p) => p.id === id).avatar;
+    const tints = new Set(lobby.players.map((p) => p.avatar.tint));
+    assert(tints.size === lobby.players.length, 'every player gets their own colour');
+    const own = avatarOf(players[1].playerId).tint;
+    assert((await act(players[1], { type: 'avatar', avatar: { icon: 'owl', tint: own } })).status === 200, 'avatar changed');
+    const extra = await call('/api/room', { body: { action: 'join', code, name: 'Extra', avatar: { icon: 'owl', tint: own } } });
+    assert(extra.status === 200, 'join with a taken avatar still works');
+    lobby = await v(players[0]);
+    const copied = avatarOf(extra.data.playerId);
+    assert(copied.icon === null && copied.tint !== own, 'taken crest and colour not shared on join ' + JSON.stringify(copied));
+    const free = [...Array(15).keys()].find((t) => !lobby.players.some((p) => p.avatar.tint === t));
+    assert((await act(extra.data, { type: 'avatar', avatar: { icon: 'stag', tint: free } })).status === 200, 'free avatar chosen');
+    lobby = await v(players[0]);
+    assert(avatarOf(extra.data.playerId).icon === 'stag' && avatarOf(extra.data.playerId).tint === free, 'avatar kept');
+    assert((await act(players[1], { type: 'avatar', avatar: { icon: 'stag', tint: own } })).status === 400, 'taken crest refused');
+    assert((await act(players[1], { type: 'avatar', avatar: { icon: 'owl', tint: free } })).status === 400, 'taken colour refused');
     await act(players[1], { type: 'avatar', avatar: { icon: '<script>', tint: 99 } });
     lobby = await v(players[0]);
-    const junk = lobby.players.find((p) => p.id === players[1].playerId).avatar;
-    assert(junk.icon === null && junk.tint >= 0 && junk.tint < 10, 'junk avatar cleaned');
-    await act(players[1], { type: 'avatar', avatar: { icon: 'owl', tint: 0 } });
-    assert((await v(players[0])).players.find((p) => p.id === players[1].playerId).avatar.icon === 'owl', 'avatar changed');
+    const junk = avatarOf(players[1].playerId);
+    assert(junk.icon === null && junk.tint === own, 'junk avatar cleaned');
 
     // Kicking: only the host can, and the removed player loses access.
     assert((await act(players[1], { type: 'kick', target: extra.data.playerId })).status === 400, 'nonhost kick');
@@ -247,6 +258,8 @@ assert(s.game.quests[0].size === 4 && s.game.quests[3].failsNeeded === 2, '15p q
   for (let i = 1; i < 15; i++) await call('/api/room', { body: { action: 'join', code: r.data.code, name: `P${i}` } });
   const extra = await call('/api/room', { body: { action: 'join', code: r.data.code, name: 'Sixteenth' } });
   assert(extra.status === 400 && /full/.test(extra.data.error), 'room caps at 15');
+  const full = (await call(`/api/room/${r.data.code}`, { token: r.data.token })).data;
+  assert(new Set(full.players.map((p) => p.avatar.tint)).size === 15, 'fifteen players, fifteen colours');
   console.log('Room caps at 15 players');
 }
 console.log('ALL PASSED');

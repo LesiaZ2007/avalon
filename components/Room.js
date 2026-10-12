@@ -14,7 +14,7 @@ import TimerBadge from './Timer';
 import { useTheme } from './Theme';
 import TvLink from './TvLink';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
-import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
+import { ROLES, describeRoles, isEvilRole, takenAvatars } from '@/lib/rules';
 
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V'];
 const shortRole = (role) => ROLES[role].name.replace(' of Arthur', '').replace(' of Mordred', '');
@@ -836,7 +836,7 @@ function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose })
           </button>
         </div>
         {isMe ? (
-          <AvatarPicker avatar={avatarOf(id)} name={nameOf(id)} onChange={setAvatar} />
+          <AvatarPicker avatar={avatarOf(id)} name={nameOf(id)} onChange={setAvatar} taken={takenAvatars(view.players, view.you)} />
         ) : (
           <div className="kick">
             <p className="muted">
@@ -909,7 +909,7 @@ function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, 
         {id === view.you && (
           <div className="note-picker">
             <p className="eyebrow">Your avatar</p>
-            <AvatarPicker avatar={avatarOf(id)} name={nameOf(id)} onChange={setAvatar} />
+            <AvatarPicker avatar={avatarOf(id)} name={nameOf(id)} onChange={setAvatar} taken={takenAvatars(view.players, view.you)} />
           </div>
         )}
 
