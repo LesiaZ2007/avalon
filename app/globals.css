@@ -2147,6 +2147,35 @@ body:has(.scene) .landscape::after {
   color: var(--brass-hi);
   line-height: 1;
 }
+/* At the end of a game the recap sits below the table: scroll down to read it. */
+.tv-recap-cue {
+  justify-self: start;
+  font-size: clamp(16px, 1.3vw, 24px);
+  font-weight: 700;
+  color: var(--brass);
+  text-decoration: none;
+}
+.tv-recap-cue::after {
+  content: ' \2193';
+}
+.tv-recap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  padding: 0 3vw 6vh;
+}
+.recap.is-inline {
+  width: min(1100px, 100%);
+  max-height: none;
+  overflow: visible;
+  animation: none;
+}
+@media (min-width: 1600px) {
+  .recap.is-inline {
+    zoom: 1.3;
+  }
+}
 .tv-chat {
   list-style: none;
   margin: 0;

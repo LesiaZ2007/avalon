@@ -94,15 +94,19 @@ export function Scoreboard({ view, nameOf, avatarOf, act, compact = false }) {
   );
 }
 
-/** Who was who, every quest and the votes that sent it, once the game is over. */
-export function Recap({ view, nameOf, avatarOf, onClose }) {
+/**
+ * Who was who, every quest and the votes that sent it, once the game is over. Phones open it as a
+ * sheet; the TV shows it `inline`, below the table, with no Close button.
+ */
+export function Recap({ view, nameOf, avatarOf, onClose, inline = false }) {
   const g = view.game;
 
   useEffect(() => {
+    if (inline) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, inline]);
 
   const evil = (id) => isEvilRole(g.roles[id]);
   const side = (team) => g.seats.filter((id) => (team === 'evil') === evil(id));
@@ -121,119 +125,133 @@ export function Recap({ view, nameOf, avatarOf, onClose }) {
     .map((q, i) => ({ ...q, i, proposals: g.history.filter((h) => h.quest === i) }))
     .filter((q) => q.result || q.proposals.length);
 
-  return (
-    <div className="overlay overlay-sheet" onClick={onClose} role="dialog" aria-modal="true" aria-label="Game recap">
-      <div className="sheet recap" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-head">
-          <div>
-            <p className="eyebrow">Game recap</p>
-            <h2 className={g.winner === 'good' ? 'good-text' : 'evil-text'}>{g.winner === 'good' ? 'Arthur prevails' : 'Mordred prevails'}</h2>
-            <p className="muted small">{g.reason}</p>
-          </div>
+  const body = (
+    <>
+      <div className="sheet-head">
+        <div>
+          <p className="eyebrow">Game recap</p>
+          <h2 className={g.winner === 'good' ? 'good-text' : 'evil-text'}>{g.winner === 'good' ? 'Arthur prevails' : 'Mordred prevails'}</h2>
+          <p className="muted small">{g.reason}</p>
+        </div>
+        {!inline && (
           <button className="btn btn-sm btn-ghost" onClick={onClose}>
             Close
           </button>
-        </div>
+        )}
+      </div>
 
-        <div className="recap-sides">
-          {['good', 'evil'].map((t) => (
-            <div key={t} className={`recap-side is-${t}`}>
-              <p className="eyebrow">{t === 'good' ? 'Loyal to Arthur' : 'Servants of Mordred'}</p>
-              <ul>
-                {side(t).map((id) => (
-                  <li key={id}>
-                    <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-sm" />
-                    <span className="recap-who">
-                      <strong>
-                        {nameOf(id)}
-                        {id === view.you && <span className="muted"> (you)</span>}
-                      </strong>
-                      <span className="small">{roleName(id)}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div>
-          <p className="eyebrow" style={{ marginBottom: 8 }}>
-            Quest by quest
-          </p>
-          <ol className="recap-quests">
-            {quests.map((q) => {
-              const sent = q.proposals.find((h) => h.approved);
-              const rejected = q.proposals.filter((h) => !h.approved).length;
-              const yes = sent ? g.seats.filter((id) => sent.votes[id]) : [];
-              const traitors = q.result ? q.team.filter(evil) : [];
-              return (
-                <li key={q.i} className={`entry ${q.result ? `is-${q.result}` : 'is-fail'}`}>
-                  <div className="entry-head">
-                    <span className="recap-quest-title">
-                      {q.result === 'success' ? <Grail size={20} /> : q.result === 'fail' ? <BrokenBlade size={20} /> : <RejectMark size={20} />}
-                      Quest {NUMERALS[q.i]}
-                    </span>
-                    <span className={`chip ${q.result === 'success' ? 'chip-good' : 'chip-evil'}`}>
-                      {q.result === 'success' ? 'Succeeded' : q.result === 'fail' ? `Failed, ${q.fails} Fail card${q.fails === 1 ? '' : 's'}` : 'Never went'}
-                    </span>
-                  </div>
-                  {sent ? (
-                    <>
-                      <span>
-                        {nameOf(sent.leader)} sent {team(sent.team)}
-                        {rejected > 0 && <span className="muted"> after {rejected === 1 ? 'one rejected team' : `${rejected} rejected teams`}</span>}.
-                      </span>
-                      <span className="muted small">
-                        Approved {yes.length}–{g.seats.length - yes.length}:
-                      </span>
-                      <VoteSplit seats={g.seats} votes={sent.votes} nameOf={nameOf} avatarOf={avatarOf} />
-                      <span className="small">
-                        {traitors.length
-                          ? `${list(traitors.map(nameOf))} ${traitors.length === 1 ? 'was' : 'were'} evil on this quest.`
-                          : 'Every knight on this quest was loyal.'}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="small">
-                      {rejected} {rejected === 1 ? 'team was' : 'teams were'} rejected, led by {list(q.proposals.map((h) => nameOf(h.leader)))}.
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-
-        {(g.lady?.checks.length > 0 || g.assassinTarget) && (
-          <div>
-            <p className="eyebrow" style={{ marginBottom: 8 }}>
-              Secrets
-            </p>
-            <ul className="record">
-              {(g.lady?.checks ?? []).map((c, i) => (
-                <li key={i}>
-                  <span className="record-text">
-                    After quest {NUMERALS[c.quest]}, {named(c.holder)} used the Lady of the Lake on {named(c.target)}
+      <div className="recap-sides">
+        {['good', 'evil'].map((t) => (
+          <div key={t} className={`recap-side is-${t}`}>
+            <p className="eyebrow">{t === 'good' ? 'Loyal to Arthur' : 'Servants of Mordred'}</p>
+            <ul>
+              {side(t).map((id) => (
+                <li key={id}>
+                  <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-sm" />
+                  <span className="recap-who">
+                    <strong>
+                      {nameOf(id)}
+                      {id === view.you && <span className="muted"> (you)</span>}
+                    </strong>
+                    <span className="small">{roleName(id)}</span>
                   </span>
-                  <span className={`chip ${c.evil ? 'chip-evil' : 'chip-good'}`}>{c.evil ? 'Evil' : 'Good'}</span>
                 </li>
               ))}
-              {g.assassinTarget && (
-                <li>
-                  <span className="record-text">
-                    {named(g.assassin)} named {named(g.assassinTarget)}, who was {g.roles[g.assassinTarget] === 'servant' ? 'a Loyal Servant' : roleName(g.assassinTarget)}
-                  </span>
-                  <span className={`chip ${g.roles[g.assassinTarget] === 'merlin' ? 'chip-evil' : 'chip-good'}`}>
-                    {g.roles[g.assassinTarget] === 'merlin' ? 'Hit' : 'Missed'}
-                  </span>
-                </li>
-              )}
             </ul>
           </div>
-        )}
+        ))}
+      </div>
 
-        <Scoreboard view={view} nameOf={nameOf} avatarOf={avatarOf} />
+      <div>
+        <p className="eyebrow" style={{ marginBottom: 8 }}>
+          Quest by quest
+        </p>
+        <ol className="recap-quests">
+          {quests.map((q) => {
+            const sent = q.proposals.find((h) => h.approved);
+            const rejected = q.proposals.filter((h) => !h.approved).length;
+            const yes = sent ? g.seats.filter((id) => sent.votes[id]) : [];
+            const traitors = q.result ? q.team.filter(evil) : [];
+            return (
+              <li key={q.i} className={`entry ${q.result ? `is-${q.result}` : 'is-fail'}`}>
+                <div className="entry-head">
+                  <span className="recap-quest-title">
+                    {q.result === 'success' ? <Grail size={20} /> : q.result === 'fail' ? <BrokenBlade size={20} /> : <RejectMark size={20} />}
+                    Quest {NUMERALS[q.i]}
+                  </span>
+                  <span className={`chip ${q.result === 'success' ? 'chip-good' : 'chip-evil'}`}>
+                    {q.result === 'success' ? 'Succeeded' : q.result === 'fail' ? `Failed, ${q.fails} Fail card${q.fails === 1 ? '' : 's'}` : 'Never went'}
+                  </span>
+                </div>
+                {sent ? (
+                  <>
+                    <span>
+                      {nameOf(sent.leader)} sent {team(sent.team)}
+                      {rejected > 0 && <span className="muted"> after {rejected === 1 ? 'one rejected team' : `${rejected} rejected teams`}</span>}.
+                    </span>
+                    <span className="muted small">
+                      Approved {yes.length}–{g.seats.length - yes.length}:
+                    </span>
+                    <VoteSplit seats={g.seats} votes={sent.votes} nameOf={nameOf} avatarOf={avatarOf} />
+                    <span className="small">
+                      {traitors.length
+                        ? `${list(traitors.map(nameOf))} ${traitors.length === 1 ? 'was' : 'were'} evil on this quest.`
+                        : 'Every knight on this quest was loyal.'}
+                    </span>
+                  </>
+                ) : (
+                  <span className="small">
+                    {rejected} {rejected === 1 ? 'team was' : 'teams were'} rejected, led by {list(q.proposals.map((h) => nameOf(h.leader)))}.
+                  </span>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+
+      {(g.lady?.checks.length > 0 || g.assassinTarget) && (
+        <div>
+          <p className="eyebrow" style={{ marginBottom: 8 }}>
+            Secrets
+          </p>
+          <ul className="record">
+            {(g.lady?.checks ?? []).map((c, i) => (
+              <li key={i}>
+                <span className="record-text">
+                  After quest {NUMERALS[c.quest]}, {named(c.holder)} used the Lady of the Lake on {named(c.target)}
+                </span>
+                <span className={`chip ${c.evil ? 'chip-evil' : 'chip-good'}`}>{c.evil ? 'Evil' : 'Good'}</span>
+              </li>
+            ))}
+            {g.assassinTarget && (
+              <li>
+                <span className="record-text">
+                  {named(g.assassin)} named {named(g.assassinTarget)}, who was {g.roles[g.assassinTarget] === 'servant' ? 'a Loyal Servant' : roleName(g.assassinTarget)}
+                </span>
+                <span className={`chip ${g.roles[g.assassinTarget] === 'merlin' ? 'chip-evil' : 'chip-good'}`}>
+                  {g.roles[g.assassinTarget] === 'merlin' ? 'Hit' : 'Missed'}
+                </span>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+
+      <Scoreboard view={view} nameOf={nameOf} avatarOf={avatarOf} />
+    </>
+  );
+
+  if (inline)
+    return (
+      <section className="sheet recap is-inline" aria-label="Game recap">
+        {body}
+      </section>
+    );
+  return (
+    <div className="overlay overlay-sheet" onClick={onClose} role="dialog" aria-modal="true" aria-label="Game recap">
+      <div className="sheet recap" onClick={(e) => e.stopPropagation()}>
+        {body}
       </div>
     </div>
   );
