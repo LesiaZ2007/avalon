@@ -1644,6 +1644,26 @@ body:has(.scene) .landscape::after {
   background: var(--evil-soft);
   color: var(--evil-hi);
 }
+.record {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.record li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  font-size: 15px;
+}
+.record-text {
+  flex: 1;
+  min-width: 0;
+}
 
 /* Role card you turn over */
 .flip-card {

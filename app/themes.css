@@ -352,7 +352,7 @@
 }
 
 /* Wells and rows inside sheets: a darker card. */
-[data-printed] :is(.in-play, .entry, .stat-row > div, .known li, .picker, .roster-row, .tut-stage, .tut-roles li, .tut-tips li, .standings li, .manage li, .tally, .timer, .who-chip) {
+[data-printed] :is(.in-play, .entry, .stat-row > div, .record li, .known li, .picker, .roster-row, .tut-stage, .tut-roles li, .tut-tips li, .standings li, .manage li, .tally, .timer, .who-chip) {
   border-radius: 2px;
   background: var(--p-card-2);
   color: var(--p-ink);
