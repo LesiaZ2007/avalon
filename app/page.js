@@ -6,6 +6,7 @@ import { api, loadAvatar, loadName, saveAvatar, saveName, saveSeat } from '@/lib
 import Avatar, { AvatarPicker } from '@/components/Avatar';
 import Fan from '@/components/Fan';
 import Tutorial from '@/components/Tutorial';
+import InstallButton from '@/components/InstallButton';
 
 const CAST = ['merlin', 'percival', 'servant', 'assassin', 'morgana', 'mordred', 'oberon'];
 
@@ -54,6 +55,7 @@ export default function Home() {
           <button className="btn btn-ghost" onClick={() => setLearning(true)}>
             New to Avalon? Learn to play
           </button>
+          <InstallButton />
         </div>
       </header>
 

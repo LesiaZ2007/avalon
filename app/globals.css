@@ -2181,7 +2181,16 @@ body:has(.scene) .landscape::after {
 
 /* ---------- Tutorial ---------- */
 .hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
   margin-top: 18px;
+}
+.install-ios {
+  display: grid;
+  gap: 8px;
+  max-width: 34ch;
 }
 .icon-btn-help {
   font-family: var(--font-heading-stack);

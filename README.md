@@ -51,6 +51,10 @@ Each room is one tabletop scene rather than a page of boxes.
 
 The server decides what each phone receives, so nobody can find another player's role in the browser's developer tools. Votes stay hidden until everyone has voted, and quest cards are shuffled so only the number of Fails is shown. Good and evil players see the same two quest cards: a glance at someone's screen gives nothing away, and the server rejects a Fail from a loyal player.
 
+## Install it like an app
+
+Avalon can be added to a phone's home screen, where it opens full-screen with its own icon and no browser bar. On Android and in Chrome or Edge, tap **Install the app** on the home page. On an iPhone, the home page explains the Safari steps (Share, then Add to Home Screen). It's still the same website underneath, so updates arrive by themselves.
+
 ## Run it locally
 
 ```bash

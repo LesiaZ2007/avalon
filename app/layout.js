@@ -9,6 +9,9 @@ const body = Alegreya_Sans({ weight: ['400', '500', '700', '800'], subsets: ['la
 export const metadata = {
   title: 'Avalon',
   description: 'The Resistance: Avalon for phones. Make a room, share the code, find the traitors.',
+  applicationName: 'Avalon',
+  // Opens full-screen when added to an iPhone home screen.
+  appleWebApp: { capable: true, title: 'Avalon', statusBarStyle: 'black-translucent' },
 };
 
 export const viewport = {
