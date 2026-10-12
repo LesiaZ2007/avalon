@@ -20,17 +20,29 @@ const ROLE_HINTS = {
   oberon: 'Evil, but unknown to the other evil players.',
 };
 
-export function LobbyTable({ view, nameOf, avatarOf, onInspect }) {
+/**
+ * The seating being arranged: the host's order for everyone still here, then anyone who joined
+ * since at the end (where the server will put them too).
+ */
+export function seatingOf(view, order) {
+  const ids = view.players.map((p) => p.id);
+  if (!order) return ids;
+  const kept = order.filter((id) => ids.includes(id));
+  return [...kept, ...ids.filter((id) => !kept.includes(id))];
+}
+
+export function LobbyTable({ view, nameOf, avatarOf, onInspect, arranging, onArrange }) {
   const count = view.players.length;
   const isHost = view.hostId === view.you;
   const needed = Math.max(0, MIN_PLAYERS - count);
   return (
     <RoundTable
-      seats={view.players.map((p) => p.id)}
+      seats={seatingOf(view, arranging)}
       nameOf={nameOf}
       avatarOf={avatarOf}
       you={view.you}
       onInspect={onInspect}
+      onArrange={arranging ? onArrange : undefined}
       canInspect={(id) => id === view.you || isHost}
       inspectLabel={(name, id) => (id === view.you ? 'Change your avatar' : `Remove ${name}`)}
       reactions={view.reactions}
@@ -58,7 +70,36 @@ function Setting({ label, hint, children }) {
   );
 }
 
-export function LobbyHand({ view, act, nameOf, avatarOf }) {
+/** The host's seating panel, shown in place of the lobby while the table is being rearranged. */
+export function ArrangeHand({ view, act, arranging, onDone }) {
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    setBusy(true);
+    if (await act({ type: 'seats', order: seatingOf(view, arranging) })) onDone();
+    setBusy(false);
+  }
+  return (
+    <div className="hand-inner">
+      <p className="eyebrow">Seating</p>
+      <h2 className="hand-title">Drag everyone to their real seat</h2>
+      <p className="hand-text">
+        Match the table to where people are actually sitting, going clockwise around the room. The leader&rsquo;s crown passes from seat to seat in
+        this order.
+      </p>
+      <p className="hand-text small">You can also tap a player, then tap the seat they belong in.</p>
+      <div className="row row-center">
+        <button className="btn btn-primary btn-lg" disabled={busy} onClick={save}>
+          {busy ? 'Saving…' : 'Save seating'}
+        </button>
+        <button className="btn btn-ghost" disabled={busy} onClick={onDone}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function LobbyHand({ view, act, nameOf, avatarOf, onRearrange }) {
   const isHost = view.hostId === view.you;
   const s = view.settings;
   const count = view.players.length;
@@ -194,6 +235,11 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
         {isHost && (
           <button className="btn btn-primary btn-lg" disabled={busy || count < MIN_PLAYERS} onClick={start}>
             {busy ? 'Dealing roles…' : 'Deal the roles'}
+          </button>
+        )}
+        {isHost && count >= 3 && (
+          <button className="btn btn-ghost" onClick={onRearrange}>
+            Rearrange players
           </button>
         )}
         <button className="btn btn-ghost" onClick={() => act({ type: 'leave' })}>
