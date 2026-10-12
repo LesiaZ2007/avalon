@@ -222,7 +222,7 @@ export default function TvView({ code }) {
         </ol>
       </aside>
 
-      <EventOverlay view={view} nameOf={nameOf} onRole={() => {}} tv />
+      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} tv />
     </main>
   );
 }

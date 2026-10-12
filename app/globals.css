@@ -2701,6 +2701,73 @@ body:has(.scene) .landscape::after {
   height: 8px;
 }
 
+/* ---------- Votes with faces ---------- */
+.vote-face {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.avatar.avatar-vote {
+  width: 56px;
+  font-size: 20px;
+}
+.vote-face .mini-token {
+  position: absolute;
+  right: -8px;
+  bottom: -4px;
+  width: 30px;
+  height: 30px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.tv .avatar.avatar-vote {
+  width: 96px;
+  font-size: 32px;
+}
+.tv .vote-face .mini-token {
+  width: 46px;
+  height: 46px;
+  right: -12px;
+}
+.tv .vote-face .mini-token svg {
+  width: 28px;
+  height: 28px;
+}
+.mini-token.xs {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-width: 1.5px;
+}
+.vote-split {
+  display: grid;
+  gap: 6px;
+}
+.vote-split-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+.vote-split-row .mini-token {
+  margin-right: 2px;
+}
+.who-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px 2px 2px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 13px;
+  line-height: 1.2;
+}
+.avatar.avatar-xs {
+  width: 22px;
+  font-size: 9px;
+  border-width: 1px;
+  box-shadow: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

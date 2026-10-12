@@ -2,11 +2,39 @@
 
 import { useEffect, useState } from 'react';
 import Avatar from './Avatar';
-import { BrokenBlade, Grail, RejectMark } from './art';
+import { ApproveMark, BrokenBlade, Grail, RejectMark } from './art';
 import { ROLES, isEvilRole } from '@/lib/rules';
 
 const NUMERALS = ['I', 'II', 'III', 'IV', 'V'];
 const list = (names) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
+
+/** Who approved a team and who rejected it, as each player's avatar and name. */
+export function VoteSplit({ seats, votes, nameOf, avatarOf }) {
+  return (
+    <div className="vote-split">
+      {[true, false].map((approve) => {
+        const ids = seats.filter((id) => Boolean(votes[id]) === approve);
+        return (
+          <div key={String(approve)} className="vote-split-row" aria-label={`${approve ? 'Approved' : 'Rejected'}: ${ids.map(nameOf).join(', ') || 'nobody'}`}>
+            <span className={`mini-token xs ${approve ? 'is-approve' : 'is-reject'}`} title={approve ? 'Approved' : 'Rejected'}>
+              {approve ? <ApproveMark size={12} /> : <RejectMark size={12} />}
+            </span>
+            {ids.length ? (
+              ids.map((id) => (
+                <span key={id} className="who-chip">
+                  <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-xs" />
+                  {nameOf(id)}
+                </span>
+              ))
+            ) : (
+              <span className="muted small">nobody</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 /** The room's running tally, "Good 3 – Evil 2", plus each player's wins. */
 export function Scoreboard({ view, nameOf, avatarOf, act, compact = false }) {
@@ -157,8 +185,9 @@ export function Recap({ view, nameOf, avatarOf, onClose }) {
                         {rejected > 0 && <span className="muted"> after {rejected === 1 ? 'one rejected team' : `${rejected} rejected teams`}</span>}.
                       </span>
                       <span className="muted small">
-                        Approved {yes.length}–{g.seats.length - yes.length} by {list(yes.map(nameOf))}.
+                        Approved {yes.length}–{g.seats.length - yes.length}:
                       </span>
+                      <VoteSplit seats={g.seats} votes={sent.votes} nameOf={nameOf} avatarOf={avatarOf} />
                       <span className="small">
                         {traitors.length
                           ? `${list(traitors.map(nameOf))} ${traitors.length === 1 ? 'was' : 'were'} evil on this quest.`

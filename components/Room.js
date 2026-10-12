@@ -9,7 +9,7 @@ import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
 import Tutorial from './Tutorial';
-import { Recap, Scoreboard } from './Recap';
+import { Recap, Scoreboard, VoteSplit } from './Recap';
 import TimerBadge from './Timer';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
@@ -153,7 +153,7 @@ export default function Room({ view, act, netError }) {
       {inspect && !g && view.players.some((p) => p.id === inspect) && (
         <LobbySeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} onClose={() => setInspect(null)} />
       )}
-      <EventOverlay view={view} nameOf={nameOf} onRole={() => setRoleOpen(true)} />
+      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => setRoleOpen(true)} />
       {learning && <Tutorial onClose={() => setLearning(false)} />}
     </main>
   );
@@ -1058,11 +1058,7 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
             <span>
               {nameOf(h.leader)} sent {h.team.map(nameOf).join(', ')}
             </span>
-            <span className="muted small">
-              Approved: {yes.map(nameOf).join(', ') || 'nobody'}
-              <br />
-              Rejected: {no.map(nameOf).join(', ') || 'nobody'}
-            </span>
+            <VoteSplit seats={g.seats} votes={h.votes} nameOf={nameOf} avatarOf={avatarOf} />
           </li>
         );
       });
@@ -1140,7 +1136,7 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
   );
 }
 
-export function EventOverlay({ view, nameOf, onRole, tv = false }) {
+export function EventOverlay({ view, nameOf, avatarOf, onRole, tv = false }) {
   const ev = view.event;
   const [shown, setShown] = useState(null);
   const handled = useRef(null);
@@ -1211,7 +1207,10 @@ export function EventOverlay({ view, nameOf, onRole, tv = false }) {
         <div className="vote-reveal">
           {ids.map((id, i) => (
             <div key={id} className="vote-reveal-item" style={{ animationDelay: `${0.15 + i * 0.12}s` }}>
-              <span className={`mini-token ${shown.votes[id] ? 'is-approve' : 'is-reject'}`}>{shown.votes[id] ? <ApproveMark size={24} /> : <RejectMark size={24} />}</span>
+              <span className="vote-face">
+                <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-vote" />
+                <span className={`mini-token ${shown.votes[id] ? 'is-approve' : 'is-reject'}`}>{shown.votes[id] ? <ApproveMark size={18} /> : <RejectMark size={18} />}</span>
+              </span>
               <span>{nameOf(id)}</span>
             </div>
           ))}

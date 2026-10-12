@@ -48,7 +48,7 @@ Each room is one tabletop scene rather than a page of boxes.
 - **End-of-game recap.** When a game ends, tap *See the recap*. It shows who was on which side and what role they had, every quest with the team that went, how the table voted for it, which knights on it were evil, and how many teams were rejected first. It also covers each Lady of the Lake result and who the Assassin named.
 - **Reactions.** Thumbs up, thumbs down, hmm, side-eye, shock and laughter pop up over your seat for the whole table, for when a vote goes sideways. They're drawn in the same line style as the crests rather than emoji, so they look the same on every phone.
 - **Your role** is dealt face down. Tap to turn it over, so you choose when to look.
-- **Table talk** (chat) is docked on wide screens and slides in from the side on phones. Each name is written in a light version of that player's avatar colour, so you can match a line to a seat at a glance. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play.
+- **Table talk** (chat) is docked on wide screens and slides in from the side on phones. Each name is written in a light version of that player's avatar colour, so you can match a line to a seat at a glance. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play. Wherever votes are shown (the reveal after each vote, the chronicle and the recap), each player appears with their avatar, so you can read the split at a glance.
 
 ### What stays secret
 
