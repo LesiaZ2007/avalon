@@ -40,6 +40,10 @@
   --iron-ink: #e3d8bf;
   /* Inputs and selects */
   --field: rgba(6, 11, 12, 0.7);
+  /* Scrollbars: a brass-dark thumb in the lake */
+  --scroll-thumb: var(--stone-rim);
+  --scroll-thumb-hover: #8a7244;
+  --scroll-track: var(--bg);
   --font-display-stack: var(--font-display), 'Luminari', 'Papyrus', serif;
   --font-heading-stack: var(--font-heading), 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --font-body-stack: var(--font-body), 'Gill Sans', 'Segoe UI', system-ui, sans-serif;
@@ -60,6 +64,38 @@ body {
   min-height: 100%;
   /* Fanned cards and seat badges may poke past the edge; never let them scroll the page sideways. */
   overflow-x: clip;
+}
+/* Scrollbars in the look's own colours. The page's bar sits on the ground; bars inside panels
+   (chat, drawers, sheets) float on whatever surface holds them. */
+html {
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+html * {
+  scrollbar-color: var(--scroll-thumb) transparent;
+}
+/* Safari doesn't know scrollbar-color yet. */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background: transparent;
+  }
+  html::-webkit-scrollbar {
+    background: var(--scroll-track);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scroll-thumb-hover);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 body {
   background: var(--bg);
@@ -1332,6 +1368,10 @@ body:has(.scene) .landscape::after {
     grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) var(--dock);
     grid-template-areas: 'hand table chat';
   }
+  /* Level with the docked chat. */
+  .hand {
+    margin-top: 0;
+  }
   .drawer.drawer-chat {
     grid-area: chat;
     position: sticky;
@@ -1606,7 +1646,7 @@ body:has(.scene) .landscape::after {
 }
 .stat-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 .stat-row > div {
@@ -2131,13 +2171,22 @@ body:has(.scene) .landscape::after {
   color: var(--dim);
 }
 .tv-join {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+  display: grid;
+  gap: 16px;
   padding: 20px;
   border-radius: 20px;
   border: 1px solid rgba(210, 170, 92, 0.45);
   background: var(--surface);
+}
+.tv-join-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+/* The address stays on one line: it shrinks to fit the panel's width (at most 0.45em a letter, with room to spare). */
+.tv-join-at {
+  container-type: inline-size;
+  min-width: 0;
 }
 .tv-qr {
   width: clamp(140px, 12vw, 240px);
@@ -2149,9 +2198,9 @@ body:has(.scene) .landscape::after {
   height: auto;
 }
 .tv-url {
-  font-size: clamp(16px, 1.3vw, 24px);
-  margin-bottom: 10px;
-  overflow-wrap: anywhere;
+  font-size: clamp(16px, 1.6vw, 30px);
+  font-size: min(clamp(16px, 1.6vw, 30px), calc(100cqi / (var(--chars) * 0.45)));
+  white-space: nowrap;
 }
 .tv-code {
   font-family: var(--font-heading-stack);
@@ -2160,6 +2209,35 @@ body:has(.scene) .landscape::after {
   letter-spacing: 0.12em;
   color: var(--brass-hi);
   line-height: 1;
+}
+/* At the end of a game the recap sits below the table: scroll down to read it. */
+.tv-recap-cue {
+  justify-self: start;
+  font-size: clamp(16px, 1.3vw, 24px);
+  font-weight: 700;
+  color: var(--brass);
+  text-decoration: none;
+}
+.tv-recap-cue::after {
+  content: ' \2193';
+}
+.tv-recap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  padding: 0 3vw 6vh;
+}
+.recap.is-inline {
+  width: min(1100px, 100%);
+  max-height: none;
+  overflow: visible;
+  animation: none;
+}
+@media (min-width: 1600px) {
+  .recap.is-inline {
+    zoom: 1.3;
+  }
 }
 .tv-chat {
   list-style: none;
@@ -2497,6 +2575,274 @@ body:has(.scene) .landscape::after {
   }
   to {
     transform: translateX(60px);
+  }
+}
+
+/* ---------- End of game (components/Celebration.js) ----------
+   One pass over the whole screen, never in the way of a tap. Every layer rests invisible, so
+   with reduced motion (which stops every animation) nothing shows at all. */
+.fx {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fx-wash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.fx.is-good .fx-wash {
+  background: var(--brass-hi);
+  animation: fx-flash 1.5s ease-out;
+}
+.fx.is-evil .fx-wash {
+  background: var(--evil);
+  box-shadow: inset 0 0 18vmax 6vmax var(--evil-card);
+  animation: fx-flood 4.6s ease-out;
+}
+.fx-ring {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 30vmin;
+  height: 30vmin;
+  margin: -15vmin 0 0 -15vmin;
+  border: 3px solid var(--brass-hi);
+  border-radius: 50%;
+  opacity: 0;
+  animation: fx-ring 1.7s ease-out;
+}
+.fx-ring.is-late {
+  border-color: var(--loyal-hi);
+  animation-delay: 0.3s;
+}
+.fx-slash {
+  position: absolute;
+  top: 42%;
+  left: -20vw;
+  right: -20vw;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--evil-hi);
+  box-shadow: 0 0 18px var(--evil);
+  opacity: 0;
+  transform-origin: left center;
+  --tilt: -24deg;
+  animation: fx-slash 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.12s;
+}
+.fx-slash.is-late {
+  transform-origin: right center;
+  --tilt: 24deg;
+  animation-delay: 0.34s;
+}
+.fx-bit {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: var(--size);
+  height: calc(var(--size) * 1.6);
+  opacity: 0;
+  animation: fx-fall var(--dur) cubic-bezier(0.25, 0.4, 0.45, 1) var(--delay);
+}
+.fx-bit i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  animation: fx-flutter 0.45s ease-in-out var(--delay) infinite alternate;
+}
+.fx.is-good .fx-bit:nth-child(4n + 1) {
+  color: var(--loyal);
+}
+.fx.is-good .fx-bit:nth-child(4n + 2) {
+  color: var(--brass);
+}
+.fx.is-good .fx-bit:nth-child(4n + 3) {
+  color: var(--loyal-hi);
+}
+.fx.is-good .fx-bit:nth-child(4n) {
+  color: var(--brass-hi);
+}
+.fx.is-evil .fx-bit {
+  top: auto;
+  bottom: 0;
+  height: var(--size);
+  animation-name: fx-rise;
+}
+.fx.is-evil .fx-bit i {
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  animation-name: fx-flicker;
+  animation-duration: 0.3s;
+}
+.fx.is-evil .fx-bit:nth-child(3n + 1) {
+  color: var(--evil);
+}
+.fx.is-evil .fx-bit:nth-child(3n + 2) {
+  color: var(--evil-hi);
+}
+.fx.is-evil .fx-bit:nth-child(3n) {
+  color: var(--brass);
+}
+.fx-title {
+  position: absolute;
+  top: 30%;
+  left: 16px;
+  right: 16px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  opacity: 0;
+  animation: fx-title 3.6s ease-out 0.25s;
+}
+.fx.is-good .fx-title {
+  color: var(--loyal-hi);
+}
+.fx.is-evil .fx-title {
+  color: var(--evil-hi);
+}
+.fx-art {
+  display: grid;
+  place-items: center;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  box-shadow: 0 0 0 3px currentColor, 0 0 40px currentColor;
+}
+.fx-title p {
+  margin: 0;
+  font-family: var(--font-display-stack);
+  font-size: clamp(40px, 11vw, 96px);
+  line-height: 1;
+  text-shadow: 0 2px 0 var(--bg), 0 0 18px var(--bg), 0 0 36px var(--bg);
+}
+/* The table shakes when evil wins. `translate` leaves the table's own transform alone. */
+.fx-evil .table-wrap {
+  animation: fx-quake 0.6s linear 0.15s;
+}
+
+@keyframes fx-flash {
+  10% {
+    opacity: 0.45;
+  }
+}
+@keyframes fx-flood {
+  7% {
+    opacity: 0.6;
+  }
+  17% {
+    opacity: 0.28;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  45% {
+    opacity: 0.32;
+  }
+}
+@keyframes fx-ring {
+  from {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(4.5);
+    opacity: 0;
+  }
+}
+@keyframes fx-slash {
+  0% {
+    transform: rotate(var(--tilt)) scaleX(0);
+    opacity: 1;
+  }
+  30% {
+    transform: rotate(var(--tilt)) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--tilt)) scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes fx-fall {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--sway), 105vh, 0) rotate(var(--spin));
+    opacity: 0;
+  }
+}
+@keyframes fx-flutter {
+  to {
+    transform: scaleY(0.2);
+  }
+}
+@keyframes fx-rise {
+  0% {
+    transform: translate3d(0, 6vh, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--sway), -95vh, 0);
+    opacity: 0;
+  }
+}
+@keyframes fx-flicker {
+  to {
+    opacity: 0.4;
+  }
+}
+@keyframes fx-title {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  12% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(1);
+  }
+  82% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.04);
+    opacity: 0;
+  }
+}
+@keyframes fx-quake {
+  10%,
+  90% {
+    translate: -2px 0;
+  }
+  20%,
+  80% {
+    translate: 4px 1px;
+  }
+  30%,
+  50%,
+  70% {
+    translate: -8px -1px;
+  }
+  40%,
+  60% {
+    translate: 8px 1px;
   }
 }
 

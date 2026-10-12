@@ -1,7 +1,7 @@
 /* The room's looks, chosen by the host (data-theme on <html>).
 
-   night (the default) is globals.css exactly as written: the lake at night, oak and brass.
-   parchment is a skin over the very same layout. They change colour, typeface,
+   night is globals.css exactly as written: the lake at night, oak and brass.
+   parchment (the default) is a skin over the very same layout. They change colour, typeface,
    background, texture, corner shape and shadow, and never a size, padding, margin, gap or
    border width, so every look lays out identically. Every rule is scoped to [data-printed]
    (set for parchment), so night is untouched.
@@ -87,6 +87,9 @@
   --font-heading-stack: var(--font-plaque-stack);
   --radius: 2px;
   --shadow: var(--p-shadow);
+  --scroll-thumb: var(--p-rule);
+  --scroll-thumb-hover: var(--p-ink-2);
+  --scroll-track: var(--p-page);
   color-scheme: light;
 }
 
@@ -796,6 +799,39 @@
 }
 [data-printed] .winner-art {
   box-shadow: inset 0 0 0 2px currentColor;
+}
+[data-printed] .fx.is-good .fx-wash {
+  background: var(--p-azure-pale);
+}
+[data-printed] .fx.is-evil .fx-wash {
+  box-shadow: inset 0 0 18vmax 6vmax var(--p-gules-deep);
+  /* Red ink over the paper, rather than a pink veil. */
+  mix-blend-mode: multiply;
+}
+[data-printed] .fx-ring.is-late {
+  border-color: var(--p-or);
+}
+[data-printed] .fx-slash {
+  background: var(--p-ink);
+  box-shadow: none;
+}
+[data-printed] .fx.is-good .fx-bit:nth-child(4n + 2) {
+  color: var(--p-or);
+}
+[data-printed] .fx.is-good .fx-bit:nth-child(4n) {
+  color: var(--p-vert);
+}
+[data-printed] .fx.is-evil .fx-bit i {
+  box-shadow: none;
+}
+[data-printed] .fx-art {
+  background: var(--p-card);
+  box-shadow: inset 0 0 0 2px currentColor, inset 0 0 0 5px var(--p-card), inset 0 0 0 6px currentColor, var(--p-shadow);
+}
+[data-printed] .fx-title p {
+  font-family: var(--font-blackletter-stack);
+  font-weight: 400;
+  text-shadow: 0 2px 0 var(--p-card), 0 0 14px var(--p-card), 0 0 30px var(--p-card);
 }
 [data-printed] .toast {
   border-color: var(--p-gules);

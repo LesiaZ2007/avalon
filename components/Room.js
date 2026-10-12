@@ -9,10 +9,11 @@ import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
 import Tutorial from './Tutorial';
-import { Recap, Scoreboard, VoteSplit } from './Recap';
+import { Recap, Scoreboard } from './Recap';
 import TimerBadge from './Timer';
 import { useTheme } from './Theme';
 import TvLink from './TvLink';
+import Celebration, { useCelebration } from './Celebration';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole, takenAvatars } from '@/lib/rules';
 
@@ -67,6 +68,8 @@ export default function Room({ view, act, netError }) {
   const [inspect, setInspect] = useState(null);
   const [recapOpen, setRecapOpen] = useState(false);
   const [arranging, setArranging] = useState(null); // the host's seating order while rearranging
+  const [revealing, setRevealing] = useState(false);
+  const celebrating = useCelebration(view, revealing);
   const wide = useWide();
   const names = useMemo(() => Object.fromEntries(view.players.map((p) => [p.id, p.name])), [view.players]);
   const nameOf = (id) => names[id] ?? 'Someone';
@@ -105,7 +108,7 @@ export default function Room({ view, act, netError }) {
   useTheme(view.settings?.theme);
 
   return (
-    <main className={`scene phase-${view.phase}`}>
+    <main className={`scene phase-${view.phase}${celebrating ? ` fx-${celebrating}` : ''}`}>
       <TopBar
         view={view}
         unread={unread}
@@ -165,7 +168,8 @@ export default function Room({ view, act, netError }) {
       {inspect && !g && view.players.some((p) => p.id === inspect) && (
         <LobbySeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} onClose={() => setInspect(null)} />
       )}
-      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => setRoleOpen(true)} />
+      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => setRoleOpen(true)} onShown={setRevealing} />
+      <Celebration side={celebrating} />
       {learning && <Tutorial onClose={() => setLearning(false)} />}
     </main>
   );
@@ -864,9 +868,7 @@ function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose })
 function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, onClose }) {
   const g = view.game;
   const seatIdx = g.seats.indexOf(id);
-  const proposals = g.history.map((h, i) => ({ ...h, n: g.history.filter((x, j) => j <= i && x.quest === h.quest).length }));
   const led = g.history.filter((h) => h.leader === id).length;
-  const approvals = g.history.filter((h) => h.votes[id]).length;
   const quests = g.quests.filter((q) => q.result && q.team.includes(id));
   const failed = quests.filter((q) => q.result === 'fail').length;
   const role = g.roles?.[id];
@@ -903,12 +905,6 @@ function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, 
             <span>of them failed</span>
           </div>
           <div>
-            <strong>
-              {approvals}/{g.history.length}
-            </strong>
-            <span>teams approved</span>
-          </div>
-          <div>
             <strong>{led}</strong>
             <span>teams proposed</span>
           </div>
@@ -941,27 +937,6 @@ function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, 
 
         {!role && <RejoinPanel view={view} act={act} id={id} nameOf={nameOf} />}
 
-        <div>
-          <p className="eyebrow" style={{ marginBottom: 8 }}>
-            Voting record
-          </p>
-          {proposals.length === 0 ? (
-            <p className="muted small">No votes yet.</p>
-          ) : (
-            <ol className="record">
-              {proposals.map((h, i) => (
-                <li key={i}>
-                  <span className={`mini-token sm ${h.votes[id] ? 'is-approve' : 'is-reject'}`}>{h.votes[id] ? <ApproveMark size={16} /> : <RejectMark size={16} />}</span>
-                  <span className="record-text">
-                    Quest {NUMERALS[h.quest]}.{h.n}: {h.leader === id ? 'proposed it' : `${nameOf(h.leader)}'s team`}
-                    {h.team.includes(id) ? ' (on it)' : ''}
-                  </span>
-                  <span className={`chip ${h.approved ? 'chip-good' : 'chip-evil'}`}>{h.approved ? 'went' : 'rejected'}</span>
-                </li>
-              ))}
-            </ol>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -1060,8 +1035,6 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
     g.history
       .filter((h) => h.quest === qi)
       .forEach((h, ai) => {
-        const yes = g.seats.filter((id) => h.votes[id]);
-        const no = g.seats.filter((id) => !h.votes[id]);
         entries.push(
           <li key={`v${qi}-${ai}`} className="entry">
             <div className="entry-head">
@@ -1069,13 +1042,12 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
                 Quest {NUMERALS[qi]} · proposal {ai + 1}
               </span>
               <span className={`chip ${h.approved ? 'chip-good' : 'chip-evil'}`}>
-                {h.approved ? 'Approved' : 'Rejected'} {yes.length}–{no.length}
+                {h.approved ? 'Approved' : 'Rejected'} {h.yes}–{g.seats.length - h.yes}
               </span>
             </div>
             <span>
               {nameOf(h.leader)} sent {h.team.map(nameOf).join(', ')}
             </span>
-            <VoteSplit seats={g.seats} votes={h.votes} nameOf={nameOf} avatarOf={avatarOf} />
           </li>
         );
       });
@@ -1144,18 +1116,20 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
           })}
         </ul>
       </div>
-      {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal, vote and quest will be recorded here.</p>}
+      {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal and quest will be recorded here.</p>}
       <TvLink code={view.code} />
       {canEnd && <EndGame act={act} />}
     </div>
   );
 }
 
-export function EventOverlay({ view, nameOf, avatarOf, onRole, tv = false }) {
+export function EventOverlay({ view, nameOf, avatarOf, onRole, onShown, tv = false }) {
   const ev = view.event;
   const [shown, setShown] = useState(null);
   const handled = useRef(null);
   const key = `avalon:${tv ? 'tv-event' : 'event'}:${view.code}`;
+  // Lets the end-of-game celebration wait for the final reveal to finish.
+  useEffect(() => onShown?.(!!shown), [shown, onShown]);
 
   useEffect(() => {
     if (!ev) {
@@ -1178,11 +1152,13 @@ export function EventOverlay({ view, nameOf, avatarOf, onRole, tv = false }) {
     if (ev.type === 'vote' || ev.type === 'quest' || (ev.type === 'start' && !tv)) setShown(ev);
   }, [ev?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The reveal that ends the game steps aside sooner, for the celebration (components/Celebration.js).
+  const final = view.phase === 'over';
   useEffect(() => {
     if (!shown || shown.type === 'start') return;
-    const t = setTimeout(() => setShown(null), 10000);
+    const t = setTimeout(() => setShown(null), final ? 5000 : 10000);
     return () => clearTimeout(t);
-  }, [shown]);
+  }, [shown, final]);
 
   if (!shown) return null;
   const close = () => setShown(null);

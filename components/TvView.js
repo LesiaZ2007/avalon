@@ -4,9 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import RoundTable from './RoundTable';
 import { EventOverlay, QuestRow, waitingOn } from './Room';
+import { Recap } from './Recap';
 import { inkColor, tintColor } from './Avatar';
 import { useTheme } from './Theme';
 import TimerBadge from './Timer';
+import Celebration, { useCelebration } from './Celebration';
 import { api } from '@/lib/client';
 import { MAX_PLAYERS, MIN_PLAYERS, ROLES, isEvilRole } from '@/lib/rules';
 
@@ -60,6 +62,8 @@ export default function TvView({ code }) {
   }, []);
 
   const joinUrl = typeof window === 'undefined' ? '' : `${window.location.origin}/r/${code}`;
+  // What to type to join without the QR code: the site, then the room code on its home page.
+  const site = typeof window === 'undefined' ? '' : window.location.host;
   useEffect(() => {
     if (!joinUrl) return;
     QRCode.toString(joinUrl, { type: 'svg', margin: 1, color: { dark: '#e8dcbb', light: '#00000000' } })
@@ -69,6 +73,8 @@ export default function TvView({ code }) {
 
   const names = useMemo(() => Object.fromEntries((view?.players ?? []).map((p) => [p.id, p])), [view?.players]);
   useTheme(view?.settings?.theme);
+  const [revealing, setRevealing] = useState(false);
+  const celebrating = useCelebration(view, revealing, { tv: true });
   const nameOf = (id) => names[id]?.name ?? 'Someone';
   const avatarOf = (id) => names[id]?.avatar;
 
@@ -150,81 +156,102 @@ export default function TvView({ code }) {
         over: g.winner === 'good' ? 'Arthur prevails' : 'Mordred prevails',
       }[view.phase];
 
+  const recap = view.phase === 'over' && g?.roles;
+
   return (
-    <main className={`tv phase-${view.phase}`}>
-      <div className="tv-table">
-        <RoundTable
-          seats={seats}
-          nameOf={nameOf}
-          avatarOf={avatarOf}
-          you={null}
-          info={info}
-          reactions={view.reactions}
-          center={
-            g ? (
-              <>
-                <span className={`center-title ${view.phase === 'over' ? `is-${g.winner}` : ''}`}>{title}</span>
-                <QuestRow view={view} open={null} setOpen={() => {}} />
-                <span className="center-line">{line}</span>
-                <div className="reject-track">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <span key={i} className={`reject-pip ${i < g.rejects ? 'is-on' : ''} ${i === 4 ? 'is-last' : ''}`} />
-                  ))}
+    <>
+      <main className={`tv phase-${view.phase}${celebrating ? ` fx-${celebrating}` : ''}`}>
+        <div className="tv-table">
+          <RoundTable
+            seats={seats}
+            nameOf={nameOf}
+            avatarOf={avatarOf}
+            you={null}
+            info={info}
+            reactions={view.reactions}
+            center={
+              g ? (
+                <>
+                  <span className={`center-title ${view.phase === 'over' ? `is-${g.winner}` : ''}`}>{title}</span>
+                  <QuestRow view={view} open={null} setOpen={() => {}} />
+                  <span className="center-line">{line}</span>
+                  <div className="reject-track">
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <span key={i} className={`reject-pip ${i < g.rejects ? 'is-on' : ''} ${i === 4 ? 'is-last' : ''}`} />
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="center-kicker">Room</span>
+                  <span className="center-code">{title}</span>
+                  <span className="center-line">{line}</span>
+                </>
+              )
+            }
+          />
+        </div>
+
+        <aside className="tv-side">
+          <p className="tv-mark">Avalon</p>
+          <h1 className="tv-headline">{headline}</h1>
+          {g && <TimerBadge view={view} tv />}
+          {recap && (
+            <a className="tv-recap-cue" href="#recap">
+              Scroll down for the recap
+            </a>
+          )}
+          {waiting.length > 0 && view.phase !== 'over' && (
+            <p className="tv-waiting">
+              Waiting on {waiting.map((id) => nameOf(id) + (online(id) ? '' : ' (away)')).join(', ')}
+            </p>
+          )}
+          {(!g || view.phase === 'over') && view.scores.good + view.scores.evil > 0 && (
+            <p className="tv-tally">
+              <span className="good-text">Good {view.scores.good}</span>
+              <span className="tally-sep" aria-hidden="true">
+                –
+              </span>
+              <span className="evil-text">Evil {view.scores.evil}</span>
+            </p>
+          )}
+          {(!g || view.phase === 'over') && (
+            <div className="tv-join">
+              <div className="tv-join-row">
+                {qr && <div className="tv-qr" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code to join this room" />}
+                <div>
+                  <p className="eyebrow">Room code</p>
+                  <p className="tv-code">{view.code}</p>
                 </div>
-              </>
-            ) : (
-              <>
-                <span className="center-kicker">Room</span>
-                <span className="center-code">{title}</span>
-                <span className="center-line">{line}</span>
-              </>
-            )
-          }
-        />
-      </div>
-
-      <aside className="tv-side">
-        <p className="tv-mark">Avalon</p>
-        <h1 className="tv-headline">{headline}</h1>
-        {g && <TimerBadge view={view} tv />}
-        {waiting.length > 0 && view.phase !== 'over' && (
-          <p className="tv-waiting">
-            Waiting on {waiting.map((id) => nameOf(id) + (online(id) ? '' : ' (away)')).join(', ')}
-          </p>
-        )}
-        {(!g || view.phase === 'over') && view.scores.good + view.scores.evil > 0 && (
-          <p className="tv-tally">
-            <span className="good-text">Good {view.scores.good}</span>
-            <span className="tally-sep" aria-hidden="true">
-              –
-            </span>
-            <span className="evil-text">Evil {view.scores.evil}</span>
-          </p>
-        )}
-        {(!g || view.phase === 'over') && (
-          <div className="tv-join">
-            {qr && <div className="tv-qr" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code to join this room" />}
-            <div>
-              <p className="eyebrow">Join at</p>
-              <p className="tv-url">{joinUrl.replace(/^https?:\/\//, '')}</p>
-              <p className="eyebrow">Room code</p>
-              <p className="tv-code">{view.code}</p>
+              </div>
+              <div className="tv-join-at">
+                <p className="eyebrow">Or join at</p>
+                <p className="tv-url" style={{ '--chars': site.length || 1 }}>
+                  {site}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-        <ol className="tv-chat" aria-label="Table talk">
-          {view.chat
-            .filter((m) => !m.system)
-            .slice(-6)
-            .map((m) => (
-              <li key={m.id}>
-                <b className="tv-name" style={{ color: inkColor(names[m.pid]?.avatar), '--name-tint': tintColor(names[m.pid]?.avatar) }}>{m.name}</b> {m.text}
-              </li>
-            ))}
-        </ol>
-      </aside>
+          )}
+          <ol className="tv-chat" aria-label="Table talk">
+            {view.chat
+              .filter((m) => !m.system)
+              .slice(-6)
+              .map((m) => (
+                <li key={m.id}>
+                  <b className="tv-name" style={{ color: inkColor(names[m.pid]?.avatar), '--name-tint': tintColor(names[m.pid]?.avatar) }}>{m.name}</b> {m.text}
+                </li>
+              ))}
+          </ol>
+        </aside>
 
-      <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} tv />
-    </main>
+        <EventOverlay view={view} nameOf={nameOf} avatarOf={avatarOf} onRole={() => {}} onShown={setRevealing} tv />
+        <Celebration side={celebrating} />
+      </main>
+      {recap && (
+        <div className="tv-recap" id="recap">
+          <Recap view={view} nameOf={nameOf} avatarOf={avatarOf} inline />
+        </div>
+      )}
+    </>
   );
 }

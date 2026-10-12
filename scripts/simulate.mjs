@@ -72,7 +72,7 @@ async function game(n, mode, lady, strategy) {
   assert(timers.talk === 180 && timers.vote === 30, 'timers set ' + JSON.stringify(timers));
   assert((await act(players[1], { type: 'settings', timers: { talk: 300 } })).status === 400, 'non-host timers refused');
   // Theme: only the host picks the look, and only a known one.
-  assert((await v(players[1])).settings.theme === 'night', 'night by default');
+  assert((await v(players[1])).settings.theme === 'parchment', 'parchment by default');
   assert((await act(players[1], { type: 'theme', theme: 'night' })).status === 400, 'non-host theme refused');
   assert((await act(players[0], { type: 'theme', theme: 'neon' })).status === 400, 'unknown theme refused');
   assert((await act(players[0], { type: 'theme', theme: 'tabletop' })).status === 400, 'retired theme refused');
@@ -187,11 +187,17 @@ async function game(n, mode, lady, strategy) {
     if (s.phase === 'over') {
       console.log(`  -> ${s.game.winner} wins: ${s.game.reason}`);
       assert(s.game.roles, 'roles revealed at end');
+      assert(s.game.history.every((h) => h.votes && h.yes === Object.values(h.votes).filter(Boolean).length), 'every vote in the recap');
       assert((await call(`/api/room/${host.data.code}/tv`)).data.game.roles, 'tv shows roles at the end');
       await checkScores(s);
       return s;
     }
     const g = s.game;
+    // Past votes stay hidden mid-game: only the latest, while the seats show it.
+    const onSeats = s.phase === 'quest' || (s.phase === 'team' && g.rejects > 0);
+    for (const seen of [g, (await call(`/api/room/${host.data.code}/tv`)).data.game]) {
+      assert(seen.history.every((h, i) => typeof h.yes === 'number' && 'votes' in h === (onSeats && i === seen.history.length - 1)), 'past votes hidden ' + s.phase);
+    }
     if (s.phase === 'team') {
       const leader = byId[g.leader];
       const size = g.quests[g.questIdx].size;
@@ -209,6 +215,8 @@ async function game(n, mode, lady, strategy) {
       for (const p of players) {
         const r = await act(p, { type: 'vote', approve: strategy.approve(g, s) });
         assert(r.status === 200, 'vote');
+        // The last vote ends the vote phase (and its timer) at once, without waiting for the clock.
+        if (p === players.at(-1)) assert(r.data.phase !== 'vote', 'last vote ends the vote timer');
         if (p !== players.at(-1)) {
           // others' votes hidden mid-vote
           const peek = await v(players[0]);

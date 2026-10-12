@@ -32,7 +32,7 @@ Lady of the Lake and assassination. Deployed on Vercel.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
   `Lobby.js`, `RoundTable.js`, `Avatar.js` (avatar and picker), `Fan.js`, `Reactions.js`,
   `Tutorial.js` (the eight-step walkthrough with a practice table; keep it in step with the
-  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `Theme.js` (`useTheme()`, which puts the room's look on `<html data-theme>` and remembers it on the device), `RoomThemeScript.js` (server-rendered: stamps a room's look into room and TV pages before first paint), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
+  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `Theme.js` (`useTheme()`, which puts a look on `<html data-theme>`: the room's inside a room, parchment everywhere else), `RoomThemeScript.js` (server-rendered: stamps a room's look into room and TV pages before first paint), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
   live in `lib/rules.js` (the drawings are in
   `components/crests.js`) and are validated by
   `cleanAvatar()` on the server. No two players in a room share a crest or a colour
@@ -135,18 +135,19 @@ Never commit secrets. `.env*.local` is gitignored and must stay that way.
 ## Style
 
 There are two looks (`THEMES` in `lib/rules.js`), set by `useTheme()` as `data-theme` on
-`<html>`. Before first paint, an inline script in `app/layout.js` applies the device's last look
-(`localStorage` `avalon:theme`), and room and TV pages apply the room's own look server-side
-(`RoomThemeScript`), so no screen flashes the wrong look. The host picks one with the `theme` action, at any phase. Looks are cosmetic and must
+`<html>`. The HTML always starts in `DEFAULT_THEME` (parchment), and room and TV pages switch to
+the room's own look before first paint (`RoomThemeScript`, server-side), so no screen flashes the
+wrong look. Pages outside a room call `useTheme(DEFAULT_THEME)` so leaving a night room puts
+parchment back. Don't bring back a per-device look: it made the home page disagree with rooms. The host picks one with the `theme` action, at any phase. Looks are cosmetic and must
 never change what information is shown.
 
-- **night** (the default) is `app/globals.css`: lake at night, oak and brass for the table, blue
+- **night** is `app/globals.css`: lake at night, oak and brass for the table, blue
   for Arthur's side and red for Mordred's. The scene is a tabletop rather than stacked boxes.
   Uncial Antiqua is reserved for the wordmark, because its letterforms (t, E) are hard to read
   elsewhere. Every colour is a token on `:root`, and surfaces use flat fills from those
   tokens: no gradients and no literal hex values outside `:root`. **Night must not change
   when parchment changes**: never add parchment styling to `globals.css`.
-- **parchment** is a skin over night's exact layout, in `app/themes.css`, after the Secret
+- **parchment** (the default: new rooms, and every page outside a room) is a skin over night's exact layout, in `app/themes.css`, after the Secret
   Hitler board game's print style in a heraldic palette: cream card stock and charcoal ink,
   double-ruled frames, perforated stamp edges on the hand and announcements, condensed capitals
   (Big Shoulders) on plaques, blackletter (UnifrakturMaguntia) on ballots and the winner's
