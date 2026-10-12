@@ -72,6 +72,7 @@ export default function Room({ view, act, netError }) {
   };
   const g = view.game;
   const [notes, setNote] = useNotes(view.code, g?.id);
+  useTurnAlert(view);
 
   // Unread chat badge.
   const lastChatId = view.chat.at(-1)?.id ?? 0;
@@ -123,7 +124,17 @@ export default function Room({ view, act, netError }) {
 
       {g && (
         <aside className={`drawer drawer-log ${drawer === 'log' ? 'is-open' : ''}`} aria-label="Chronicle">
-          <Chronicle view={view} act={act} nameOf={nameOf} onClose={() => setDrawer(null)} />
+          <Chronicle
+            view={view}
+            act={act}
+            nameOf={nameOf}
+            avatarOf={avatarOf}
+            onInspect={(id) => {
+              setDrawer(null);
+              setInspect(id);
+            }}
+            onClose={() => setDrawer(null)}
+          />
         </aside>
       )}
       {drawer && <button className="drawer-scrim" aria-label="Close panel" onClick={() => setDrawer(null)} />}
@@ -301,6 +312,7 @@ function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, on
       vote: lastVotes ? lastVotes[id] : null,
       note: notes[id],
       muted: rules && !rules.can(id),
+      away: !view.players.find((p) => p.id === id)?.online,
     };
     if (g.roles) {
       const evil = isEvilRole(g.roles[id]);
@@ -566,11 +578,90 @@ function ActionPanel({ view, act, nameOf, rules, picked, setPicked }) {
       body = null;
   }
 
+  const waiting = waitingOn(view).filter((id) => id !== me);
   return (
     <div className="hand-inner" key={view.phase}>
       {body}
+      {waiting.length > 0 && (
+        <p className="waiting">
+          Waiting on{' '}
+          {waiting.map((id, i) => {
+            const away = !view.players.find((p) => p.id === id)?.online;
+            return (
+              <span key={id}>
+                {i > 0 && (i === waiting.length - 1 ? ' and ' : ', ')}
+                <strong className={away ? 'is-away' : ''}>{nameOf(id)}</strong>
+                {away && ' (away)'}
+              </span>
+            );
+          })}
+        </p>
+      )}
     </div>
   );
+}
+
+/** Who the table is waiting on right now. */
+function waitingOn(view) {
+  const g = view.game;
+  if (!g) return [];
+  switch (view.phase) {
+    case 'team':
+      return [g.leader];
+    case 'vote':
+      return g.seats.filter((id) => !g.voted.includes(id));
+    case 'quest':
+      return g.team.filter((id) => !g.played.includes(id));
+    case 'lady':
+      return [g.lady.holder];
+    case 'assassin':
+      return g.assassin ? [g.assassin] : [];
+    default:
+      return [];
+  }
+}
+
+/** True when the game needs something from this player. */
+function isMyTurn(view) {
+  const g = view.game;
+  if (!g) return false;
+  const me = view.you;
+  if (view.phase === 'vote') return g.myVote === null;
+  if (view.phase === 'quest') return g.team.includes(me) && g.myCard === null;
+  return waitingOn(view).includes(me);
+}
+
+/** Buzz and flash the tab title when it becomes your turn. */
+function useTurnAlert(view) {
+  const mine = isMyTurn(view);
+  const was = useRef(mine);
+  useEffect(() => {
+    const became = mine && !was.current;
+    was.current = mine;
+    if (!became) return;
+    try {
+      navigator.vibrate?.([120, 60, 120]);
+    } catch {}
+    if (!document.hidden) return;
+    const original = document.title;
+    let on = false;
+    const timer = setInterval(() => {
+      on = !on;
+      document.title = on ? 'Your turn · Avalon' : original;
+    }, 1000);
+    const stop = () => {
+      if (document.hidden) return;
+      clearInterval(timer);
+      document.title = original;
+      document.removeEventListener('visibilitychange', stop);
+    };
+    document.addEventListener('visibilitychange', stop);
+    return () => {
+      clearInterval(timer);
+      document.title = original;
+      document.removeEventListener('visibilitychange', stop);
+    };
+  }, [mine]);
 }
 
 function RoleModal({ view, nameOf, onClose }) {
@@ -932,7 +1023,7 @@ function EndGame({ act }) {
   );
 }
 
-function Chronicle({ view, act, nameOf, onClose }) {
+function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
   const g = view.game;
   const canEnd = view.hostId === view.you && view.phase !== 'over';
   const entries = [];
@@ -1007,6 +1098,26 @@ function Chronicle({ view, act, nameOf, onClose }) {
         <p className="small">
           <span className="good-text">{describeRoles(g.lineup.good).join(', ')}</span> against <span className="evil-text">{describeRoles(g.lineup.evil).join(', ')}</span>
         </p>
+      </div>
+      <div className="roster">
+        <p className="eyebrow">Players</p>
+        <ul>
+          {g.seats.map((id) => {
+            const online = view.players.find((p) => p.id === id)?.online;
+            return (
+              <li key={id}>
+                <button className="roster-row" onClick={() => onInspect(id)}>
+                  <Avatar avatar={avatarOf(id)} name={nameOf(id)} className="avatar-sm" />
+                  <span className="roster-name">
+                    {nameOf(id)}
+                    {id === view.you && <span className="muted"> (you)</span>}
+                  </span>
+                  <span className={`presence ${online ? 'is-online' : 'is-away'}`}>{online ? 'here' : 'away'}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
       {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal, vote and quest will be recorded here.</p>}
       {canEnd && <EndGame act={act} />}

@@ -27,7 +27,7 @@ export function LobbyTable({ view, nameOf, avatarOf, onInspect }) {
       canInspect={(id) => id === view.you || isHost}
       inspectLabel={(name, id) => (id === view.you ? 'Change your avatar' : `Remove ${name}`)}
       reactions={view.reactions}
-      info={(id) => ({ leader: id === view.hostId })}
+      info={(id) => ({ leader: id === view.hostId, away: !view.players.find((p) => p.id === id)?.online })}
       center={
         <>
           <span className="center-kicker">Room</span>

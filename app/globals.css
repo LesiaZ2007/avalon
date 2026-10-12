@@ -428,7 +428,7 @@ body:has(.scene) .landscape::after {
 }
 .fan-sm {
   --max-w: 58px;
-  padding: 10px 0 4px;
+  padding: 10px 0 20px;
 }
 .fan-lg {
   --max-w: 118px;
@@ -1965,6 +1965,77 @@ body:has(.scene) .landscape::after {
   border: 1px dashed var(--brass);
   color: var(--brass-hi);
   font-size: 14px;
+}
+
+/* ---------- Presence ---------- */
+.seat-node.is-away .avatar {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+.waiting {
+  font-size: 15px;
+  color: var(--dim);
+}
+.waiting strong {
+  color: var(--fg);
+}
+.waiting strong.is-away {
+  color: var(--dim);
+}
+.roster ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.roster-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  text-align: left;
+  cursor: pointer;
+}
+.roster-row:hover {
+  background: var(--raised);
+}
+.avatar-sm {
+  width: 30px;
+  font-size: 12px;
+  border-width: 1.5px;
+  box-shadow: none;
+}
+.roster-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.presence::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.presence.is-online {
+  color: var(--loyal-hi);
+}
+.presence.is-away {
+  color: var(--dim);
 }
 
 /* ---------- Rejoin ---------- */

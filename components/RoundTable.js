@@ -61,6 +61,7 @@ export default function RoundTable({
               s.picked && 'is-picked',
               s.team && 'is-team',
               s.muted && 'is-muted',
+              s.away && 'is-away',
               id === you && 'is-you',
             ]
               .filter(Boolean)
@@ -111,7 +112,11 @@ export default function RoundTable({
               {name}
               {id === you && <span className="seat-you"> (you)</span>}
             </span>
-            {s.tag && <span className={`seat-tag tag-${s.tagKind || 'plain'}`}>{s.tag}</span>}
+            {s.tag ? (
+              <span className={`seat-tag tag-${s.tagKind || 'plain'}`}>{s.tag}</span>
+            ) : (
+              s.away && <span className="seat-tag tag-plain">away</span>
+            )}
           </button>
         );
       })}
