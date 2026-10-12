@@ -180,9 +180,16 @@ export function Check({ size = 12 }) {
 }
 
 /** The Isle of Avalon over a misty lake. Fixed behind every page. */
+/**
+ * The backdrop. Its layers are grouped by depth so they can drift with the mouse (Parallax.js);
+ * shapes that reach the sides run past the frame so a drifting layer never shows an edge.
+ * The printed looks hide the night scene and show their own two pattern layers instead.
+ */
 export function Landscape() {
   return (
     <div className="landscape" aria-hidden="true">
+      <div className="print-layer print-far" />
+      <div className="print-layer print-near" />
       <svg viewBox="0 0 1440 640" preserveAspectRatio="xMidYMax slice">
         <defs>
           <radialGradient id="moonGlow" cx="0.5" cy="0.5" r="0.5">
@@ -194,7 +201,8 @@ export function Landscape() {
           </filter>
         </defs>
 
-        <circle cx="1110" cy="170" r="190" fill="url(#moonGlow)" />
+        <g className="depth depth-sky">
+          <circle cx="1110" cy="170" r="190" fill="url(#moonGlow)" />
         <circle cx="1110" cy="170" r="44" fill="#ece5c9" />
         <circle cx="1096" cy="160" r="8" fill="#d9d1b2" opacity="0.6" />
         <circle cx="1124" cy="186" r="5" fill="#d9d1b2" opacity="0.5" />
@@ -210,17 +218,23 @@ export function Landscape() {
           <circle cx="90" cy="230" r="0.9" />
           <circle cx="980" cy="250" r="0.8" />
         </g>
+        </g>
 
-        <path d="M0 430 C180 392 340 410 520 398 C700 386 840 418 1010 402 C1190 386 1320 410 1440 398 V640 H0 Z" fill="#132a2e" />
-        <path d="M0 452 C160 440 300 452 460 446 C640 440 760 456 940 450 C1120 444 1300 456 1440 448 V640 H0 Z" fill="#102226" />
+        <g className="depth depth-far">
+          <path d="M-90 432 C-40 424 -10 434 0 430 C180 392 340 410 520 398 C700 386 840 418 1010 402 C1190 386 1320 410 1440 398 C1480 394 1510 400 1530 398 V700 H-90 Z" fill="#132a2e" />
+          <path d="M-90 454 C-50 452 -20 454 0 452 C160 440 300 452 460 446 C640 440 760 456 940 450 C1120 444 1300 456 1440 448 C1480 446 1510 448 1530 448 V700 H-90 Z" fill="#102226" />
+        </g>
 
         {/* The Tor with its tower */}
+        <g className="depth depth-tor">
         <path d="M540 456 C620 448 662 372 724 338 C756 320 790 322 822 344 C872 380 916 446 1000 456 Z" fill="#0d1c1f" />
         <path d="M762 334 V276 H790 V340" fill="#0d1c1f" />
         <path d="M757 278 L776 248 L795 278 Z" fill="#0d1c1f" />
         <rect x="773" y="292" width="6" height="10" rx="3" fill="#d3ab57" />
+        </g>
 
-        <rect x="0" y="456" width="1440" height="184" fill="#112326" />
+        <g className="depth depth-lake">
+        <rect x="-90" y="456" width="1620" height="244" fill="#112326" />
         <g fill="#ece5c9">
           <rect x="1078" y="476" width="64" height="2" opacity="0.35" />
           <rect x="1090" y="494" width="40" height="2" opacity="0.28" />
@@ -230,7 +244,9 @@ export function Landscape() {
         </g>
         <path d="M766 470 H786 M760 486 H792" stroke="#d3ab57" strokeOpacity="0.25" strokeWidth="2" />
         <path d="M600 460 C680 470 700 474 776 470 C860 466 900 470 960 462" stroke="#0d1c1f" strokeWidth="6" fill="none" opacity="0.5" />
+        </g>
 
+        <g className="depth depth-mist">
         <g className="mist" filter="url(#mist)" fill="#a7bdb8">
           <ellipse cx="380" cy="450" rx="340" ry="14" opacity="0.16" />
           <ellipse cx="1000" cy="462" rx="420" ry="16" opacity="0.13" />
@@ -239,8 +255,9 @@ export function Landscape() {
           <ellipse cx="720" cy="500" rx="520" ry="12" opacity="0.1" />
           <ellipse cx="200" cy="530" rx="260" ry="10" opacity="0.08" />
         </g>
+        </g>
 
-        <g stroke="#08100f" strokeWidth="3" strokeLinecap="round" fill="none">
+        <g className="depth depth-reeds" stroke="#08100f" strokeWidth="3" strokeLinecap="round" fill="none">
           <path d="M40 640 C44 590 46 560 58 520" />
           <path d="M62 640 C62 600 70 580 84 548" />
           <path d="M80 640 C78 610 74 590 66 566" />

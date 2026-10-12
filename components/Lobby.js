@@ -103,6 +103,7 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
       <Scoreboard view={view} nameOf={nameOf} avatarOf={avatarOf} act={act} />
 
       <div className="pills" role="group" aria-label="Role setup">
+        <span className="pills-label setting-name">Roles</span>
         {Object.entries(MODES).map(([key, m]) => (
           <button key={key} type="button" className="pill" aria-pressed={s.mode === key} disabled={!isHost} onClick={() => update({ mode: key })} title={m.hint}>
             {m.label}
@@ -115,6 +116,7 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
 
       {s.mode === 'custom' && (
         <div className="pills" role="group" aria-label="Custom roles">
+          <span className="pills-label setting-name">In play</span>
           {Object.keys(ROLE_HINTS).map((role) => {
             const needs = ROLE_NEEDS[role];
             const blocked = needs && !s.custom[needs];

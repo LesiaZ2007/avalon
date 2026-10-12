@@ -61,7 +61,7 @@ async function game(n, mode, lady, strategy) {
   assert(timers.talk === 180 && timers.vote === 30, 'timers set ' + JSON.stringify(timers));
   assert((await act(players[1], { type: 'settings', timers: { talk: 300 } })).status === 400, 'non-host timers refused');
   // Theme: only the host picks the look, and only a known one.
-  assert((await v(players[1])).settings.theme === 'parchment', 'parchment by default');
+  assert((await v(players[1])).settings.theme === 'night', 'night by default');
   assert((await act(players[1], { type: 'theme', theme: 'night' })).status === 400, 'non-host theme refused');
   assert((await act(players[0], { type: 'theme', theme: 'neon' })).status === 400, 'unknown theme refused');
   assert((await act(players[0], { type: 'theme', theme: 'tabletop' })).status === 200, 'theme set');

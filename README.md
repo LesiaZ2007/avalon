@@ -32,10 +32,9 @@ New players can tap **Learn to play** on the home page, or the **?** button in a
 
 ## The screen
 
-Each room is one tabletop scene rather than a page of boxes. Players sit as heraldic shields with their names on banners, and every panel is a ruled sheet like a printed game piece.
+Each room is one tabletop scene rather than a page of boxes.
 
-- **Three looks.** The host picks the room's look in the lobby (and can change it any time): **Parchment**, the default, puts vellum sheets written in ink over the lake at night; **Night** keeps the lake with dark panels trimmed in brass; **Tabletop** drops the lake and lays everything out as printed pieces on a tan table. Every phone and the TV follow the host's choice. The look is purely cosmetic: all three show exactly the same information.
-
+- **Three looks.** The host picks the room's look in the lobby, and can change it at any point. **Night** (the default) is the lake at night with an oak and brass table. **Parchment** draws everything as printed game pieces on cream paper: boards with perforated stamp edges, Approve and Reject as blackletter ballot cards, quest cards framed in blue and red, players as shields with their names on plaques, and forest green for your actions. **Tabletop** lays the same printed pieces out on a wooden table. Every phone and the TV follow the host's choice. The look is purely cosmetic: all three show exactly the same information.
 - **The Round Table.** Seats run clockwise in turn order. The tabletop holds the five quest medallions and the rejected-team track. Tap a finished medallion to see who went and how many Fail cards were played.
 - **Your hand.** Everything you can do right now sits at the foot of the table: proposing a team, the Approve/Reject tokens, the two quest cards, the Lady, the Assassin's choice. On laptops it sits beside the table so nothing scrolls out of view.
 - **Live team building.** As the leader taps seats, everyone watches the shields appear. The team forms in front of the table instead of arriving all at once.
@@ -51,7 +50,7 @@ Each room is one tabletop scene rather than a page of boxes. Players sit as hera
 - **End-of-game recap.** When a game ends, tap *See the recap*. It shows who was on which side and what role they had, every quest with the team that went, how the table voted for it, which knights on it were evil, and how many teams were rejected first. It also covers each Lady of the Lake result and who the Assassin named.
 - **Reactions.** Thumbs up, thumbs down, hmm, side-eye, shock and laughter pop up over your seat for the whole table, for when a vote goes sideways. They're drawn in the same line style as the crests rather than emoji, so they look the same on every phone.
 - **Your role** is dealt face down. Tap to turn it over, so you choose when to look.
-- **Table talk** (chat) is docked on wide screens and slides in from the side on phones. Each name is written in that player's avatar colour (a lighter version on dark panels), so you can match a line to a seat at a glance. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play. Wherever votes are shown (the reveal after each vote, the chronicle and the recap), each player appears with their avatar, so you can read the split at a glance.
+- **Table talk** (chat) is docked on wide screens and slides in from the side on phones. Each name is written in a light version of that player's avatar colour (on paper, the colour itself), so you can match a line to a seat at a glance. **The chronicle** keeps every proposal, vote and quest result, plus the roles in play. Wherever votes are shown (the reveal after each vote, the chronicle and the recap), each player appears with their avatar, so you can read the split at a glance.
 
 ### What stays secret
 

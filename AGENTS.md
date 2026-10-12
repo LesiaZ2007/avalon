@@ -9,8 +9,8 @@ Lady of the Lake and assassination. Deployed on Vercel.
 | Piece | What |
 | --- | --- |
 | Framework | Next.js 15 (App Router), React 19, plain JavaScript |
-| Styling | One hand-written stylesheet, `app/globals.css` (no Tailwind) |
-| Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC (headings, buttons), Alegreya (body) |
+| Styling | Hand-written CSS, no Tailwind: `app/globals.css` (the night look) and `app/themes.css` (the printed looks) |
+| Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC, Alegreya Sans; the printed looks add Big Shoulders and UnifrakturMaguntia |
 | Storage | Redis: Upstash REST API via `fetch` when available, otherwise a `redis://` URL via the `redis` client; in-memory fallback locally |
 | Realtime | Clients poll `GET /api/room/[code]` about once a second; no websockets |
 | Artwork | Inline SVG in `components/art.js`; no image files |
@@ -132,30 +132,33 @@ Never commit secrets. `.env*.local` is gitignored and must stay that way.
 
 ## Style
 
-The look is medieval game pieces, not app chrome: heraldic shields for seats, swallowtail
-banners for names, ruled sheets (outer border plus a fine inner rule) for every panel, gilt
-plates for primary buttons, square-ish corners rather than pills. Labels are italic "rubrics" in
-gold ink, never tracked capitals; gold rather than red, because red means Mordred's side.
-Oak and brass for the table, blue for Arthur's side and red for Mordred's. Uncial Antiqua is
-reserved for the wordmark, because its letterforms (t, E) are hard to read elsewhere.
+There are three looks (`THEMES` in `lib/rules.js`), set by `useTheme()` as `data-theme` on
+`<html>`. The host picks one with the `theme` action, at any phase. Looks are cosmetic and must
+never change what information is shown.
 
-There are three themes (`THEMES` in `lib/rules.js`), set as `data-theme` on `<html>`:
-parchment (default; vellum sheets over the night lake), night (dark sheets with brass trim) and
-tabletop (no lake; everything on a tan table). The host picks one with the `theme` action, at
-any phase. Themes are cosmetic and must never change what information is shown.
+- **night** (the default) is `app/globals.css`: lake at night, oak and brass for the table, blue
+  for Arthur's side and red for Mordred's. The scene is a tabletop rather than stacked boxes.
+  Uncial Antiqua is reserved for the wordmark, because its letterforms (t, E) are hard to read
+  elsewhere. Every colour is a token on `:root`, and surfaces use flat fills from those
+  tokens: no gradients and no literal hex values outside `:root`. **Night must not change
+  when the other looks change**: never add printed-look styling to `globals.css`.
+- **parchment** and **tabletop** are the printed looks, after the Secret Hitler board game's
+  print style in a heraldic palette: cream card stock and charcoal ink, double-ruled frames,
+  perforated stamp edges on the hand and announcements, condensed capitals (Big Shoulders) on
+  boxed plaques, blackletter (UnifrakturMaguntia) on ballots and the winner's banner. Azure
+  for Arthur, gules for Mordred, forest green for actions and choices (it belongs to neither
+  side), muted gold only for small trim, never a yellow block. No italics. Parchment lays the
+  pieces on a cream page; tabletop on a wooden table. Both live in `app/themes.css`, where
+  every rule is scoped to `[data-printed]` (set for both) or `[data-theme='…']`. That file
+  mostly redefines `globals.css`'s tokens, then restyles what the original draws with dark
+  literals. Its fixed colours are `--p-*` tokens on `:root`. The paper grain, wood grain and
+  stamp-edge masks are the only textures.
 
-How the theming works in `globals.css`: fixed colours (night, brass, vellum, oak, the sides)
-are tokens on `:root` and never change. Context tokens (`--fg`, `--dim`, `--line`,
-`--surface`, `--label`, `--brass-hi`/`--loyal-hi`/`--evil-hi`, the `*-soft` tints, `--well`,
-`--plate`, `--field`) are the ink of whatever a piece sits on. They're defined once for dark
-ground and once for vellum, and a theme switches by choosing which elements get which set.
-Pieces with their own dark fill (cards, shields, medals) are listed in the dark set so they
-read the same inside any sheet. Style new components with context tokens, and add new panels
-to the sheet selector lists rather than giving them their own colours. No literal hex values
-outside the token blocks; no decorative gradients (the paper grain is the one texture). New artwork follows the line style of
-`art.js` and `crests.js` (3 to 3.5px rounded strokes in `currentColor`, a faint fill, brass
-accents). Read neighbouring components before adding a
-new pattern.
+New components: style them in `globals.css` for night first, using its tokens, then check
+them in both printed looks and add `[data-printed]` rules to `themes.css` where needed.
+New artwork follows the line style of `art.js` and `crests.js` (3 to 3.5px rounded strokes in
+`currentColor`, a faint fill, brass accents). Read neighbouring components before adding a new
+pattern.
 
 The UI must never reveal hidden information through layout. For example, good and evil
 players see the same two quest cards. Keep it that way.

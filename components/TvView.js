@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import RoundTable from './RoundTable';
 import { EventOverlay, QuestRow, waitingOn } from './Room';
-import { nameColors } from './Avatar';
+import { inkColor, tintColor } from './Avatar';
 import { useTheme } from './Theme';
 import TimerBadge from './Timer';
 import { api } from '@/lib/client';
@@ -218,7 +218,7 @@ export default function TvView({ code }) {
             .slice(-6)
             .map((m) => (
               <li key={m.id}>
-                <b className="msg-name" style={nameColors(names[m.pid]?.avatar)}>{m.name}</b> {m.text}
+                <b className="tv-name" style={{ color: inkColor(names[m.pid]?.avatar), '--name-tint': tintColor(names[m.pid]?.avatar) }}>{m.name}</b> {m.text}
               </li>
             ))}
         </ol>
