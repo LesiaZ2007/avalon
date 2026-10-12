@@ -6,7 +6,9 @@ const shortName = (role) => ROLES[role].name.replace(' of Arthur', '').replace('
 /** Role cards fanned out like a hand. Hover or focus a card to lift it. */
 export default function Fan({ roles, size = 'md', label }) {
   const n = roles.length;
-  const spread = Math.min(9, 60 / Math.max(n - 1, 1));
+  // Keep the whole arc within ~44 degrees and a 14px dip, however many cards are in the hand.
+  const spread = Math.min(9, 44 / Math.max(n - 1, 1));
+  const half = Math.max((n - 1) / 2, 1);
   return (
     <div className={`fan fan-${size}`} role="list" aria-label={label} style={{ '--n': n }}>
       {roles.map((role, i) => {
@@ -17,7 +19,7 @@ export default function Fan({ roles, size = 'md', label }) {
             role="listitem"
             tabIndex={0}
             className={`fan-card is-${ROLES[role].team}`}
-            style={{ '--r': `${offset * spread}deg`, '--y': `${Math.abs(offset) * Math.abs(offset) * 1.4}px`, '--i': i }}
+            style={{ '--r': `${offset * spread}deg`, '--y': `${(offset / half) ** 2 * 14}px`, '--i': i }}
             title={ROLES[role].blurb}
           >
             <span className="fan-art">

@@ -12,7 +12,7 @@ async function call(path, { token, body, method } = {}) {
 const EVIL = ['assassin', 'morgana', 'mordred', 'oberon', 'minion'];
 
 async function game(n, mode, lady, strategy) {
-  const names = ['Arthur', 'Bedivere', 'Cai', 'Dagonet', 'Elaine', 'Gawain', 'Gareth', 'Lamorak', 'Tristan', 'Yvain'].slice(0, n);
+  const names = ['Arthur', 'Bedivere', 'Cai', 'Dagonet', 'Elaine', 'Gawain', 'Gareth', 'Lamorak', 'Tristan', 'Yvain', 'Lancelot', 'Percival', 'Galahad', 'Bors', 'Kay'].slice(0, n);
   const host = await call('/api/room', { body: { action: 'create', name: names[0] } });
   const code = host.data.code;
   const players = [{ name: names[0], ...host.data }];
@@ -27,7 +27,7 @@ async function game(n, mode, lady, strategy) {
   const act = (p, body) => call(`/api/room/${code}`, { token: p.token, body });
   const v = async (p) => (await call(`/api/room/${code}`, { token: p.token })).data;
 
-  if (n < 10) {
+  if (n < 15) {
     // Avatars: a valid choice is kept, junk falls back to initials, and anyone can change theirs.
     const extra = await call('/api/room', { body: { action: 'join', code, name: 'Extra', avatar: { icon: 'stag', tint: 3 } } });
     assert(extra.status === 200, 'join with avatar');
@@ -66,7 +66,7 @@ async function game(n, mode, lady, strategy) {
   views.forEach((vw, i) => { roles[players[i].playerId] = vw.game.myRole; assert(vw.game.roles === null, 'roles hidden'); });
   const ids = players.map(p => p.playerId);
   const evilCount = ids.filter(id => EVIL.includes(roles[id])).length;
-  const expectedEvil = { 5: 2, 6: 2, 7: 3, 8: 3, 9: 3, 10: 4 }[n];
+  const expectedEvil = { 5: 2, 6: 2, 7: 3, 8: 3, 9: 3, 10: 4, 11: 4, 12: 5, 13: 5, 14: 5, 15: 6 }[n];
   assert(evilCount === expectedEvil, `evil count ${evilCount}`);
   // Knowledge checks
   views.forEach((vw, i) => {
@@ -158,4 +158,18 @@ s = await game(10, 'full', true, { team: anyTeam, approve: () => true, evilPlays
 console.log('Game 5: 8p custom, evil always fails, mixed teams');
 s = await game(8, 'custom', false, { team: (ids, roles, size) => [ids.find(id => EVIL.includes(roles[id])), ...ids.filter(id => !EVIL.includes(roles[id]))].slice(0, size), approve: () => true, evilPlays: false, assassinHits: false });
 assert(s.game.reason.includes('Three quests failed'), 'evil via fails');
+console.log('Game 6: 12p full set + lady (house rules), good teams, assassin misses');
+s = await game(12, 'full', true, { team: goodTeam, approve: () => true, evilPlays: false, assassinHits: false });
+assert(s.game.winner === 'good', '12p good should win');
+console.log('Game 7: 15p full set, evil fails everything');
+s = await game(15, 'full', false, { team: anyTeam, approve: () => true, evilPlays: false, assassinHits: false });
+assert(s.game.quests[0].size === 4 && s.game.quests[3].failsNeeded === 2, '15p quest sizes');
+// A 16th player is turned away.
+{
+  const r = await call('/api/room', { body: { action: 'create', name: 'Host' } });
+  for (let i = 1; i < 15; i++) await call('/api/room', { body: { action: 'join', code: r.data.code, name: `P${i}` } });
+  const extra = await call('/api/room', { body: { action: 'join', code: r.data.code, name: 'Sixteenth' } });
+  assert(extra.status === 400 && /full/.test(extra.data.error), 'room caps at 15');
+  console.log('Room caps at 15 players');
+}
 console.log('ALL PASSED');

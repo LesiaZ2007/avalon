@@ -4,10 +4,20 @@ The Resistance: Avalon, played from phones around one table. One person creates 
 
 ## Playing
 
-- **5 to 10 players.** Quest sizes, the evil count, and the rule that quest 4 needs two Fail cards with 7+ players all match the box.
+- **5 to 15 players.** Up to 10, quest sizes, the evil count, and the rule that quest 4 needs two Fail cards with 7+ players all match the box. The box stops at 10, so 11 to 15 use house rules. They keep about a third of the table evil, and grow the teams so a quest still tends to include a traitor:
+
+  | Players | Evil | Quest teams |
+  | --- | --- | --- |
+  | 11 | 4 | 3, 4, 4, 5, 5 |
+  | 12 | 5 | 3, 4, 4, 5, 5 |
+  | 13 | 5 | 4, 4, 5, 5, 6 |
+  | 14 | 5 | 4, 5, 5, 6, 6 |
+  | 15 | 6 | 4, 5, 5, 6, 6 |
+
+  Quest 4 still needs two Fail cards. The lobby says when a table is on house rules, and the round table shrinks its seats to fit.
 - **Role setups:** the host picks one before dealing.
   - **Merlin & Assassin**
-  - **Full set:** every special role that fits the player count. Evil roles are added in the order Morgana, Mordred, Oberon, until the evil seats run out. So Oberon only appears with 10 players.
+  - **Full set:** every special role that fits the player count. Evil roles are added in the order Morgana, Mordred, Oberon, until the evil seats run out. So Oberon only appears with 10 or more players.
   - **Custom:** pick roles yourself.
   - **No special roles**
 

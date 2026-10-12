@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import RoundTable from './RoundTable';
 import Fan from './Fan';
-import { MAX_PLAYERS, MIN_PLAYERS, MODES, ROLES, ROLE_NEEDS, lineup } from '@/lib/rules';
+import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, lineup } from '@/lib/rules';
 
 const ROLE_HINTS = {
   merlin: 'Adds the Assassin to evil.',
@@ -86,6 +86,12 @@ export function LobbyHand({ view, act }) {
         <span className="evil-text">{deal.evil.length} evil</span>.
         {deal.dropped.length > 0 && ` Not enough evil seats for ${deal.dropped.map((r) => ROLES[r].name).join(' and ')} yet.`}
       </p>
+      {count > OFFICIAL_MAX && (
+        <p className="house-note">
+          More than {OFFICIAL_MAX} players uses house rules, since the box stops at {OFFICIAL_MAX}: {deal.evil.length} evil, and quest teams of{' '}
+          {QUEST_SIZES[count].join(', ')}.
+        </p>
+      )}
 
       <div className="pills" role="group" aria-label="Role setup">
         {Object.entries(MODES).map(([key, m]) => (

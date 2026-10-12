@@ -49,7 +49,7 @@ export default function Home() {
       <header className="hero">
         <p className="eyebrow">The Resistance</p>
         <h1 className="wordmark">Avalon</h1>
-        <p className="hero-lede">Loyal knights and hidden traitors, for 5 to 10 players at one table. Everyone plays from their own phone.</p>
+        <p className="hero-lede">Loyal knights and hidden traitors, for 5 to 15 players at one table. Everyone plays from their own phone.</p>
         <div className="hero-actions">
           <button className="btn btn-ghost" onClick={() => setLearning(true)}>
             New to Avalon? Learn to play

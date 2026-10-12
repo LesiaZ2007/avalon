@@ -750,7 +750,7 @@ body:has(.scene) .landscape::after {
   flex-direction: column;
   align-items: center;
   gap: 0.5cqw;
-  width: 19cqw;
+  width: var(--seat-w, 19cqw);
   padding: 0;
   border: 0;
   background: none;
@@ -772,7 +772,7 @@ body:has(.scene) .landscape::after {
   position: relative;
   display: grid;
   place-items: center;
-  width: max(42px, 10.6cqw);
+  width: max(var(--avatar-min, 42px), var(--avatar-w, 10.6cqw));
   aspect-ratio: 1;
   border-radius: 50%;
   background: var(--tint);
@@ -1958,6 +1958,15 @@ body:has(.scene) .landscape::after {
   gap: 14px;
 }
 
+.house-note {
+  max-width: 46ch;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--brass);
+  color: var(--brass-hi);
+  font-size: 14px;
+}
+
 /* ---------- Tutorial ---------- */
 .hero-actions {
   margin-top: 18px;
@@ -2078,6 +2087,9 @@ body:has(.scene) .landscape::after {
 .tut-counts td {
   padding: 4px 10px;
   text-align: center;
+}
+.tut-counts td.is-house {
+  font-style: italic;
 }
 .tut-counts th {
   font-size: 13px;

@@ -170,26 +170,35 @@ const STEPS = [
     stage: () => (
       <>
         <Fan roles={['servant', 'servant', 'merlin', 'percival', 'assassin', 'minion']} label="Good and evil roles" />
-        <table className="tut-counts">
-          <tbody>
-            <tr>
-              <th scope="row">Players</th>
-              {[5, 6, 7, 8, 9, 10].map((n) => (
-                <td key={n}>{n}</td>
-              ))}
-            </tr>
-            <tr>
-              <th scope="row" className="evil-text">
-                Evil
-              </th>
-              {[5, 6, 7, 8, 9, 10].map((n) => (
-                <td key={n} className="evil-text">
-                  {EVIL_COUNT[n]}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+        {[
+          [[5, 6, 7, 8], ''],
+          [[9, 10, 11, 12], ''],
+          [[13, 14, 15], 'house rules'],
+        ].map(([counts, note]) => (
+          <table key={counts[0]} className="tut-counts">
+            <tbody>
+              <tr>
+                <th scope="row">Players</th>
+                {counts.map((n) => (
+                  <td key={n} className={n > 10 ? 'is-house' : ''}>
+                    {n}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <th scope="row" className="evil-text">
+                  Evil
+                </th>
+                {counts.map((n) => (
+                  <td key={n} className={`evil-text ${n > 10 ? 'is-house' : ''}`}>
+                    {EVIL_COUNT[n]}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        ))}
+        <p className="muted small">The box stops at 10 players; 11 to 15 use house rules with bigger quest teams.</p>
       </>
     ),
   },

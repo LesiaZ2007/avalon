@@ -25,10 +25,17 @@ export default function RoundTable({
   reactions = {},
 }) {
   const n = seats.length;
-  const radius = n <= 6 ? 37 : 39.5;
+  const radius = n <= 6 ? 37 : n <= 10 ? 39.5 : 41;
+  // Bigger tables get smaller seats so 15 players still fit around the rim.
+  const sizing =
+    n > 12
+      ? { '--seat-w': '15cqw', '--avatar-w': '8.6cqw', '--avatar-min': '34px' }
+      : n > 10
+      ? { '--seat-w': '16.5cqw', '--avatar-w': '9.4cqw', '--avatar-min': '38px' }
+      : undefined;
 
   return (
-    <div className="table-wrap" data-count={n}>
+    <div className="table-wrap" data-count={n} style={sizing}>
       <div className="table-top">
         <div className="table-center">{center}</div>
       </div>
