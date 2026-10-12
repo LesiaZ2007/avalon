@@ -118,8 +118,14 @@ stop and say so explicitly, with exactly what to do:
   `UPSTASH_REDIS_REST_TOKEN`, either pair under a custom prefix, then a `redis://` /
   `rediss://` URL in `REDIS_URL` or `KV_URL`. When none is found on Vercel, the error lists
   the Redis-related variable *names* the deployment can see, never their values.
-- **Storage changes**: rooms are JSON blobs under `avalon:room:<CODE>` with a 12-hour TTL.
-  If you change the room shape, old rooms simply expire, but say so.
+- **Storage changes**: rooms are JSON blobs under `avalon:room:<CODE>`, and presence is a hash
+  under `avalon:seen:<CODE>` (player id -> last check-in), both with a 12-hour TTL. If you
+  change the room shape, old rooms simply expire, but say so.
+
+Polls read through `loadRoomShared()` / `loadPresence()`, which share results for under a
+second within a server instance. Those objects are shared between requests: treat them as
+read-only, and do every write through `withRoom()` or `touchPresence()`. Keep Redis traffic in
+mind: Upstash bills per command.
 
 Never commit secrets. `.env*.local` is gitignored and must stay that way.
 

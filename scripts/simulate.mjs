@@ -102,6 +102,9 @@ async function game(n, mode, lady, strategy) {
     assert((await v(target)).game.myRole === before, 'same role after rejoin');
     assert((await call('/api/room', { body: { action: 'rejoin', code: host.data.code, rejoinCode: code } })).status === 400, 'rejoin code is single-use');
     assert((await v(players[0])).players.every((p) => typeof p.online === 'boolean'), 'presence shown');
+    const ver = (await v(players[0])).version;
+    const quiet = (await call(`/api/room/${host.data.code}?v=${ver}`, { token: players[0].token })).data;
+    assert(quiet.unchanged && typeof quiet.online[players[1].playerId] === 'boolean', 'unchanged polls carry presence');
   }
   const byId = Object.fromEntries(players.map(p => [p.playerId, p]));
   let guard = 0;

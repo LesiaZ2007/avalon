@@ -1,6 +1,6 @@
 // POST { action: 'create', name } or { action: 'join', code, name }
 import { createRoom, joinRoom, newCode, normCode, redeemRejoin } from '@/lib/game';
-import { insertRoom, withRoom } from '@/lib/store';
+import { insertRoom, touchPresence, withRoom } from '@/lib/store';
 import { GameError } from '@/lib/errors';
 import { errorResponse, json } from '@/lib/http';
 
@@ -28,6 +28,7 @@ export async function POST(req) {
     if (body.action === 'rejoin') {
       const code = normCode(body.code);
       const { result: player } = await withRoom(code, (room) => redeemRejoin(room, body.rejoinCode));
+      await touchPresence(code, player.id);
       return json({ code, playerId: player.id, token: player.token });
     }
 

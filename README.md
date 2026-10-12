@@ -73,4 +73,10 @@ The app finds Redis by itself. It accepts Upstash's REST variables (`KV_REST_API
 
 If storage still isn't reachable, creating a room shows an error. It names the environment (production or preview) and lists which Redis-related variable names the deployment can see, without their values. "No Redis variables at all" means the store isn't connected to that environment or the deployment predates it. "Can see X but no usable…" means the store is connected but its variables are in an unexpected form.
 
-Rooms expire 12 hours after their last change. Each phone checks for updates about once a second, or every 4 seconds when the tab is in the background. A 10-player game for an hour uses roughly 30k Redis commands, well within Upstash's free tier.
+Rooms expire 12 hours after their last change. Phones check for updates every 1.5 seconds while things are happening, slowing to 3 seconds during long discussions, 2.5 to 4 seconds in the lobby, and 8 seconds in a background tab.
+
+Redis usage stays low however many people are playing:
+- Polls that land on the same server instance share one read for up to a second.
+- Each phone's "I'm here" check-in goes to a small separate record about every 25 seconds, so it costs one command and doesn't force everyone to re-download the room.
+
+Measured with 15 phones polling at the fastest rate, a game uses about 3 Redis commands a second, around 11k an hour. Upstash's free tier (500k a month) covers roughly 40 hours of 15-player play a month. If Vercel spreads traffic over several instances, multiply by their number.

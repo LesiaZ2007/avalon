@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "simulate": "node scripts/simulate.mjs",
-    "build:check": "node -e \"require('fs').rmSync('.next-check',{recursive:true,force:true}); process.env.NEXT_DIST_DIR='.next-check'; require('child_process').execSync('next build',{stdio:'inherit',env:process.env,shell:true})\""
+    "build:check": "node -e \"require('fs').rmSync('.next-check',{recursive:true,force:true,maxRetries:20,retryDelay:500}); process.env.NEXT_DIST_DIR='.next-check'; require('child_process').execSync('next build',{stdio:'inherit',env:process.env,shell:true})\""
   },
   "dependencies": {
     "next": "^15.5.0",

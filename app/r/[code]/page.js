@@ -6,6 +6,25 @@ import Link from 'next/link';
 import { api, clearSeat, loadAvatar, loadName, loadSeat, saveName, saveSeat } from '@/lib/client';
 import Room from '@/components/Room';
 
+/**
+ * How long to wait before the next poll. Fast while things are happening, slower during long
+ * discussions and in the lobby, slowest in a background tab. Every poll costs a Redis read.
+ */
+function pollDelay(idle, phase) {
+  if (typeof document !== 'undefined' && document.hidden) return 8000;
+  if (phase === 'lobby') return idle >= 6 ? 4000 : 2500;
+  if (idle >= 12) return 3000;
+  if (idle >= 4) return 2200;
+  return 1500;
+}
+
+/** Update online flags from a poll that had nothing else new. Same object if nothing changed. */
+function withOnline(view, online) {
+  if (!view) return view;
+  if (view.players.every((p) => online[p.id] === undefined || online[p.id] === p.online)) return view;
+  return { ...view, players: view.players.map((p) => (online[p.id] === undefined ? p : { ...p, online: online[p.id] })) };
+}
+
 export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
@@ -18,6 +37,10 @@ export default function RoomPage() {
   const [toast, setToast] = useState('');
   const [removed, setRemoved] = useState(false);
   const versionRef = useRef(null);
+  const phaseRef = useRef('lobby');
+  useEffect(() => {
+    if (view) phaseRef.current = view.phase;
+  }, [view]);
 
   useEffect(() => setSeat(loadSeat(code)), [code]);
 
@@ -27,6 +50,7 @@ export default function RoomPage() {
     let stopped = false;
     let running = false;
     let timer;
+    let idle = 0; // polls in a row with nothing new
     const tick = async () => {
       if (running) return;
       running = true;
@@ -35,9 +59,13 @@ export default function RoomPage() {
         const data = await api(`/api/room/${code}?v=${versionRef.current ?? ''}`, { token: seat.token });
         if (stopped) return;
         if (!data.unchanged) {
+          idle = 0;
           versionRef.current = data.version;
           setView(data);
           setStatus('ok');
+        } else {
+          idle += 1;
+          if (data.online) setView((v) => withOnline(v, data.online));
         }
         setNetError('');
       } catch (err) {
@@ -58,7 +86,7 @@ export default function RoomPage() {
         setNetError(err.message || 'Lost connection. Retrying…');
       }
       running = false;
-      if (!stopped) timer = setTimeout(tick, document.hidden ? 4000 : 1200);
+      if (!stopped) timer = setTimeout(tick, pollDelay(idle, phaseRef.current));
     };
     const onVisible = () => !document.hidden && tick();
     document.addEventListener('visibilitychange', onVisible);
