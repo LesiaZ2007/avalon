@@ -7,7 +7,7 @@ import './themes.css';
 
 const display = Uncial_Antiqua({ weight: '400', subsets: ['latin'], variable: '--font-display', display: 'swap' });
 const heading = Alegreya_SC({ weight: ['500', '700'], subsets: ['latin'], variable: '--font-heading', display: 'swap' });
-// The printed looks (parchment, tabletop): condensed capitals for plaques and headings, and
+// The parchment look: condensed capitals for plaques and headings, and
 // blackletter for the words on ballots and cards.
 const plaque = Big_Shoulders({ weight: ['600', '700', '800', '900'], subsets: ['latin'], variable: '--font-plaque', display: 'swap', adjustFontFallback: false });
 const blackletter = UnifrakturMaguntia({ weight: '400', subsets: ['latin'], variable: '--font-blackletter', display: 'swap' });

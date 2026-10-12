@@ -48,6 +48,16 @@ export function LobbyTable({ view, nameOf, avatarOf, onInspect }) {
   );
 }
 
+/** One lobby setting: its name on the left, its control (or, for players, its value) on the right. */
+function Setting({ label, hint, children }) {
+  return (
+    <div className="setting" title={hint}>
+      <span className="setting-label">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 export function LobbyHand({ view, act, nameOf, avatarOf }) {
   const isHost = view.hostId === view.you;
   const s = view.settings;
@@ -102,56 +112,83 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
 
       <Scoreboard view={view} nameOf={nameOf} avatarOf={avatarOf} act={act} />
 
-      <div className="pills" role="group" aria-label="Role setup">
-        <span className="pills-label setting-name">Roles</span>
-        {Object.entries(MODES).map(([key, m]) => (
-          <button key={key} type="button" className="pill" aria-pressed={s.mode === key} disabled={!isHost} onClick={() => update({ mode: key })} title={m.hint}>
-            {m.label}
-          </button>
-        ))}
-        <button type="button" className="pill pill-lady" aria-pressed={s.lady} disabled={!isHost} onClick={() => update({ lady: !s.lady })} title="After quests 2, 3 and 4, the holder secretly learns one player's loyalty. Best with 7+ players.">
-          Lady of the Lake {s.lady ? 'on' : 'off'}
-        </button>
-      </div>
+      <div className="settings" role="group" aria-label="Game settings">
+        <Setting label="Roles" hint={MODES[s.mode]?.hint}>
+          {isHost ? (
+            <select className="setting-select" value={s.mode} onChange={(e) => update({ mode: e.target.value })} aria-label="Roles">
+              {Object.entries(MODES).map(([key, m]) => (
+                <option key={key} value={key}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="setting-value">{MODES[s.mode]?.label}</span>
+          )}
+        </Setting>
 
-      {s.mode === 'custom' && (
-        <div className="pills" role="group" aria-label="Custom roles">
-          <span className="pills-label setting-name">In play</span>
-          {Object.keys(ROLE_HINTS).map((role) => {
-            const needs = ROLE_NEEDS[role];
-            const blocked = needs && !s.custom[needs];
-            const on = !blocked && !!s.custom[role];
-            return (
-              <button key={role} type="button" className="pill pill-role" aria-pressed={on} disabled={!isHost || blocked} title={ROLE_HINTS[role]} onClick={() => toggleRole(role, !on)}>
-                {role === 'merlin' ? 'Merlin & Assassin' : ROLES[role].name}
-              </button>
-            );
-          })}
-        </div>
-      )}
-      <div className="timer-settings">
-        {Object.entries(TIMERS).map(([key, t]) => (
-          <div key={key} className="pills" role="group" aria-label={t.label} title={t.hint}>
-            <span className="pills-label">{t.label}</span>
-            {TIMER_CHOICES[key].map((secs) => (
-              <button key={secs} type="button" className="pill pill-sm" aria-pressed={(s.timers?.[key] ?? 0) === secs} disabled={!isHost} onClick={() => update({ timers: { [key]: secs } })}>
-                {secs ? formatSeconds(secs) : 'Off'}
-              </button>
-            ))}
+        {s.mode === 'custom' && (
+          <div className="setting-checks" role="group" aria-label="Roles in play">
+            {Object.keys(ROLE_HINTS).map((role) => {
+              const needs = ROLE_NEEDS[role];
+              const blocked = needs && !s.custom[needs];
+              const on = !blocked && !!s.custom[role];
+              return (
+                <label key={role} className={`setting-check ${blocked ? 'is-blocked' : ''}`} title={ROLE_HINTS[role]}>
+                  <input type="checkbox" checked={on} disabled={!isHost || blocked} onChange={() => toggleRole(role, !on)} />
+                  {role === 'merlin' ? 'Merlin & Assassin' : ROLES[role].name}
+                </label>
+              );
+            })}
           </div>
-        ))}
-        {(s.timers?.talk > 0 || s.timers?.vote > 0) && <p className="hand-text small">When time runs out, the table sees it and the players being waited on get a buzz. Nothing is played for them.</p>}
+        )}
+
+        <Setting label="Lady of the Lake" hint="After quests 2, 3 and 4, the holder secretly learns one player's loyalty. Best with 7+ players.">
+          {isHost ? (
+            <button type="button" role="switch" aria-checked={s.lady} aria-label="Lady of the Lake" className="setting-switch" onClick={() => update({ lady: !s.lady })}>
+              <span className="setting-switch-knob" aria-hidden="true" />
+              {s.lady ? 'On' : 'Off'}
+            </button>
+          ) : (
+            <span className="setting-value">{s.lady ? 'On' : 'Off'}</span>
+          )}
+        </Setting>
+
+        {Object.entries(TIMERS).map(([key, t]) => {
+          const value = s.timers?.[key] ?? 0;
+          return (
+            <Setting key={key} label={t.label} hint={t.hint}>
+              {isHost ? (
+                <select className="setting-select" value={value} onChange={(e) => update({ timers: { [key]: Number(e.target.value) } })} aria-label={t.label}>
+                  {TIMER_CHOICES[key].map((secs) => (
+                    <option key={secs} value={secs}>
+                      {secs ? formatSeconds(secs) : 'Off'}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <span className="setting-value">{value ? formatSeconds(value) : 'Off'}</span>
+              )}
+            </Setting>
+          );
+        })}
+
+        <Setting label="Look" hint={THEMES[themeOf(s)].hint}>
+          {isHost ? (
+            <select className="setting-select" value={themeOf(s)} onChange={(e) => act({ type: 'theme', theme: e.target.value })} aria-label="Look">
+              {Object.entries(THEMES).map(([key, t]) => (
+                <option key={key} value={key}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className="setting-value">{THEMES[themeOf(s)].label}</span>
+          )}
+        </Setting>
       </div>
-      <div className="pills" role="group" aria-label="Look">
-        <span className="pills-label">Look</span>
-        {Object.entries(THEMES).map(([key, t]) => (
-          <button key={key} type="button" className="pill pill-sm pill-theme" aria-pressed={themeOf(s) === key} disabled={!isHost} onClick={() => act({ type: 'theme', theme: key })} title={t.hint}>
-            <span className={`theme-swatch is-${key}`} aria-hidden="true" />
-            {t.label}
-          </button>
-        ))}
-      </div>
-      {!isHost && <p className="hand-text small">The host chooses the roles, timers and look.</p>}
+      {(s.timers?.talk > 0 || s.timers?.vote > 0) && <p className="hand-text small">When a timer runs out, the table sees it and the players being waited on get a buzz. Nothing is played for them.</p>}
+      {!isHost && <p className="hand-text small">The host chooses these.</p>}
 
       <div className="row row-center">
         {isHost && (

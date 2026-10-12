@@ -9,8 +9,8 @@ Lady of the Lake and assassination. Deployed on Vercel.
 | Piece | What |
 | --- | --- |
 | Framework | Next.js 15 (App Router), React 19, plain JavaScript |
-| Styling | Hand-written CSS, no Tailwind: `app/globals.css` (the night look) and `app/themes.css` (the printed looks) |
-| Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC, Alegreya Sans; the printed looks add Big Shoulders and UnifrakturMaguntia |
+| Styling | Hand-written CSS, no Tailwind: `app/globals.css` (the night look) and `app/themes.css` (the parchment skin) |
+| Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC, Alegreya Sans; parchment adds Big Shoulders and UnifrakturMaguntia |
 | Storage | Redis: Upstash REST API via `fetch` when available, otherwise a `redis://` URL via the `redis` client; in-memory fallback locally |
 | Realtime | Clients poll `GET /api/room/[code]` about once a second; no websockets |
 | Artwork | Inline SVG in `components/art.js`; no image files |
@@ -132,7 +132,7 @@ Never commit secrets. `.env*.local` is gitignored and must stay that way.
 
 ## Style
 
-There are three looks (`THEMES` in `lib/rules.js`), set by `useTheme()` as `data-theme` on
+There are two looks (`THEMES` in `lib/rules.js`), set by `useTheme()` as `data-theme` on
 `<html>`. The host picks one with the `theme` action, at any phase. Looks are cosmetic and must
 never change what information is shown.
 
@@ -141,21 +141,21 @@ never change what information is shown.
   Uncial Antiqua is reserved for the wordmark, because its letterforms (t, E) are hard to read
   elsewhere. Every colour is a token on `:root`, and surfaces use flat fills from those
   tokens: no gradients and no literal hex values outside `:root`. **Night must not change
-  when the other looks change**: never add printed-look styling to `globals.css`.
-- **parchment** and **tabletop** are the printed looks, after the Secret Hitler board game's
-  print style in a heraldic palette: cream card stock and charcoal ink, double-ruled frames,
-  perforated stamp edges on the hand and announcements, condensed capitals (Big Shoulders) on
-  boxed plaques, blackletter (UnifrakturMaguntia) on ballots and the winner's banner. Azure
-  for Arthur, gules for Mordred, forest green for actions and choices (it belongs to neither
-  side), muted gold only for small trim, never a yellow block. No italics. Parchment lays the
-  pieces on a cream page; tabletop on a wooden table. Both live in `app/themes.css`, where
-  every rule is scoped to `[data-printed]` (set for both) or `[data-theme='…']`. That file
-  mostly redefines `globals.css`'s tokens, then restyles what the original draws with dark
-  literals. Its fixed colours are `--p-*` tokens on `:root`. The paper grain, wood grain and
-  stamp-edge masks are the only textures.
+  when parchment changes**: never add parchment styling to `globals.css`.
+- **parchment** is a skin over night's exact layout, in `app/themes.css`, after the Secret
+  Hitler board game's print style in a heraldic palette: cream card stock and charcoal ink,
+  double-ruled frames, perforated stamp edges on the hand and announcements, condensed capitals
+  (Big Shoulders) on plaques, blackletter (UnifrakturMaguntia) on ballots and the winner's
+  banner. Azure for Arthur, gules for Mordred, forest green for actions and choices (it belongs
+  to neither side), muted gold only for small trim, never a yellow block. No italics. Every rule
+  there is scoped to `[data-printed]` and may change only colour, typeface, background,
+  texture, corner shape and shadow: **never a size, padding, margin, gap or border width**, so
+  both looks lay out identically. Draw heavier frames with inset shadows. Watch text that wraps
+  differently in the condensed face (capitals run wider than night's words): set it tighter or
+  in lower case rather than letting a row grow. Fixed colours are `--p-*` tokens on `:root`.
 
-New components: style them in `globals.css` for night first, using its tokens, then check
-them in both printed looks and add `[data-printed]` rules to `themes.css` where needed.
+New components: lay them out and style them in `globals.css` for night, using its tokens,
+then check them in parchment and add `[data-printed]` skin rules to `themes.css` where needed.
 New artwork follows the line style of `art.js` and `crests.js` (3 to 3.5px rounded strokes in
 `currentColor`, a faint fill, brass accents). Read neighbouring components before adding a new
 pattern.

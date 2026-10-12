@@ -38,6 +38,8 @@
   --iron: #242424;
   --iron-rim: #4e4a43;
   --iron-ink: #e3d8bf;
+  /* Inputs and selects */
+  --field: rgba(6, 11, 12, 0.7);
   --font-display-stack: var(--font-display), 'Luminari', 'Papyrus', serif;
   --font-heading-stack: var(--font-heading), 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --font-body-stack: var(--font-body), 'Gill Sans', 'Segoe UI', system-ui, sans-serif;
@@ -2766,6 +2768,141 @@ body:has(.scene) .landscape::after {
   font-size: 9px;
   border-width: 1px;
   box-shadow: none;
+}
+
+/* ---------- Lobby settings ----------
+   One row per setting: its name on the left, one compact control on the right. Players who
+   aren't the host see the value as text in the same place. */
+.settings {
+  width: 100%;
+  display: grid;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+/* Two columns: names just wide enough for "Lady of the Lake", controls filling the rest up to
+   a comfortable width, so every control lines up. */
+.setting {
+  display: grid;
+  grid-template-columns: 7em minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 8px 2px;
+  border-top: 1px solid var(--line);
+}
+.setting-label {
+  font-weight: 700;
+}
+.setting-value {
+  justify-self: end;
+  font-weight: 700;
+  color: var(--brass-hi);
+}
+.setting-select {
+  justify-self: end;
+  width: 100%;
+  max-width: 12em;
+  min-height: 42px;
+  padding: 6px 34px 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  /* A chevron drawn in the text colour, so it follows every look. */
+  background-color: var(--field);
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 18px) 55%, calc(100% - 12px) 55%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  -webkit-appearance: none;
+  appearance: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--fg);
+  cursor: pointer;
+}
+.setting-select:hover {
+  border-color: var(--dim);
+}
+.setting-select option {
+  background: var(--surface-solid);
+  color: var(--fg);
+}
+.setting-switch {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 12em;
+  min-height: 42px;
+  padding: 6px 12px 6px 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--field);
+  font-weight: 700;
+  cursor: pointer;
+}
+.setting-switch:hover {
+  border-color: var(--dim);
+}
+.setting-switch-knob {
+  position: relative;
+  width: 40px;
+  height: 24px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--line);
+  transition: background 0.15s;
+}
+.setting-switch-knob::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--fg);
+  transition: transform 0.15s;
+}
+.setting-switch[aria-checked='true'] .setting-switch-knob {
+  background: var(--loyal);
+}
+.setting-switch[aria-checked='true'] .setting-switch-knob::after {
+  transform: translateX(16px);
+}
+.setting-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px 14px;
+  padding: 2px 2px 14px;
+}
+.setting-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.setting-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--brass);
+}
+.setting-check.is-blocked {
+  opacity: 0.5;
+  cursor: default;
+}
+/* The lobby panel gets more room than the in-game hand. */
+@media (min-width: 960px) {
+  .phase-lobby .scene-body {
+    grid-template-columns: minmax(400px, 480px) minmax(0, 1fr);
+  }
+}
+@media (min-width: 1240px) {
+  .phase-lobby .scene-body {
+    grid-template-columns: minmax(400px, 480px) minmax(0, 1fr) var(--dock);
+  }
 }
 
 /* ---------- TV links and host end ---------- */

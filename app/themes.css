@@ -1,20 +1,20 @@
 /* The room's looks, chosen by the host (data-theme on <html>).
 
-   night (the default) is globals.css exactly as it is: the lake at night, oak and brass. Nothing
-   in this file may change it, so every rule below is scoped to [data-printed], which the two
-   printed looks set, apart from a few rules for elements night never shows (.setting-name)
-   or that only exist for the theme picker.
+   night (the default) is globals.css exactly as written: the lake at night, oak and brass.
+   parchment is a skin over the very same layout. They change colour, typeface,
+   background, texture, corner shape and shadow, and never a size, padding, margin, gap or
+   border width, so every look lays out identically. Every rule is scoped to [data-printed]
+   (set for parchment), so night is untouched.
 
-   parchment and tabletop are printed game pieces, after the Secret Hitler board game's print
-   style carried over into heraldry: cream card stock and charcoal ink, thick double-ruled
-   frames, perforated stamp edges on the boards that matter, condensed capitals on boxed
-   plaques, and blackletter on the ballots. The palette is heraldic: argent (cream), sable
-   (charcoal), azure for Arthur's side, gules for Mordred's, vert (forest green) for actions and
-   choices, which belong to neither side, and a little or (muted gold) for trim only.
-   parchment lays the pieces on a cream page; tabletop lays the same pieces on a wooden table.
+   The printed skin follows the Secret Hitler board game's print style, carried into heraldry:
+   cream card stock and charcoal ink, double-ruled frames, perforated stamp edges on the hand
+   and announcements, condensed capitals (Big Shoulders), blackletter ballots
+   (UnifrakturMaguntia). The palette is heraldic: argent (cream), sable (charcoal), azure for
+   Arthur's side, gules for Mordred's, vert (forest green) for actions and choices, which
+   belong to neither side, and a little or (muted gold) for trim only, on a cream page.
 
-   Most of the work is done by redefining globals.css's own tokens; the rest replaces what the
-   original draws with dark literals (wells, pills, glows). */
+   Most of the work is done by redefining globals.css's own tokens; the rest recolours what
+   the original draws with dark literals. */
 
 /* ---------- Fixed colours of the printed looks (unused by night) ---------- */
 :root {
@@ -37,7 +37,6 @@
   --p-vert-hi: #427a59;
   --p-vert-pale: #cfe0cc;
   --p-or: #a77d2c;
-  --p-wood: #5b3d27;
   --p-ballot: #f7f0de;
   --p-field: #f8f3e6;
   --p-row-hover: #d9cdb1;
@@ -46,44 +45,13 @@
   --p-brass: #d2aa5c;
 }
 
-/* ---------- Elements only the printed looks show, and the theme picker ---------- */
-.setting-name {
-  display: none;
-}
-.pill-theme {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-/* A tiny sample of each look. */
-.theme-swatch {
-  width: 16px;
-  height: 16px;
-  flex: none;
-  border-radius: 2px;
-}
-.theme-swatch.is-night {
-  background: var(--p-night);
-  box-shadow: inset 0 0 0 4px var(--p-night), inset 0 0 0 9px var(--p-brass);
-}
-.theme-swatch.is-parchment {
-  background: var(--p-card);
-  box-shadow: inset 0 0 0 2px var(--p-ink), inset 0 0 0 5px var(--p-card), inset 0 0 0 9px var(--p-vert);
-}
-.theme-swatch.is-tabletop {
-  background: var(--p-card);
-  box-shadow: inset 0 0 0 3px var(--p-wood), inset 0 0 0 5px var(--p-card), inset 0 0 0 9px var(--p-azure);
-}
-/* TV chat names keep night's inline colour; paper swaps in the avatar's own tint below. */
-
-/* ---------- Tokens ---------- */
 [data-printed] {
   --p-shadow: 0 2px 0 rgba(43, 40, 37, 0.18), 0 16px 28px -18px rgba(43, 40, 37, 0.55);
   --p-perf: 5px;
   --p-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .17 0 0 0 0 .13 0 0 0 .45 -.14'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
-  --p-wood-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.003 .09' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .07 0 0 0 0 .03 0 0 0 1.5 -.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E");
   --font-plaque-stack: var(--font-plaque), 'Arial Narrow', 'Roboto Condensed', sans-serif;
   --font-blackletter-stack: var(--font-blackletter), 'Old English Text MT', serif;
+  --field: var(--p-field);
 
   /* globals.css tokens, reprinted */
   --bg: var(--p-page);
@@ -121,24 +89,18 @@
   --shadow: var(--p-shadow);
   color-scheme: light;
 }
-[data-theme='tabletop'] {
-  --bg: var(--p-wood);
-}
+
+
+/* ======================================================================
+   The skin. Rules from here down change only colour, typeface, background,
+   texture, corner shape and shadow. Never a size, padding, margin, gap or
+   border width: every look has night's layout exactly. A heavier printed
+   frame is drawn with inset shadows, which never move anything.
+   ====================================================================== */
 
 /* ---------- Ground ---------- */
-[data-printed] body {
-  font-size: 18px;
-}
-@media (min-width: 1000px) {
-  [data-printed] body {
-    font-size: 19px;
-  }
-}
 [data-printed] .landscape {
   background: var(--p-grain), var(--bg);
-}
-[data-theme='tabletop'] .landscape {
-  background: var(--p-wood-grain), var(--p-grain), var(--bg);
 }
 [data-printed] .landscape svg,
 [data-printed] body:has(.scene) .landscape::after {
@@ -149,55 +111,29 @@
 }
 
 /* ---------- Type: plaques and headings in condensed capitals ---------- */
-[data-printed] .eyebrow,
-[data-printed] .center-kicker,
-[data-printed] .code-chip-label,
-[data-printed] .role-team,
-[data-printed] .field label,
-[data-printed] .pills-label,
-[data-printed] .identity-edit,
-[data-printed] .tut-counts th {
+[data-printed] :is(.eyebrow, .center-kicker, .code-chip-label, .role-team, .field label, .pills-label, .identity-edit, .tut-counts th, .setting-label) {
   font-family: var(--font-plaque-stack);
   font-style: normal;
   font-weight: 800;
-  font-size: 15px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--p-ink-2);
 }
-/* The kicker over each panel is a boxed plaque between two rules, like a board's title. */
-[data-printed] .hand-inner > .eyebrow,
-[data-printed] .overlay-card > .eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+[data-printed] :is(.hand-inner > .eyebrow, .overlay-card > .eyebrow, .setting-label) {
   color: var(--p-ink);
 }
-[data-printed] .hand-inner > .eyebrow::before,
-[data-printed] .hand-inner > .eyebrow::after,
-[data-printed] .overlay-card > .eyebrow::before,
-[data-printed] .overlay-card > .eyebrow::after {
-  content: '';
-  width: 26px;
-  height: 5px;
-  border-block: 1.5px solid var(--p-ink);
+/* Setting names sit beside a control: lower case in the condensed face keeps them to the room
+   night's words take, so no row wraps differently. */
+[data-printed] .setting > .setting-label {
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
-[data-printed] :is(.hand-title, .overlay-card h2, .panel-title, .sheet-head h2, .gate-title, .tut-title, .panel h2, .tv-headline, .role-name) {
+[data-printed] :is(.hand-title, .overlay-card h2, .panel-title, .sheet-head h2, .gate-title, .tut-title, .panel h2, .tv-headline, .role-name, .center-code, .center-title) {
   font-family: var(--font-plaque-stack);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  line-height: 1;
-}
-[data-printed] .hand-title {
-  font-size: clamp(30px, 5vw, 38px);
-}
-[data-printed] .small {
-  font-size: 15px;
-}
-[data-printed] .hand-text.small,
-[data-printed] .waiting {
-  font-size: 16px;
+  text-shadow: none;
 }
 [data-printed] .good-text {
   color: var(--p-azure);
@@ -208,35 +144,39 @@
 [data-printed] .error {
   color: var(--p-gules-deep);
 }
+[data-printed] .tut-counts td.is-house {
+  font-style: normal;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
 
 /* ---------- Buttons: ruled plates; forest green for the main action ---------- */
 [data-printed] .btn {
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 2px solid var(--p-ink);
   background: var(--p-card);
-  box-shadow: inset 0 0 0 2px var(--p-card), inset 0 0 0 3px var(--p-ink);
+  box-shadow: inset 0 0 0 1px var(--p-ink), inset 0 0 0 3px var(--p-card), inset 0 0 0 4px var(--p-ink);
   font-family: var(--font-plaque-stack);
   font-weight: 800;
-  font-size: 18px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--p-ink);
 }
 [data-printed] .btn:hover:not(:disabled) {
   border-color: var(--p-ink);
   background: var(--p-card-2);
-  box-shadow: inset 0 0 0 2px var(--p-card-2), inset 0 0 0 3px var(--p-ink);
+  box-shadow: inset 0 0 0 1px var(--p-ink), inset 0 0 0 3px var(--p-card-2), inset 0 0 0 4px var(--p-ink);
 }
 [data-printed] .btn-primary {
   border-color: var(--p-vert-deep);
   background: var(--p-vert);
-  box-shadow: inset 0 0 0 2px var(--p-vert), inset 0 0 0 3px var(--p-card);
+  box-shadow: inset 0 0 0 1px var(--p-vert-deep), inset 0 0 0 3px var(--p-vert), inset 0 0 0 4px var(--p-card);
   color: var(--p-card);
 }
 [data-printed] .btn-primary:hover:not(:disabled) {
   border-color: var(--p-vert-deep);
   background: var(--p-vert-hi);
-  box-shadow: inset 0 0 0 2px var(--p-vert-hi), inset 0 0 0 3px var(--p-card);
+  box-shadow: inset 0 0 0 1px var(--p-vert-deep), inset 0 0 0 3px var(--p-vert-hi), inset 0 0 0 4px var(--p-card);
 }
 [data-printed] .btn-ghost {
   background: transparent;
@@ -244,19 +184,14 @@
 [data-printed] .btn-evil {
   border-color: var(--p-gules-deep);
   background: var(--p-gules);
-  box-shadow: inset 0 0 0 2px var(--p-gules), inset 0 0 0 3px var(--p-card);
+  box-shadow: inset 0 0 0 1px var(--p-gules-deep), inset 0 0 0 3px var(--p-gules), inset 0 0 0 4px var(--p-card);
   color: var(--p-card);
 }
-[data-printed] .btn-sm {
-  font-size: 16px;
-}
-[data-printed] .btn-lg {
-  font-size: 22px;
-}
 [data-printed] .icon-btn {
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 2px solid var(--p-ink);
   background: var(--p-card);
+  box-shadow: inset 0 0 0 1px var(--p-ink);
   color: var(--p-ink);
 }
 [data-printed] .icon-btn:hover {
@@ -273,42 +208,61 @@
   color: var(--p-card);
 }
 
-/* ---------- Inputs ---------- */
-[data-printed] .input {
+/* ---------- Inputs, selects and switches ---------- */
+[data-printed] :is(.input, .setting-select, .setting-switch) {
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 2px solid var(--p-ink);
-  background: var(--p-field);
+  background-color: var(--p-field);
+  box-shadow: inset 0 0 0 1px var(--p-ink);
   color: var(--p-ink);
+}
+[data-printed] :is(.setting-select, .setting-switch):hover {
+  border-color: var(--p-vert);
+  box-shadow: inset 0 0 0 1px var(--p-vert);
 }
 [data-printed] .input::placeholder {
   color: var(--p-ink-2);
 }
 [data-printed] .input:focus {
   border-color: var(--p-vert);
-  box-shadow: 0 0 0 1px var(--p-vert);
+  box-shadow: inset 0 0 0 1px var(--p-vert);
 }
 [data-printed] .input-code {
   font-family: var(--font-plaque-stack);
   font-weight: 800;
+  text-transform: uppercase;
+}
+/* Values keep night's body face: it fits the fixed-width controls exactly and reads best small. */
+[data-printed] .setting-value {
+  color: var(--p-vert);
+}
+[data-printed] .setting-switch-knob {
+  background: var(--p-rule);
+}
+[data-printed] .setting-switch-knob::after {
+  background: var(--p-card);
+  box-shadow: 0 0 0 1px var(--p-ink);
+}
+[data-printed] .setting-switch[aria-checked='true'] .setting-switch-knob {
+  background: var(--p-vert);
+}
+[data-printed] .setting-check input {
+  accent-color: var(--p-vert);
 }
 
 /* ---------- Chips become small plaques ---------- */
 [data-printed] .chip {
+  border-color: var(--p-ink);
   border-radius: 1px;
-  border: 1.5px solid var(--p-ink);
   background: var(--p-card);
   color: var(--p-ink);
   font-family: var(--font-plaque-stack);
   font-weight: 800;
-  font-size: 15px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 [data-printed] .chip-brass {
-  border-color: var(--p-ink);
-  background: var(--p-card);
-  color: var(--p-ink);
-  box-shadow: inset 0 0 0 1.5px var(--p-card), inset 0 0 0 2.5px var(--p-ink);
+  box-shadow: inset 0 0 0 2px var(--p-card), inset 0 0 0 3px var(--p-ink);
 }
 [data-printed] .chip-good {
   border-color: var(--p-azure);
@@ -323,17 +277,15 @@
 
 /* ---------- Top bar ---------- */
 [data-printed] .topbar-mark,
-[data-printed] .tv-mark {
+[data-printed] .tv-mark,
+[data-printed] .wordmark {
   color: var(--p-ink);
   text-shadow: none;
 }
-[data-theme='tabletop'] .topbar-mark,
-[data-theme='tabletop'] .tv-mark {
-  color: var(--p-card);
-}
 [data-printed] .code-chip {
+  border-style: solid;
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 2px solid var(--p-ink);
   background: var(--p-card);
   box-shadow: inset 0 0 0 2px var(--p-card), inset 0 0 0 3px var(--p-ink);
 }
@@ -342,34 +294,30 @@
   font-weight: 900;
   color: var(--p-ink);
 }
-[data-printed] .code-chip-label {
-  font-size: 13px;
-}
 [data-printed] .net-banner {
+  border-color: var(--p-gules);
   border-radius: 2px;
-  border: 2px solid var(--p-gules);
   background: var(--p-gules-pale);
   color: var(--p-gules-deep);
 }
 
 /* ---------- Sheets: card stock in a double-ruled frame ---------- */
 [data-printed] :is(.gate, .hand, .drawer, .overlay-card, .sheet, .panel, .tut-card, .tv-join) {
-  border: 2px solid var(--p-ink);
+  border-color: var(--p-ink);
   border-radius: 2px;
   background: var(--p-grain), var(--p-card);
+  box-shadow: inset 0 0 0 1px var(--p-ink), var(--p-shadow);
   outline: 1px solid var(--p-ink);
   outline-offset: -8px;
-  box-shadow: var(--p-shadow);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   color: var(--p-ink);
 }
 /* The hand and each announcement are the important boards: perforated like a stamp, as the
-   game's boards are. The frame is drawn inside, since the edge is cut away. */
+   game's boards are. The cut eats into the padding only, and the frame is drawn inside it. */
 [data-printed] .hand,
 [data-printed] .overlay-card {
-  border: 0;
-  padding: calc(22px + var(--p-perf)) calc(20px + var(--p-perf));
+  border-color: transparent;
   box-shadow: inset 0 0 0 calc(var(--p-perf) + 5px) var(--p-card), inset 0 0 0 calc(var(--p-perf) + 7px) var(--p-ink);
   outline-offset: calc(-1 * (var(--p-perf) + 11px));
   -webkit-mask:
@@ -380,14 +328,15 @@
     linear-gradient(#000 0 0) calc(1.5 * var(--p-perf)) calc(1.5 * var(--p-perf)) / calc(100% - 3 * var(--p-perf)) calc(100% - 3 * var(--p-perf)) no-repeat;
 }
 [data-printed] .hand::before {
-  display: none;
+  background: transparent;
 }
 [data-printed] .drawer-chat,
-[data-printed] .drawer-log {
+[data-printed] .drawer-log,
+[data-printed] .drawer.drawer-chat {
   border-radius: 0;
 }
 [data-printed] .drawer.is-open {
-  box-shadow: 0 0 40px rgba(43, 40, 37, 0.5);
+  box-shadow: inset 0 0 0 1px var(--p-ink), 0 0 40px rgba(43, 40, 37, 0.5);
 }
 [data-printed] .overlay,
 [data-printed] .drawer-scrim {
@@ -402,7 +351,7 @@
   letter-spacing: 0.12em;
 }
 
-/* Wells and rows inside sheets: a darker card, ruled in ink. */
+/* Wells and rows inside sheets: a darker card. */
 [data-printed] :is(.in-play, .entry, .stat-row > div, .record li, .known li, .picker, .roster-row, .tut-stage, .tut-roles li, .tut-tips li, .standings li, .manage li, .tally, .timer, .who-chip) {
   border-radius: 2px;
   background: var(--p-card-2);
@@ -412,7 +361,7 @@
   background: var(--p-row-hover);
 }
 [data-printed] .entry {
-  border-left: 4px solid var(--p-rule);
+  border-left-color: var(--p-rule);
 }
 [data-printed] .entry.is-success {
   border-left-color: var(--p-azure);
@@ -423,80 +372,42 @@
 [data-printed] .tally.is-compact {
   background: none;
 }
-[data-printed] .tally-score,
-[data-printed] .tv-tally,
-[data-printed] .stat-row strong,
-[data-printed] .timer-time,
-[data-printed] .rejoin-code,
-[data-printed] .tv-code {
+[data-printed] :is(.tally-score, .tv-tally, .stat-row strong, .timer-time, .rejoin-code, .tv-code) {
   font-family: var(--font-plaque-stack);
   font-weight: 900;
   color: var(--p-ink);
 }
+[data-printed] .settings,
+[data-printed] .setting {
+  border-color: var(--p-rule);
+}
 
-/* ---------- The hand: lobby settings as a ruled list ---------- */
-[data-printed] .setting-name {
-  display: block;
-}
-/* Each setting reads as one entry: its name on a line, its choices below, left aligned. */
-[data-printed] .hand-inner > .pills,
-[data-printed] .timer-settings > .pills {
-  width: 100%;
-  justify-content: flex-start;
-  gap: 6px;
-  padding-top: 12px;
-  border-top: 1.5px solid var(--p-rule);
-  text-align: left;
-}
-[data-printed] .timer-settings {
-  width: 100%;
-  justify-items: stretch;
-  gap: 12px;
-}
-[data-printed] .pills-label {
-  flex: 0 0 100%;
-  margin: 0 0 2px;
-  color: var(--p-ink);
-}
-[data-printed] .timer-settings > .hand-text.small {
-  text-align: left;
-}
+/* Toggle buttons (the tutorial's practice side). */
 [data-printed] .pill {
-  min-height: 38px;
-  padding: 5px 13px;
+  border-color: var(--p-ink);
   border-radius: 1px;
-  border: 1.5px solid var(--p-ink);
   background: var(--p-card);
   color: var(--p-ink);
   font-family: var(--font-plaque-stack);
   font-weight: 800;
-  font-size: 16px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-}
-[data-printed] .pill:hover:not(:disabled) {
-  background: var(--p-card-2);
 }
 [data-printed] .pill[aria-pressed='true'],
 [data-printed] .pill-lady[aria-pressed='true'] {
   border-color: var(--p-vert-deep);
   background: var(--p-vert);
   color: var(--p-card);
-  box-shadow: none;
-}
-[data-printed] .pill-sm {
-  min-height: 34px;
-  font-size: 15px;
 }
 [data-printed] .house-note {
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 1.5px dashed var(--p-ink);
   color: var(--p-ink);
 }
 [data-printed] .host-tools,
 [data-printed] .rejoin {
+  border-color: var(--p-rule);
   border-radius: 2px;
-  border: 1.5px dashed var(--p-rule);
 }
 [data-printed] .manage summary,
 [data-printed] .standings summary {
@@ -510,71 +421,33 @@
   color: var(--p-vert);
 }
 
-/* ---------- Ballots: Approve and Reject as cards, like the game's Ja! and Nein ---------- */
-[data-printed] .token-row {
-  gap: clamp(16px, 6vw, 34px);
-  padding-block: 8px;
-}
+/* ---------- Ballots: square tiles ruled like the game's Ja! and Nein, words in blackletter ---------- */
 [data-printed] .vote-token {
-  position: relative;
-  width: clamp(112px, 33vw, 140px);
-  aspect-ratio: 5 / 7;
-  align-content: center;
-  gap: 6px;
-  padding: 16px 8px;
-  border-radius: 4px;
-  border: 2px solid var(--p-ink);
   font-family: var(--font-blackletter-stack);
-  font-size: clamp(25px, 7.2vw, 32px);
-  line-height: 1;
-  transition: transform 0.18s, box-shadow 0.18s;
+  font-weight: 400;
+  color: var(--p-ink);
 }
-[data-printed] .vote-token.is-approve {
+[data-printed] .vote-token .token-face {
+  border-radius: 6px;
+}
+[data-printed] .vote-token.is-approve .token-face {
+  border-color: var(--p-ink);
   background: var(--p-grain), var(--p-ballot);
   color: var(--p-ink);
-  box-shadow: inset 0 0 0 7px var(--p-ballot), inset 0 0 0 10px var(--p-ink), inset 0 0 0 12px var(--p-ballot), inset 0 0 0 13px var(--p-ink), 0 12px 20px -10px rgba(43, 40, 37, 0.6);
-  transform: rotate(-3deg);
+  box-shadow: inset 0 0 0 5px var(--p-ballot), inset 0 0 0 7px var(--p-ink), inset 0 0 0 9px var(--p-ballot), inset 0 0 0 10px var(--p-ink), 0 10px 18px -10px rgba(43, 40, 37, 0.6);
 }
-[data-printed] .vote-token.is-reject {
+[data-printed] .vote-token.is-reject .token-face {
+  border-color: var(--p-ink);
   background: var(--p-ink);
   color: var(--p-card);
-  box-shadow: inset 0 0 0 7px var(--p-ink), inset 0 0 0 10px var(--p-card), inset 0 0 0 12px var(--p-ink), inset 0 0 0 13px var(--p-card), 0 12px 20px -10px rgba(43, 40, 37, 0.6);
-  transform: rotate(3deg);
+  box-shadow: inset 0 0 0 5px var(--p-ink), inset 0 0 0 7px var(--p-card), inset 0 0 0 9px var(--p-ink), inset 0 0 0 10px var(--p-card), 0 10px 18px -10px rgba(43, 40, 37, 0.6);
 }
-[data-printed] .vote-token .token-face,
-[data-printed] .vote-token.is-approve .token-face,
-[data-printed] .vote-token.is-reject .token-face {
-  width: auto;
-  height: auto;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  box-shadow: none;
-  color: inherit;
-  transform: none;
-}
-[data-printed] .vote-token .token-face svg {
-  width: 30px;
-  height: 30px;
-}
-[data-printed] .vote-token:hover:not(:disabled) {
-  transform: translateY(-6px) rotate(0deg);
-}
-[data-printed] .vote-token:hover:not(:disabled) .token-face {
-  transform: none;
-}
-/* The ballot you cast is lifted and ringed in green. */
-[data-printed] .vote-token.is-on {
-  transform: translateY(-8px) rotate(0deg);
-  outline: 3px solid var(--p-vert);
-  outline-offset: 4px;
-}
+/* The ballot you cast is ringed in green. */
 [data-printed] .vote-token.is-on .token-face {
-  transform: none;
-  box-shadow: none;
+  box-shadow: 0 0 0 4px var(--p-card), 0 0 0 7px var(--p-vert);
 }
 
-/* ---------- Quest cards: cream articles in a heavy frame of their side's colour ---------- */
+/* ---------- Quest cards: cream articles framed in their side's colour ---------- */
 [data-printed] .quest-choice,
 [data-printed] .quest-card {
   background: var(--p-grain), var(--p-ballot);
@@ -585,37 +458,32 @@
 }
 [data-printed] .quest-choice {
   border-radius: 4px;
-  font-size: 24px;
-}
-[data-printed] .quest-choice.is-success,
-[data-printed] .quest-card.is-success {
-  border: 2px solid var(--p-azure-deep);
-  color: var(--p-azure);
-  box-shadow: inset 0 0 0 8px var(--p-azure), inset 0 0 0 10px var(--p-ballot), inset 0 0 0 11px var(--p-azure), 0 14px 22px -12px rgba(43, 40, 37, 0.6);
-}
-[data-printed] .quest-choice.is-fail,
-[data-printed] .quest-card.is-fail {
-  border: 2px solid var(--p-gules-deep);
-  color: var(--p-gules);
-  box-shadow: inset 0 0 0 8px var(--p-gules), inset 0 0 0 10px var(--p-ballot), inset 0 0 0 11px var(--p-gules), 0 14px 22px -12px rgba(43, 40, 37, 0.6);
 }
 [data-printed] .quest-card {
   border-radius: 3px;
-  font-size: 13px;
+}
+[data-printed] .quest-choice.is-success,
+[data-printed] .quest-card.is-success {
+  border-color: var(--p-azure-deep);
+  color: var(--p-azure);
+  box-shadow: inset 0 0 0 6px var(--p-azure), inset 0 0 0 8px var(--p-ballot), inset 0 0 0 9px var(--p-azure), 0 14px 22px -12px rgba(43, 40, 37, 0.6);
+}
+[data-printed] .quest-choice.is-fail,
+[data-printed] .quest-card.is-fail {
+  border-color: var(--p-gules-deep);
+  color: var(--p-gules);
+  box-shadow: inset 0 0 0 6px var(--p-gules), inset 0 0 0 8px var(--p-ballot), inset 0 0 0 9px var(--p-gules), 0 14px 22px -12px rgba(43, 40, 37, 0.6);
 }
 [data-printed] .card-slot {
-  border-radius: 2px;
   border-color: var(--p-rule);
+  border-radius: 2px;
 }
 [data-printed] .card-slot.is-in {
   border-color: var(--p-ink);
   background: var(--p-ink);
 }
-
-/* Vote reveal tokens become little ballots too. */
 [data-printed] .mini-token {
   border-radius: 3px;
-  border-width: 2px;
 }
 [data-printed] .mini-token.is-approve {
   border-color: var(--p-ink);
@@ -631,14 +499,14 @@
   text-transform: uppercase;
 }
 [data-printed] .fan-card.is-good {
+  border-color: var(--p-azure-deep);
   background: var(--p-azure-pale);
-  border: 1.5px solid var(--p-azure-deep);
   color: var(--p-azure-deep);
   box-shadow: inset 0 0 0 3px var(--p-azure-pale), inset 0 0 0 4px var(--p-azure-deep), 0 8px 14px -6px rgba(43, 40, 37, 0.55);
 }
 [data-printed] .fan-card.is-evil {
+  border-color: var(--p-gules-deep);
   background: var(--p-gules-pale);
-  border: 1.5px solid var(--p-gules-deep);
   color: var(--p-gules-deep);
   box-shadow: inset 0 0 0 3px var(--p-gules-pale), inset 0 0 0 4px var(--p-gules-deep), 0 8px 14px -6px rgba(43, 40, 37, 0.55);
 }
@@ -647,58 +515,47 @@
   color: var(--p-ink);
 }
 [data-printed] .role-card.is-good {
+  border-color: var(--p-azure-deep);
   background: var(--p-grain), var(--p-azure-pale);
-  border: 2px solid var(--p-azure-deep);
   box-shadow: inset 0 0 0 7px var(--p-azure-pale), inset 0 0 0 9px var(--p-azure-deep), 0 30px 60px rgba(43, 40, 37, 0.5);
 }
 [data-printed] .role-card.is-evil {
+  border-color: var(--p-gules-deep);
   background: var(--p-grain), var(--p-gules-pale);
-  border: 2px solid var(--p-gules-deep);
   box-shadow: inset 0 0 0 7px var(--p-gules-pale), inset 0 0 0 9px var(--p-gules-deep), 0 30px 60px rgba(43, 40, 37, 0.5);
 }
-[data-printed] .role-card .role-team {
-  font-size: 16px;
-}
-[data-printed] .is-good .role-team,
-[data-printed] .is-good .role-name {
+[data-printed] :is(.is-good .role-team, .is-good .role-name) {
   color: var(--p-azure-deep);
 }
-[data-printed] .is-evil .role-team,
-[data-printed] .is-evil .role-name {
+[data-printed] :is(.is-evil .role-team, .is-evil .role-name) {
   color: var(--p-gules-deep);
-}
-[data-printed] .role-name {
-  font-size: clamp(36px, 10vw, 48px);
 }
 [data-printed] .role-art {
   color: var(--p-ink);
 }
 [data-printed] .is-good .role-art {
+  border-color: var(--p-azure-deep);
   background: var(--p-card);
-  border: 2px solid var(--p-azure-deep);
   color: var(--p-azure-deep);
 }
 [data-printed] .is-evil .role-art {
+  border-color: var(--p-gules-deep);
   background: var(--p-card);
-  border: 2px solid var(--p-gules-deep);
   color: var(--p-gules-deep);
 }
 [data-printed] .role-card .known li {
   background: rgba(241, 233, 214, 0.65);
 }
-[data-printed] .role-card .btn {
-  background: var(--p-card);
-}
 /* The back of your role card: a charcoal card, ruled in cream. */
 [data-printed] .card-back {
+  border-color: var(--p-ink);
   border-radius: 6px;
-  border: 2px solid var(--p-ink);
   background: var(--p-ink);
   color: var(--p-card);
   box-shadow: inset 0 0 0 8px var(--p-ink), inset 0 0 0 10px var(--p-card), inset 0 0 0 13px var(--p-ink), inset 0 0 0 14px var(--p-card), 0 30px 60px rgba(43, 40, 37, 0.5);
 }
 [data-printed] .card-back-art {
-  border: 2px solid var(--p-card);
+  border-color: var(--p-card);
   background: transparent;
 }
 [data-printed] .card-back-hint {
@@ -706,12 +563,8 @@
 }
 
 /* ---------- The round table: a printed board ---------- */
-/* Shields stand taller than night's round seats; leave the top one room under the top bar. */
-[data-printed] .table-wrap {
-  margin-top: 16px;
-}
 [data-printed] .table-top {
-  border: 1.2cqw solid var(--p-ink);
+  border-color: var(--p-ink);
   background: var(--p-grain), var(--p-card);
   box-shadow:
     inset 0 0 0 0.7cqw var(--p-card),
@@ -728,17 +581,6 @@
   opacity: 0.45;
   pointer-events: none;
 }
-[data-printed] .center-kicker {
-  font-size: max(13px, 2.2cqw);
-}
-[data-printed] .center-code,
-[data-printed] .center-title {
-  font-family: var(--font-plaque-stack);
-  font-weight: 900;
-  text-transform: uppercase;
-  color: var(--p-ink);
-  text-shadow: none;
-}
 [data-printed] .center-title.is-good {
   color: var(--p-azure);
 }
@@ -747,10 +589,9 @@
 }
 [data-printed] .center-line {
   color: var(--p-ink-2);
-  font-size: max(13px, 2.3cqw);
 }
 [data-printed] .medal {
-  border: 2px solid var(--p-ink);
+  border-color: var(--p-ink);
   background: var(--p-card);
   box-shadow: inset 0 0 0 2px var(--p-card), inset 0 0 0 3px var(--p-ink);
   color: var(--p-ink);
@@ -787,8 +628,8 @@
   border-color: var(--p-ink);
 }
 [data-printed] .reject-pip.is-on {
-  background: var(--p-ink);
   border-color: var(--p-ink);
+  background: var(--p-ink);
 }
 [data-printed] .reject-pip.is-last {
   border-color: var(--p-gules);
@@ -798,12 +639,10 @@
 }
 
 /* ---------- Seats: shields outlined in ink, names on plaques ---------- */
+/* The same square as night's seat, cut to a shield. */
 [data-printed] .avatar {
-  aspect-ratio: 6 / 7;
-  /* Lift the charge a little, towards the shield's wider top. */
-  padding-bottom: 0.3em;
-  border-radius: 4% 4% 50% 50% / 4% 4% 46% 46%;
-  border: 2px solid var(--p-ink);
+  border-color: var(--p-ink);
+  border-radius: 8% 8% 50% 50% / 8% 8% 50% 50%;
   box-shadow: 0 3px 0 rgba(43, 40, 37, 0.25);
   color: var(--p-card);
 }
@@ -837,58 +676,56 @@
 [data-printed] .badge-lady {
   background: var(--p-azure);
   color: var(--p-card);
-  border: 1.5px solid var(--p-card);
+  box-shadow: 0 0 0 1.5px var(--p-card);
 }
 [data-printed] .badge-team {
   background: var(--p-vert);
   color: var(--p-card);
-  border: 1.5px solid var(--p-card);
+  box-shadow: 0 0 0 1.5px var(--p-card);
 }
 [data-printed] .badge-done {
   background: var(--p-ink);
   color: var(--p-card);
 }
 [data-printed] .badge-vote.is-approve {
-  border: 1.5px solid var(--p-ink);
+  box-shadow: 0 0 0 1.5px var(--p-ink);
 }
 [data-printed] .seat-name {
-  margin-top: 4px;
-  padding: 0 5px;
   border-radius: 1px;
-  border: 1.5px solid var(--p-ink);
   background: var(--p-card);
+  box-shadow: inset 0 0 0 1.5px var(--p-ink);
   color: var(--p-ink);
   font-family: var(--font-plaque-stack);
   font-weight: 800;
-  font-size: max(14px, 2.5cqw);
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 [data-printed] .seat-you {
   color: var(--p-ink-2);
-  font-weight: 700;
 }
+/* Tags get a printed ground; its margin is painted with a shadow, so nothing shifts. */
 [data-printed] .seat-tag {
-  margin-top: 2px;
-  padding: 0 6px;
   border-radius: 1px;
   background: var(--p-card);
+  box-shadow: 0 0 0 3px var(--p-card);
   font-family: var(--font-plaque-stack);
   font-weight: 900;
-  font-size: max(12px, 1.9cqw);
   letter-spacing: 0.08em;
   text-shadow: none;
 }
 [data-printed] .tag-evil {
   background: var(--p-gules);
+  box-shadow: 0 0 0 3px var(--p-gules);
   color: var(--p-card);
 }
 [data-printed] .tag-good {
   background: var(--p-azure);
+  box-shadow: 0 0 0 3px var(--p-azure);
   color: var(--p-card);
 }
 [data-printed] .tag-merlin {
   background: var(--p-or);
+  box-shadow: 0 0 0 3px var(--p-or);
   color: var(--p-card);
 }
 [data-printed] .tag-plain {
@@ -903,7 +740,7 @@
   color: var(--p-card);
 }
 [data-printed] .bubble {
-  border: 2px solid var(--p-ink);
+  border-color: var(--p-ink);
   background: var(--p-card);
   color: var(--p-ink);
   box-shadow: 0 4px 0 rgba(43, 40, 37, 0.25);
@@ -911,15 +748,12 @@
 
 /* ---------- Reactions: a charcoal strip ---------- */
 [data-printed] .reaction-bar {
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 2px solid var(--p-ink);
   background: var(--p-ink);
   box-shadow: inset 0 0 0 3px var(--p-ink), inset 0 0 0 4px rgba(241, 233, 214, 0.45);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-}
-[data-theme='tabletop'] .reaction-bar {
-  border-color: var(--p-card);
 }
 [data-printed] .reaction {
   border-radius: 2px;
@@ -933,11 +767,9 @@
 /* ---------- Chat and chronicle ---------- */
 [data-printed] .msg-name {
   color: var(--name-tint, var(--p-ink));
-  font-size: 16px;
 }
 [data-printed] .msg.is-system {
   font-style: normal;
-  font-size: 15px;
   color: var(--p-ink-2);
   border-left-color: var(--p-rule);
 }
@@ -949,9 +781,6 @@
 }
 
 /* ---------- Overlays ---------- */
-[data-printed] .overlay-card h2 {
-  font-size: clamp(34px, 9vw, 46px);
-}
 [data-printed] .overlay-art {
   color: var(--p-ink);
 }
@@ -959,20 +788,18 @@
   font-family: var(--font-blackletter-stack);
   font-weight: 400;
 }
-[data-printed] .winner.is-good h2,
-[data-printed] .winner.is-good .winner-art {
+[data-printed] :is(.winner.is-good h2, .winner.is-good .winner-art) {
   color: var(--p-azure);
 }
-[data-printed] .winner.is-evil h2,
-[data-printed] .winner.is-evil .winner-art {
+[data-printed] :is(.winner.is-evil h2, .winner.is-evil .winner-art) {
   color: var(--p-gules);
 }
 [data-printed] .winner-art {
-  border: 2px solid currentColor;
+  box-shadow: inset 0 0 0 2px currentColor;
 }
 [data-printed] .toast {
+  border-color: var(--p-gules);
   border-radius: 2px;
-  border: 2px solid var(--p-gules);
   background: var(--p-card);
   color: var(--p-ink);
   box-shadow: var(--p-shadow);
@@ -980,8 +807,8 @@
 
 /* Seat sheet and avatar picker */
 [data-printed] .note-btn {
+  border-color: var(--p-ink);
   border-radius: 2px;
-  border: 1.5px solid var(--p-ink);
   background: var(--p-card);
   font-family: var(--font-plaque-stack);
   font-weight: 800;
@@ -1004,8 +831,8 @@
   color: var(--p-card);
 }
 [data-printed] .picker-icon {
+  border-color: var(--p-rule);
   border-radius: 2px;
-  border: 1.5px solid var(--p-rule);
   background: var(--p-card);
   color: var(--p-ink);
 }
@@ -1018,9 +845,8 @@
   color: var(--p-ink);
 }
 [data-printed] .picker-tint {
-  border-radius: 4% 4% 50% 50% / 4% 4% 46% 46%;
-  height: 36px;
-  border: 2px solid var(--p-ink);
+  border-color: var(--p-ink);
+  border-radius: 8% 8% 50% 50% / 8% 8% 50% 50%;
 }
 [data-printed] .picker-tint[aria-checked='true'] {
   border-color: var(--p-ink);
@@ -1039,7 +865,7 @@
   color: var(--p-vert);
 }
 [data-printed] .tut-role-art {
-  border: 1.5px solid currentColor;
+  box-shadow: inset 0 0 0 1.5px currentColor;
 }
 [data-printed] .tut-roles .is-good .tut-role-art {
   color: var(--p-azure-deep);
@@ -1054,13 +880,12 @@
 [data-printed] .tut-lady-art {
   background: var(--p-azure-pale);
   color: var(--p-azure-deep);
-  border: 2px solid var(--p-azure-deep);
+  box-shadow: inset 0 0 0 2px var(--p-azure-deep);
 }
 
 /* ---------- Scores, recap and timers ---------- */
 [data-printed] .recap-side {
   border-radius: 2px;
-  border-width: 2px;
 }
 [data-printed] .recap-side.is-good {
   border-color: var(--p-azure);
@@ -1077,7 +902,7 @@
   color: var(--p-gules-deep);
 }
 [data-printed] .timer {
-  border: 1.5px solid var(--p-ink);
+  border-color: var(--p-ink);
 }
 [data-printed] .timer-track {
   border-radius: 0;
@@ -1087,11 +912,11 @@
   background: var(--p-vert);
 }
 [data-printed] .timer.is-low {
-  border: 2px solid var(--p-gules);
+  border-color: var(--p-gules);
   animation: none;
 }
 [data-printed] .timer.is-up {
-  border: 2px solid var(--p-gules);
+  border-color: var(--p-gules);
   background: var(--p-gules-pale);
 }
 
@@ -1101,16 +926,6 @@
 }
 [data-printed] .phase-over .tv-headline {
   color: var(--p-ink);
-}
-/* On the wooden table, the words lying straight on the wood are printed in cream. */
-[data-theme='tabletop'] .tv-side > :is(.tv-headline, .tv-waiting, .tv-chat, .tv-tally) {
-  color: var(--p-card);
-}
-/* House-rule counts are marked with a dotted underline rather than night's italics. */
-[data-printed] .tut-counts td.is-house {
-  font-style: normal;
-  text-decoration: underline dotted;
-  text-underline-offset: 3px;
 }
 
 /* ---------- Background parallax (every look) ----------
@@ -1159,18 +974,4 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' fill='black'%3E%3Cg transform='translate(60 70)'%3E%3Cpath d='M0-16C5-9 5-3 0 4-5-3-5-9 0-16Z'/%3E%3Cpath d='M-2 2C-8-4-15-2-15 4-15 9-9 10-6 6-5 9-2 9 0 6 2 9 5 9 6 6 9 10 15 9 15 4 15-2 8-4 2 2Z'/%3E%3Crect x='-7' y='7' width='14' height='3' rx='1.5'/%3E%3C/g%3E%3Cg transform='translate(190 185) scale(.8)'%3E%3Cpath d='M0-16C5-9 5-3 0 4-5-3-5-9 0-16Z'/%3E%3Cpath d='M-2 2C-8-4-15-2-15 4-15 9-9 10-6 6-5 9-2 9 0 6 2 9 5 9 6 6 9 10 15 9 15 4 15-2 8-4 2 2Z'/%3E%3Crect x='-7' y='7' width='14' height='3' rx='1.5'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 260px 260px;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' fill='black'%3E%3Cg transform='translate(60 70)'%3E%3Cpath d='M0-16C5-9 5-3 0 4-5-3-5-9 0-16Z'/%3E%3Cpath d='M-2 2C-8-4-15-2-15 4-15 9-9 10-6 6-5 9-2 9 0 6 2 9 5 9 6 6 9 10 15 9 15 4 15-2 8-4 2 2Z'/%3E%3Crect x='-7' y='7' width='14' height='3' rx='1.5'/%3E%3C/g%3E%3Cg transform='translate(190 185) scale(.8)'%3E%3Cpath d='M0-16C5-9 5-3 0 4-5-3-5-9 0-16Z'/%3E%3Cpath d='M-2 2C-8-4-15-2-15 4-15 9-9 10-6 6-5 9-2 9 0 6 2 9 5 9 6 6 9 10 15 9 15 4 15-2 8-4 2 2Z'/%3E%3Crect x='-7' y='7' width='14' height='3' rx='1.5'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 260px 260px;
   transform: translate(calc(var(--px, 0) * -26px), calc(var(--py, 0) * -26px));
-}
-/* On the tabletop the wood itself is the far layer: the table slides gently under the pieces. */
-[data-theme='tabletop'] .landscape {
-  background: var(--bg);
-}
-[data-theme='tabletop'] .print-far {
-  opacity: 1;
-  background: var(--p-wood-grain), var(--p-grain), var(--bg);
-  -webkit-mask: none;
-  mask: none;
-  transform: translate(calc(var(--px, 0) * -18px), calc(var(--py, 0) * -12px));
-}
-[data-theme='tabletop'] .print-near {
-  opacity: 0.06;
 }

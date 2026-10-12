@@ -64,8 +64,9 @@ async function game(n, mode, lady, strategy) {
   assert((await v(players[1])).settings.theme === 'night', 'night by default');
   assert((await act(players[1], { type: 'theme', theme: 'night' })).status === 400, 'non-host theme refused');
   assert((await act(players[0], { type: 'theme', theme: 'neon' })).status === 400, 'unknown theme refused');
-  assert((await act(players[0], { type: 'theme', theme: 'tabletop' })).status === 200, 'theme set');
-  assert((await v(players[1])).settings.theme === 'tabletop', 'theme seen by everyone');
+  assert((await act(players[0], { type: 'theme', theme: 'tabletop' })).status === 400, 'retired theme refused');
+  assert((await act(players[0], { type: 'theme', theme: 'parchment' })).status === 200, 'theme set');
+  assert((await v(players[1])).settings.theme === 'parchment', 'theme seen by everyone');
   // Reactions: a known icon shows over the sender's seat; anything else is refused.
   assert((await act(players[2], { type: 'react', icon: 'sus' })).status === 200, 'react');
   assert((await v(players[0])).reactions[players[2].playerId]?.icon === 'sus', 'reaction visible');
