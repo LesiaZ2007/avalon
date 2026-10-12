@@ -15,6 +15,10 @@ The Resistance: Avalon, played from phones around one table. One person creates 
 - **Lady of the Lake (optional):** used after quests 2, 3 and 4. Only the holder sees the result. Players who have held her can't be examined.
 - **Assassination:** if good wins three quests, evil is revealed and the Assassin gets one guess at Merlin.
 
+## Learning the game
+
+New players can tap **Learn to play** on the home page, or the **?** button in any room, for an eight-step walkthrough. It includes a practice table: you pick a team, vote with the real tokens and see the reveal, and play a quest card as loyal or evil (and see why a loyal player can't play Fail). Nothing in the practice touches the real game, so it's safe to open mid-round.
+
 ## The screen
 
 Each room is one tabletop scene rather than a page of boxes.

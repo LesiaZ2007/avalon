@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { api, loadAvatar, loadName, saveAvatar, saveName, saveSeat } from '@/lib/client';
 import Avatar, { AvatarPicker } from '@/components/Avatar';
 import Fan from '@/components/Fan';
+import Tutorial from '@/components/Tutorial';
 
 const CAST = ['merlin', 'percival', 'servant', 'assassin', 'morgana', 'mordred', 'oberon'];
 
@@ -16,6 +17,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [avatar, setAvatar] = useState(null);
   const [picking, setPicking] = useState(false);
+  const [learning, setLearning] = useState(false);
 
   useEffect(() => {
     setName(loadName());
@@ -48,6 +50,11 @@ export default function Home() {
         <p className="eyebrow">The Resistance</p>
         <h1 className="wordmark">Avalon</h1>
         <p className="hero-lede">Loyal knights and hidden traitors, for 5 to 10 players at one table. Everyone plays from their own phone.</p>
+        <div className="hero-actions">
+          <button className="btn btn-ghost" onClick={() => setLearning(true)}>
+            New to Avalon? Learn to play
+          </button>
+        </div>
       </header>
 
       <div className="home-cast">
@@ -110,17 +117,7 @@ export default function Home() {
         )}
       </section>
 
-      <details className="how">
-        <summary>How to play</summary>
-        <ol>
-          <li>Everyone is secretly dealt a role: loyal to Arthur (good) or a minion of Mordred (evil). Evil players know each other.</li>
-          <li>Each round the leader proposes a team for the quest, and everyone votes to approve or reject it in the open.</li>
-          <li>
-            If the team is approved, its members secretly play Success or Fail. Good players must play Success. One Fail sinks the quest (two on quest 4 with 7+ players).
-          </li>
-          <li>Three successful quests and good wins, unless the Assassin then names Merlin. Three failed quests, or five rejected teams in a row, and evil wins.</li>
-        </ol>
-      </details>
+      {learning && <Tutorial onClose={() => setLearning(false)} />}
     </main>
   );
 }

@@ -56,6 +56,8 @@ html,
 body {
   margin: 0;
   min-height: 100%;
+  /* Fanned cards and seat badges may poke past the edge; never let them scroll the page sideways. */
+  overflow-x: clip;
 }
 body {
   background: var(--bg);
@@ -334,8 +336,7 @@ body:has(.scene) .landscape::after {
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   grid-template-areas:
     'hero gate'
-    'cast gate'
-    'how how';
+    'cast gate';
   align-items: center;
   gap: 24px 56px;
   max-width: 1280px;
@@ -402,27 +403,10 @@ body:has(.scene) .landscape::after {
   flex: 1;
   border-top: 1px solid var(--line);
 }
-.how {
-  grid-area: how;
-  max-width: 70ch;
-  color: var(--fg);
-}
-.how summary {
-  cursor: pointer;
-  color: var(--fg);
-  font-family: var(--font-heading-stack);
-  font-size: 21px;
-}
-.how ol {
-  margin: 10px 0 0;
-  padding-left: 22px;
-  display: grid;
-  gap: 8px;
-}
 @media (max-width: 860px) {
   .home {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'hero' 'cast' 'gate' 'how';
+    grid-template-areas: 'hero' 'cast' 'gate';
     min-height: 0;
     gap: 28px;
   }
@@ -436,7 +420,7 @@ body:has(.scene) .landscape::after {
 }
 .fan {
   --max-w: 92px;
-  --w: min(var(--max-w), calc(92cqw / (var(--n) * 0.72 + 0.28)));
+  --w: min(var(--max-w), calc(86cqw / (var(--n) * 0.72 + 0.28)));
   position: relative;
   display: flex;
   justify-content: center;
@@ -1462,6 +1446,7 @@ body:has(.scene) .landscape::after {
   inset: 0;
   z-index: 50;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
   padding: 16px;
   background: rgba(3, 6, 7, 0.8);
@@ -1971,6 +1956,223 @@ body:has(.scene) .landscape::after {
 .kick {
   display: grid;
   gap: 14px;
+}
+
+/* ---------- Tutorial ---------- */
+.hero-actions {
+  margin-top: 18px;
+}
+.icon-btn-help {
+  font-family: var(--font-heading-stack);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--brass-hi);
+}
+.tut-card {
+  width: min(680px, 100%);
+  max-height: 94vh;
+  max-height: 94dvh;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 20px 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(210, 170, 92, 0.45);
+  background: var(--surface-solid);
+  box-shadow: var(--shadow);
+  animation: rise 0.25s ease-out;
+}
+.tut-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tut-dots {
+  display: flex;
+  gap: 6px;
+}
+.tut-dot {
+  flex: 1;
+  height: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.tut-dot.is-done {
+  background: var(--brass);
+}
+.tut-card > * {
+  min-width: 0;
+}
+.tut-stage .token-face {
+  width: clamp(76px, 22vw, 96px);
+  height: clamp(76px, 22vw, 96px);
+}
+.tut-stage .quest-choice {
+  width: min(130px, 34vw);
+  font-size: 19px;
+}
+.tut-stage .vote-reveal {
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+}
+.tut-stage .mini-token {
+  width: 40px;
+  height: 40px;
+}
+.tut-step {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  overflow-y: auto;
+  min-height: 0;
+  animation: rise 0.25s ease-out;
+}
+.tut-title {
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: clamp(26px, 5vw, 34px);
+  line-height: 1.1;
+}
+.tut-body {
+  color: var(--fg);
+  max-width: 60ch;
+}
+.tut-stage {
+  container-type: inline-size;
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 14px 8px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.22);
+  text-align: center;
+}
+.tut-try {
+  color: var(--brass-hi);
+  font-size: 15px;
+}
+.tut-try.error {
+  color: var(--evil-hi);
+}
+.tut-result {
+  font-weight: 700;
+}
+.tut-reveal {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.tut-table {
+  width: min(100%, 380px);
+}
+.tut-counts {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.tut-counts th,
+.tut-counts td {
+  padding: 4px 10px;
+  text-align: center;
+}
+.tut-counts th {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.tut-counts tr + tr td,
+.tut-counts tr + tr th {
+  border-top: 1px solid var(--line);
+}
+.tut-roles,
+.tut-tips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+.tut-roles li,
+.tut-tips li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
+}
+.tut-role-art,
+.tut-tip-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  color: var(--fg);
+}
+.tut-roles .is-good .tut-role-art {
+  background: var(--loyal-fill);
+}
+.tut-roles .is-evil .tut-role-art {
+  background: var(--evil-fill);
+}
+.tut-tip-icon {
+  background: var(--raised);
+  color: var(--brass-hi);
+}
+.tut-board {
+  width: min(400px, 100%);
+  container-type: inline-size;
+}
+.tut-win {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+}
+.tut-assassin span {
+  min-width: 0;
+}
+.tut-assassin {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+  color: var(--fg);
+  text-align: left;
+}
+.tut-lady {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.tut-lady-art {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: var(--loyal-fill);
+  color: var(--loyal-hi);
+}
+.tut-lady-result {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+.tut-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 /* ---------- Motion ---------- */

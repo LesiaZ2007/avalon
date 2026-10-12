@@ -8,6 +8,7 @@ import Avatar, { AvatarPicker, inkColor } from './Avatar';
 import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
+import Tutorial from './Tutorial';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
 
@@ -58,6 +59,7 @@ function useWide() {
 export default function Room({ view, act, netError }) {
   const [drawer, setDrawer] = useState(null); // 'chat' | 'log' | null
   const [roleOpen, setRoleOpen] = useState(false);
+  const [learning, setLearning] = useState(false);
   const [inspect, setInspect] = useState(null);
   const wide = useWide();
   const names = useMemo(() => Object.fromEntries(view.players.map((p) => [p.id, p.name])), [view.players]);
@@ -93,6 +95,7 @@ export default function Room({ view, act, netError }) {
         view={view}
         unread={unread}
         onRole={() => setRoleOpen(true)}
+        onHelp={() => setLearning(true)}
         onChat={() => setDrawer(drawer === 'chat' ? null : 'chat')}
         onLog={() => setDrawer(drawer === 'log' ? null : 'log')}
       />
@@ -133,6 +136,7 @@ export default function Room({ view, act, netError }) {
         <LobbySeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} onClose={() => setInspect(null)} />
       )}
       <EventOverlay view={view} nameOf={nameOf} onRole={() => setRoleOpen(true)} />
+      {learning && <Tutorial onClose={() => setLearning(false)} />}
     </main>
   );
 }
@@ -152,7 +156,7 @@ function ScrollIcon() {
   );
 }
 
-function TopBar({ view, unread, onRole, onChat, onLog }) {
+function TopBar({ view, unread, onRole, onHelp, onChat, onLog }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -174,6 +178,9 @@ function TopBar({ view, unread, onRole, onChat, onLog }) {
             My role
           </button>
         )}
+        <button className="icon-btn icon-btn-help" onClick={onHelp} aria-label="How to play" title="How to play">
+          ?
+        </button>
         {view.game && (
           <button className="icon-btn" onClick={onLog} aria-label="Chronicle" title="Chronicle">
             <ScrollIcon />
