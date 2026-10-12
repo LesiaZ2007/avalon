@@ -9,7 +9,7 @@ import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
 import Tutorial from './Tutorial';
-import { Recap, Scoreboard, VoteSplit } from './Recap';
+import { Recap, Scoreboard } from './Recap';
 import TimerBadge from './Timer';
 import { useTheme } from './Theme';
 import TvLink from './TvLink';
@@ -856,9 +856,7 @@ function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose })
 function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, onClose }) {
   const g = view.game;
   const seatIdx = g.seats.indexOf(id);
-  const proposals = g.history.map((h, i) => ({ ...h, n: g.history.filter((x, j) => j <= i && x.quest === h.quest).length }));
   const led = g.history.filter((h) => h.leader === id).length;
-  const approvals = g.history.filter((h) => h.votes[id]).length;
   const quests = g.quests.filter((q) => q.result && q.team.includes(id));
   const failed = quests.filter((q) => q.result === 'fail').length;
   const role = g.roles?.[id];
@@ -895,12 +893,6 @@ function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, 
             <span>of them failed</span>
           </div>
           <div>
-            <strong>
-              {approvals}/{g.history.length}
-            </strong>
-            <span>teams approved</span>
-          </div>
-          <div>
             <strong>{led}</strong>
             <span>teams proposed</span>
           </div>
@@ -933,27 +925,6 @@ function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, 
 
         {!role && <RejoinPanel view={view} act={act} id={id} nameOf={nameOf} />}
 
-        <div>
-          <p className="eyebrow" style={{ marginBottom: 8 }}>
-            Voting record
-          </p>
-          {proposals.length === 0 ? (
-            <p className="muted small">No votes yet.</p>
-          ) : (
-            <ol className="record">
-              {proposals.map((h, i) => (
-                <li key={i}>
-                  <span className={`mini-token sm ${h.votes[id] ? 'is-approve' : 'is-reject'}`}>{h.votes[id] ? <ApproveMark size={16} /> : <RejectMark size={16} />}</span>
-                  <span className="record-text">
-                    Quest {NUMERALS[h.quest]}.{h.n}: {h.leader === id ? 'proposed it' : `${nameOf(h.leader)}'s team`}
-                    {h.team.includes(id) ? ' (on it)' : ''}
-                  </span>
-                  <span className={`chip ${h.approved ? 'chip-good' : 'chip-evil'}`}>{h.approved ? 'went' : 'rejected'}</span>
-                </li>
-              ))}
-            </ol>
-          )}
-        </div>
       </div>
     </div>
   );
@@ -1052,8 +1023,6 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
     g.history
       .filter((h) => h.quest === qi)
       .forEach((h, ai) => {
-        const yes = g.seats.filter((id) => h.votes[id]);
-        const no = g.seats.filter((id) => !h.votes[id]);
         entries.push(
           <li key={`v${qi}-${ai}`} className="entry">
             <div className="entry-head">
@@ -1061,13 +1030,12 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
                 Quest {NUMERALS[qi]} · proposal {ai + 1}
               </span>
               <span className={`chip ${h.approved ? 'chip-good' : 'chip-evil'}`}>
-                {h.approved ? 'Approved' : 'Rejected'} {yes.length}–{no.length}
+                {h.approved ? 'Approved' : 'Rejected'} {h.yes}–{g.seats.length - h.yes}
               </span>
             </div>
             <span>
               {nameOf(h.leader)} sent {h.team.map(nameOf).join(', ')}
             </span>
-            <VoteSplit seats={g.seats} votes={h.votes} nameOf={nameOf} avatarOf={avatarOf} />
           </li>
         );
       });
@@ -1136,7 +1104,7 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
           })}
         </ul>
       </div>
-      {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal, vote and quest will be recorded here.</p>}
+      {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal and quest will be recorded here.</p>}
       <TvLink code={view.code} />
       {canEnd && <EndGame act={act} />}
     </div>
