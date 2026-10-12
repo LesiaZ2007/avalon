@@ -4,6 +4,7 @@ import { useState } from 'react';
 import RoundTable from './RoundTable';
 import Fan from './Fan';
 import { Scoreboard } from './Recap';
+import TvLink from './TvLink';
 import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, TIMER_CHOICES, formatSeconds, lineup } from '@/lib/rules';
 
 const TIMERS = {
@@ -155,9 +156,7 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
       <p className="hand-text small">
         {isHost && count > 1 ? 'Tap a player’s seat to remove them, or your own to change your avatar.' : 'Tap your seat to change your avatar.'}
       </p>
-      <a className="tv-link" href={`/tv/${view.code}`} target="_blank" rel="noreferrer">
-        Show this table on a TV
-      </a>
+      <TvLink code={view.code} />
     </div>
   );
 }

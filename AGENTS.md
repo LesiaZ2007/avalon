@@ -27,11 +27,12 @@ Lady of the Lake and assassination. Deployed on Vercel.
   simultaneous moves can't overwrite each other.
 - `app/api/room/`: create and join. `app/api/room/[code]/`: fetch state (GET) and make a
   move (POST).
-- `app/page.js`: home. `app/r/[code]/page.js`: polling, joining and the toast.
+- `app/page.js`: home. `app/r/[code]/page.js`: polling, joining and the toast. `app/tv/page.js`: type a room code on a
+  TV; `app/tv/[code]/page.js`: the public table view.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
   `Lobby.js`, `RoundTable.js`, `Avatar.js` (avatar and picker), `Fan.js`, `Reactions.js`,
   `Tutorial.js` (the eight-step walkthrough with a practice table; keep it in step with the
-  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
+  rules), `Recap.js` (the room's score tally and the end-of-game recap), `Timer.js` (the optional phase countdown, timed against the server's clock), `TvLink.js` (the TV link and the address to type on another screen), `art.js`, `crests.js`, `reactionIcons.js`. Avatar crest ids, colours and their light text versions (`AVATAR_INKS`, used for chat names)
   live in `lib/rules.js` (the drawings are in
   `components/crests.js`) and are validated by
   `cleanAvatar()` on the server.

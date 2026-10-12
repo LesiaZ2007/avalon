@@ -110,6 +110,13 @@ export default function Home() {
           <button className="btn btn-block" type="submit" disabled={!!busy}>
             {busy === 'join' ? 'Joining…' : 'Take a seat'}
           </button>
+          <button
+            className="btn btn-ghost btn-block"
+            type="button"
+            onClick={() => (code.length === 4 ? router.push(`/tv/${code}`) : setError('Enter the 4-letter room code to show its table on a TV.'))}
+          >
+            Show it on a TV
+          </button>
         </form>
 
         {error && (

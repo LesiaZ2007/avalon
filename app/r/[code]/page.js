@@ -248,6 +248,9 @@ function JoinHere({ code, notice, onJoined }) {
             {error}
           </p>
         )}
+        <Link href={`/tv/${code}`} className="tv-link">
+          Just watching? Show this table on a TV
+        </Link>
         <Link href="/" className="muted small">
           Use a different code
         </Link>

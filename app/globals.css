@@ -2768,6 +2768,29 @@ body:has(.scene) .landscape::after {
   box-shadow: none;
 }
 
+/* ---------- TV links and host end ---------- */
+.tv-link-box {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+.tv-address {
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+.tv-start {
+  max-width: 460px;
+  margin: 8vh auto 0;
+  text-align: center;
+}
+.tv-start .wordmark {
+  font-size: 44px;
+}
+.host-end {
+  padding-top: 6px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

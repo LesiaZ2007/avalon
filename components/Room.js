@@ -11,6 +11,7 @@ import Fan from './Fan';
 import Tutorial from './Tutorial';
 import { Recap, Scoreboard, VoteSplit } from './Recap';
 import TimerBadge from './Timer';
+import TvLink from './TvLink';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
 
@@ -609,6 +610,7 @@ function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, on
           })}
         </p>
       )}
+      {view.hostId === me && view.phase !== 'over' && <EndGame act={act} compact />}
     </div>
   );
 }
@@ -1018,19 +1020,23 @@ function Chat({ view, act, avatarOf, onClose }) {
   );
 }
 
-function EndGame({ act }) {
+function EndGame({ act, compact = false }) {
   const [confirm, setConfirm] = useState(false);
   useEffect(() => {
     if (!confirm) return;
     const t = setTimeout(() => setConfirm(false), 4000);
     return () => clearTimeout(t);
   }, [confirm]);
+  const button = (
+    <button className={`btn ${compact ? 'btn-sm' : ''} ${confirm ? 'btn-evil' : 'btn-ghost'}`} onClick={() => (confirm ? act({ type: 'lobby' }) : setConfirm(true))}>
+      {confirm ? 'Tap again to end the game for everyone' : 'End game early'}
+    </button>
+  );
+  if (compact) return <div className="host-end">{button}</div>;
   return (
     <div className="host-tools">
       <p className="eyebrow">Host</p>
-      <button className={`btn ${confirm ? 'btn-evil' : 'btn-ghost'}`} onClick={() => (confirm ? act({ type: 'lobby' }) : setConfirm(true))}>
-        {confirm ? 'Tap again to end the game for everyone' : 'End game early'}
-      </button>
+      {button}
     </div>
   );
 }
@@ -1128,9 +1134,7 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
         </ul>
       </div>
       {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal, vote and quest will be recorded here.</p>}
-      <a className="tv-link" href={`/tv/${view.code}`} target="_blank" rel="noreferrer">
-        Show this table on a TV
-      </a>
+      <TvLink code={view.code} />
       {canEnd && <EndGame act={act} />}
     </div>
   );
