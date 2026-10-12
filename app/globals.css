@@ -1372,27 +1372,10 @@ body:has(.scene) .landscape::after {
   overscroll-behavior: contain;
 }
 .msg {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
   overflow-wrap: anywhere;
 }
 .msg.is-grouped {
   margin-top: -5px;
-}
-.msg-gutter {
-  width: 28px;
-}
-.avatar-xs {
-  width: 28px;
-  margin-top: 2px;
-  border-width: 1.5px;
-  font-size: 11px;
-  box-shadow: none;
-}
-.msg-body {
-  min-width: 0;
 }
 /* Each name takes the light version of its speaker's avatar colour (AVATAR_INKS). */
 .msg-name {
@@ -1400,9 +1383,6 @@ body:has(.scene) .landscape::after {
   font-weight: 700;
   font-size: 15px;
   color: var(--ink, var(--fg));
-}
-.msg .avatar-xs {
-  box-shadow: 0 0 0 1.5px var(--ink, transparent);
 }
 .msg-you {
   font-weight: 400;

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LobbyHand, LobbyTable } from './Lobby';
 import RoundTable from './RoundTable';
-import Avatar, { AvatarPicker, inkColor, tintColor } from './Avatar';
+import Avatar, { AvatarPicker, inkColor } from './Avatar';
 import { saveAvatar } from '@/lib/client';
 import ReactionBar from './Reactions';
 import Fan from './Fan';
@@ -831,23 +831,20 @@ function Chat({ view, act, avatarOf, onClose }) {
             );
           }
           // Each speaker's name takes the colour of their avatar. Consecutive lines from the
-          // same person are grouped under one crest.
+          // same person are grouped under one name.
           const prev = view.chat[i - 1];
           const grouped = prev && !prev.system && prev.pid === m.pid;
           const avatar = avatarOf(m.pid);
           return (
-            <div key={m.id} className={`msg ${grouped ? 'is-grouped' : ''}`} style={{ '--tint': tintColor(avatar), '--ink': inkColor(avatar) }}>
-              {grouped ? <span className="msg-gutter" /> : <Avatar avatar={avatar} name={m.name} className="avatar-xs" />}
-              <p className="msg-body">
-                {!grouped && (
-                  <b className="msg-name">
-                    {m.name}
-                    {m.pid === view.you && <span className="msg-you"> (you)</span>}
-                  </b>
-                )}
-                {m.text}
-              </p>
-            </div>
+            <p key={m.id} className={`msg ${grouped ? 'is-grouped' : ''}`} style={{ '--ink': inkColor(avatar) }}>
+              {!grouped && (
+                <b className="msg-name">
+                  {m.name}
+                  {m.pid === view.you && <span className="msg-you"> (you)</span>}
+                </b>
+              )}
+              {m.text}
+            </p>
           );
         })}
       </div>
