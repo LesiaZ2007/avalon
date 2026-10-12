@@ -8,6 +8,7 @@ import { Recap } from './Recap';
 import { inkColor, tintColor } from './Avatar';
 import { useTheme } from './Theme';
 import TimerBadge from './Timer';
+import Celebration, { useCelebration } from './Celebration';
 import { api } from '@/lib/client';
 import { MAX_PLAYERS, MIN_PLAYERS, ROLES, isEvilRole } from '@/lib/rules';
 
@@ -72,6 +73,8 @@ export default function TvView({ code }) {
 
   const names = useMemo(() => Object.fromEntries((view?.players ?? []).map((p) => [p.id, p])), [view?.players]);
   useTheme(view?.settings?.theme);
+  const [revealing, setRevealing] = useState(false);
+  const celebrating = useCelebration(view, revealing, { tv: true });
   const nameOf = (id) => names[id]?.name ?? 'Someone';
   const avatarOf = (id) => names[id]?.avatar;
 
