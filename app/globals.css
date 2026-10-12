@@ -1318,6 +1318,10 @@ body:has(.scene) .landscape::after {
     grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) var(--dock);
     grid-template-areas: 'hand table chat';
   }
+  /* Level with the docked chat. */
+  .hand {
+    margin-top: 0;
+  }
   .drawer.drawer-chat {
     grid-area: chat;
     position: sticky;
