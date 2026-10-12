@@ -255,7 +255,7 @@ function GameStage({ view, act, nameOf, avatarOf, notes, onInspect }) {
   );
 }
 
-function QuestRow({ view, open, setOpen }) {
+export function QuestRow({ view, open, setOpen }) {
   const g = view.game;
   const live = view.phase !== 'over' && view.phase !== 'assassin';
   return (
@@ -602,7 +602,7 @@ function ActionPanel({ view, act, nameOf, rules, picked, setPicked }) {
 }
 
 /** Who the table is waiting on right now. */
-function waitingOn(view) {
+export function waitingOn(view) {
   const g = view.game;
   if (!g) return [];
   switch (view.phase) {
@@ -1120,16 +1120,19 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
         </ul>
       </div>
       {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal, vote and quest will be recorded here.</p>}
+      <a className="tv-link" href={`/tv/${view.code}`} target="_blank" rel="noreferrer">
+        Show this table on a TV
+      </a>
       {canEnd && <EndGame act={act} />}
     </div>
   );
 }
 
-function EventOverlay({ view, nameOf, onRole }) {
+export function EventOverlay({ view, nameOf, onRole, tv = false }) {
   const ev = view.event;
   const [shown, setShown] = useState(null);
   const handled = useRef(null);
-  const key = `avalon:event:${view.code}`;
+  const key = `avalon:${tv ? 'tv-event' : 'event'}:${view.code}`;
 
   useEffect(() => {
     if (!ev) {
@@ -1149,7 +1152,7 @@ function EventOverlay({ view, nameOf, onRole }) {
     } catch {}
     // Don't replay an old result when someone reloads the page.
     if (seen === null || ev.id <= seen) return;
-    if (ev.type === 'vote' || ev.type === 'quest' || ev.type === 'start') setShown(ev);
+    if (ev.type === 'vote' || ev.type === 'quest' || (ev.type === 'start' && !tv)) setShown(ev);
   }, [ev?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

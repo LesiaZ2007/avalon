@@ -84,6 +84,14 @@ async function game(n, mode, lady, strategy) {
   });
   console.log(`  n=${n} mode=${mode} roles:`, Object.values(roles).sort().join(','));
 
+  // The TV view is public: the table and board, never roles or private knowledge.
+  {
+    const tv = (await call(`/api/room/${host.data.code}/tv`)).data;
+    assert(tv.game && tv.game.myRole === null && tv.game.known.length === 0 && tv.game.roles === null, 'tv hides roles');
+    assert(Object.keys(tv.rejoinCodes).length === 0, 'tv sees no rejoin codes');
+    const raw = JSON.stringify(tv);
+    assert(!raw.includes('"token"') && !raw.includes('"myRole":"') && !raw.includes('"roles":{') && !raw.includes('"evil":true'), 'tv leaks no roles');
+  }
   // Rejoin on a new device: only the host can make a code for a connected player; the code
   // works once, keeps the player's role, and signs out the old device.
   {
@@ -113,6 +121,7 @@ async function game(n, mode, lady, strategy) {
     if (s.phase === 'over') {
       console.log(`  -> ${s.game.winner} wins: ${s.game.reason}`);
       assert(s.game.roles, 'roles revealed at end');
+      assert((await call(`/api/room/${host.data.code}/tv`)).data.game.roles, 'tv shows roles at the end');
       return s;
     }
     const g = s.game;

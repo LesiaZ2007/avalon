@@ -2056,6 +2056,129 @@ body:has(.scene) .landscape::after {
   user-select: all;
 }
 
+/* ---------- TV view ---------- */
+.tv-link {
+  color: var(--brass-hi);
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+}
+.tv {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 30vw);
+  align-items: center;
+  gap: 3vw;
+  padding: 3vh 3vw;
+}
+.tv-table .table-wrap {
+  width: min(100%, calc(100dvh - 6vh));
+  max-width: none;
+  margin: 0 auto;
+}
+.tv-side {
+  display: grid;
+  align-content: center;
+  gap: 2.4vh;
+}
+.tv-mark {
+  font-family: var(--font-display-stack);
+  font-size: clamp(32px, 3vw, 54px);
+  color: var(--brass);
+}
+.tv-headline {
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: clamp(30px, 3.4vw, 64px);
+  line-height: 1.05;
+}
+.phase-over .tv-headline {
+  color: var(--brass-hi);
+}
+.tv-waiting {
+  font-size: clamp(18px, 1.5vw, 28px);
+  color: var(--dim);
+}
+.tv-join {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(210, 170, 92, 0.45);
+  background: var(--surface);
+}
+.tv-qr {
+  width: clamp(140px, 12vw, 240px);
+  flex: none;
+}
+.tv-qr svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.tv-url {
+  font-size: clamp(16px, 1.3vw, 24px);
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+.tv-code {
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: clamp(40px, 4vw, 80px);
+  letter-spacing: 0.12em;
+  color: var(--brass-hi);
+  line-height: 1;
+}
+.tv-chat {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: clamp(16px, 1.25vw, 24px);
+}
+.tv .overlay-card {
+  width: min(1000px, 88vw);
+  gap: 2.4vh;
+  padding: 4vh 3vw;
+}
+.tv .overlay-card h2 {
+  font-size: clamp(40px, 4.5vw, 84px);
+}
+.tv .overlay-card .eyebrow {
+  font-size: clamp(14px, 1.1vw, 20px);
+}
+.tv .overlay-card > .btn {
+  display: none;
+}
+.tv .vote-reveal {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  font-size: clamp(16px, 1.3vw, 24px);
+}
+.tv .mini-token {
+  width: 72px;
+  height: 72px;
+}
+.tv .quest-card {
+  width: clamp(100px, 8vw, 150px);
+  font-size: clamp(13px, 1vw, 18px);
+}
+.tv-empty {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  font-size: 22px;
+}
+@media (max-width: 900px) {
+  .tv {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- Tutorial ---------- */
 .hero-actions {
   margin-top: 18px;

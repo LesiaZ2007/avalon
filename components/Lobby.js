@@ -134,6 +134,9 @@ export function LobbyHand({ view, act }) {
       <p className="hand-text small">
         {isHost && count > 1 ? 'Tap a player’s seat to remove them, or your own to change your avatar.' : 'Tap your seat to change your avatar.'}
       </p>
+      <a className="tv-link" href={`/tv/${view.code}`} target="_blank" rel="noreferrer">
+        Show this table on a TV
+      </a>
     </div>
   );
 }
