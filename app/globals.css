@@ -944,11 +944,23 @@ body:has(.scene) .landscape::after {
   top: -6px;
   left: 50%;
   z-index: 3;
-  font-size: max(26px, 6cqw);
-  line-height: 1;
+  display: grid;
+  place-items: center;
+  width: max(40px, 8cqw);
+  height: max(40px, 8cqw);
+  padding: 7px;
+  border-radius: 50%;
+  border: 2px solid var(--brass);
+  background: var(--surface-solid);
+  color: var(--fg);
   pointer-events: none;
   animation: bubble 3.6s ease-out forwards;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45);
+}
+.bubble svg,
+.reaction svg {
+  width: 100%;
+  height: 100%;
 }
 
 /* Reactions */
@@ -966,18 +978,20 @@ body:has(.scene) .landscape::after {
 .reaction {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
+  padding: 8px;
   border-radius: 50%;
   border: 0;
   background: transparent;
-  font-size: 23px;
+  color: var(--fg);
   cursor: pointer;
   transition: transform 0.12s, background 0.12s;
 }
 .reaction:hover:not(:disabled) {
   transform: translateY(-3px) scale(1.15);
   background: var(--raised);
+  color: var(--brass-hi);
 }
 .reaction:active:not(:disabled) {
   transform: scale(0.9);

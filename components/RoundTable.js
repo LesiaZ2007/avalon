@@ -2,6 +2,7 @@
 
 import { ApproveMark, Check, Crown, LadyDrop, RejectMark, ShieldMark } from './art';
 import Avatar from './Avatar';
+import { ReactionIcon } from './reactionIcons';
 
 /**
  * Players seated clockwise around a round table, starting at the top.
@@ -91,7 +92,7 @@ export default function RoundTable({
             </Avatar>
             {reaction && (
               <span key={reaction.n} className="bubble" aria-hidden="true">
-                {reaction.emoji}
+                <ReactionIcon id={reaction.icon} />
               </span>
             )}
             <span className="seat-name">

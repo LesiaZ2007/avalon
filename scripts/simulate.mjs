@@ -51,6 +51,10 @@ async function game(n, mode, lady, strategy) {
   // non-host can't start
   assert((await act(players[1], { type: 'start' })).status === 400, 'nonhost start');
   await act(players[0], { type: 'settings', mode, lady });
+  // Reactions: a known icon shows over the sender's seat; anything else is refused.
+  assert((await act(players[2], { type: 'react', icon: 'sus' })).status === 200, 'react');
+  assert((await v(players[0])).reactions[players[2].playerId]?.icon === 'sus', 'reaction visible');
+  assert((await act(players[2], { type: 'react', icon: '<img>' })).status === 400, 'unknown reaction refused');
   // chat
   await act(players[2], { type: 'chat', text: 'hello table' });
   const st = await act(players[0], { type: 'start' });
