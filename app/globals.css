@@ -2121,13 +2121,22 @@ body:has(.scene) .landscape::after {
   color: var(--dim);
 }
 .tv-join {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+  display: grid;
+  gap: 16px;
   padding: 20px;
   border-radius: 20px;
   border: 1px solid rgba(210, 170, 92, 0.45);
   background: var(--surface);
+}
+.tv-join-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+/* The address stays on one line: it shrinks to fit the panel's width (at most 0.45em a letter, with room to spare). */
+.tv-join-at {
+  container-type: inline-size;
+  min-width: 0;
 }
 .tv-qr {
   width: clamp(140px, 12vw, 240px);
@@ -2139,9 +2148,9 @@ body:has(.scene) .landscape::after {
   height: auto;
 }
 .tv-url {
-  font-size: clamp(16px, 1.3vw, 24px);
-  margin-bottom: 10px;
-  overflow-wrap: anywhere;
+  font-size: clamp(16px, 1.6vw, 30px);
+  font-size: min(clamp(16px, 1.6vw, 30px), calc(100cqi / (var(--chars) * 0.45)));
+  white-space: nowrap;
 }
 .tv-code {
   font-family: var(--font-heading-stack);
