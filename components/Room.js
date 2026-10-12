@@ -10,6 +10,7 @@ import ReactionBar from './Reactions';
 import Fan from './Fan';
 import Tutorial from './Tutorial';
 import { Recap, Scoreboard } from './Recap';
+import TimerBadge from './Timer';
 import { ApproveMark, BrokenBlade, Grail, RejectMark, RoleEmblem } from './art';
 import { ROLES, describeRoles, isEvilRole } from '@/lib/rules';
 
@@ -591,6 +592,7 @@ function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, on
   const waiting = waitingOn(view).filter((id) => id !== me);
   return (
     <div className="hand-inner" key={view.phase}>
+      <TimerBadge view={view} waiting={waitingOn(view)} />
       {body}
       {waiting.length > 0 && (
         <p className="waiting">

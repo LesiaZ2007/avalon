@@ -2623,6 +2623,84 @@ body:has(.scene) .landscape::after {
   line-height: 1;
 }
 
+/* ---------- Timers ---------- */
+.timer-settings {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.pills-label {
+  align-self: center;
+  margin-right: 2px;
+  color: var(--dim);
+  font-size: 14px;
+  font-weight: 700;
+}
+.pill-sm {
+  min-height: 34px;
+  padding: 4px 12px;
+  font-size: 14px;
+}
+.timer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px 12px;
+  width: min(100%, 320px);
+  padding: 8px 14px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(6, 11, 12, 0.55);
+  text-align: left;
+}
+.timer-label {
+  color: var(--dim);
+  font-size: 14px;
+}
+.timer-time {
+  font-family: var(--font-heading-stack);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--brass-hi);
+}
+.timer-track {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.timer-fill {
+  display: block;
+  height: 100%;
+  background: var(--brass);
+  transform-origin: left;
+  transition: transform 0.25s linear;
+}
+.timer.is-low {
+  border-color: var(--brass);
+  animation: glow 1s ease-in-out infinite;
+}
+.timer.is-up {
+  border-color: var(--brass);
+  background: var(--brass-soft);
+}
+.timer.is-tv {
+  width: min(100%, 560px);
+  padding: 1.4vh 1.4vw 1.6vh;
+  border-radius: 20px;
+}
+.timer.is-tv .timer-label {
+  font-size: clamp(16px, 1.3vw, 26px);
+}
+.timer.is-tv .timer-time {
+  font-size: clamp(32px, 3vw, 60px);
+}
+.timer.is-tv .timer-track {
+  height: 8px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

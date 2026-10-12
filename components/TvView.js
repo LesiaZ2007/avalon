@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import RoundTable from './RoundTable';
 import { EventOverlay, QuestRow, waitingOn } from './Room';
 import { inkColor } from './Avatar';
+import TimerBadge from './Timer';
 import { api } from '@/lib/client';
 import { MAX_PLAYERS, MIN_PLAYERS, ROLES, isEvilRole } from '@/lib/rules';
 
@@ -183,6 +184,7 @@ export default function TvView({ code }) {
       <aside className="tv-side">
         <p className="tv-mark">Avalon</p>
         <h1 className="tv-headline">{headline}</h1>
+        {g && <TimerBadge view={view} tv />}
         {waiting.length > 0 && view.phase !== 'over' && (
           <p className="tv-waiting">
             Waiting on {waiting.map((id) => nameOf(id) + (online(id) ? '' : ' (away)')).join(', ')}

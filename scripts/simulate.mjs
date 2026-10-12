@@ -51,6 +51,15 @@ async function game(n, mode, lady, strategy) {
   // non-host can't start
   assert((await act(players[1], { type: 'start' })).status === 400, 'nonhost start');
   await act(players[0], { type: 'settings', mode, lady });
+  // Timers: only the listed lengths are accepted, and each one can be set on its own.
+  await act(players[0], { type: 'settings', timers: { talk: 7, vote: 'soon' } });
+  let timers = (await v(players[1])).settings.timers;
+  assert(timers.talk === 0 && timers.vote === 0, 'junk timers ignored ' + JSON.stringify(timers));
+  await act(players[0], { type: 'settings', timers: { talk: 180 } });
+  await act(players[0], { type: 'settings', timers: { vote: 30 } });
+  timers = (await v(players[1])).settings.timers;
+  assert(timers.talk === 180 && timers.vote === 30, 'timers set ' + JSON.stringify(timers));
+  assert((await act(players[1], { type: 'settings', timers: { talk: 300 } })).status === 400, 'non-host timers refused');
   // Reactions: a known icon shows over the sender's seat; anything else is refused.
   assert((await act(players[2], { type: 'react', icon: 'sus' })).status === 200, 'react');
   assert((await v(players[0])).reactions[players[2].playerId]?.icon === 'sus', 'reaction visible');
@@ -158,8 +167,10 @@ async function game(n, mode, lady, strategy) {
       const other = players.find(p => p.playerId !== g.leader);
       assert((await act(other, { type: 'propose', team: ids.slice(0, size) })).status === 400, 'nonleader');
       const team = strategy.team(ids, roles, size);
+      assert(typeof g.phaseAt === 'number' && g.phaseAt <= s.now, 'team phase has a start time');
       const r = await act(leader, { type: 'propose', team });
       assert(r.status === 200, 'propose ' + JSON.stringify(r.data));
+      assert(r.data.phase === 'vote' && r.data.game.phaseAt >= g.phaseAt, 'vote phase restarts the clock');
     } else if (s.phase === 'vote') {
       for (const p of players) {
         const r = await act(p, { type: 'vote', approve: strategy.approve(g, s) });
@@ -168,6 +179,7 @@ async function game(n, mode, lady, strategy) {
           // others' votes hidden mid-vote
           const peek = await v(players[0]);
           assert(!('votes' in peek.game) && peek.phase === 'vote' && peek.game.voted.length > 0, 'votes hidden');
+          assert(peek.game.phaseAt === g.phaseAt, 'a vote does not restart the clock');
         }
       }
     } else if (s.phase === 'quest') {

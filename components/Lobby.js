@@ -4,7 +4,12 @@ import { useState } from 'react';
 import RoundTable from './RoundTable';
 import Fan from './Fan';
 import { Scoreboard } from './Recap';
-import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, lineup } from '@/lib/rules';
+import { MAX_PLAYERS, MIN_PLAYERS, MODES, OFFICIAL_MAX, QUEST_SIZES, ROLES, ROLE_NEEDS, TIMER_CHOICES, formatSeconds, lineup } from '@/lib/rules';
+
+const TIMERS = {
+  talk: { label: 'Talk timer', hint: 'How long the leader has to pick a team, and evil has to name Merlin.' },
+  vote: { label: 'Vote timer', hint: 'How long everyone has to vote on a team.' },
+};
 
 const ROLE_HINTS = {
   merlin: 'Adds the Assassin to evil.',
@@ -121,7 +126,20 @@ export function LobbyHand({ view, act, nameOf, avatarOf }) {
           })}
         </div>
       )}
-      {!isHost && <p className="hand-text small">The host chooses the roles.</p>}
+      <div className="timer-settings">
+        {Object.entries(TIMERS).map(([key, t]) => (
+          <div key={key} className="pills" role="group" aria-label={t.label} title={t.hint}>
+            <span className="pills-label">{t.label}</span>
+            {TIMER_CHOICES[key].map((secs) => (
+              <button key={secs} type="button" className="pill pill-sm" aria-pressed={(s.timers?.[key] ?? 0) === secs} disabled={!isHost} onClick={() => update({ timers: { [key]: secs } })}>
+                {secs ? formatSeconds(secs) : 'Off'}
+              </button>
+            ))}
+          </div>
+        ))}
+        {(s.timers?.talk > 0 || s.timers?.vote > 0) && <p className="hand-text small">When time runs out, the table sees it and the players being waited on get a buzz. Nothing is played for them.</p>}
+      </div>
+      {!isHost && <p className="hand-text small">The host chooses the roles and timers.</p>}
 
       <div className="row row-center">
         {isHost && (

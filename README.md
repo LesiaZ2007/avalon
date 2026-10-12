@@ -24,6 +24,7 @@ The Resistance: Avalon, played from phones around one table. One person creates 
   A role that needs another (Percival needs Merlin, Morgana needs Percival, Mordred needs Merlin) switches off with it, because on its own it would change nothing.
 - **Lady of the Lake (optional):** used after quests 2, 3 and 4. Only the holder sees the result. Players who have held her can't be examined.
 - **Assassination:** if good wins three quests, evil is revealed and the Assassin gets one guess at Merlin.
+- **Timers (optional):** for groups that like a faster pace. In the lobby the host can set a *talk timer* (2, 3 or 5 minutes for the leader to pick a team, and for evil to name Merlin) and a *vote timer* (30 seconds, 1 or 2 minutes). Every phone and the TV count down together. When time runs out the table sees *Time's up* and the players it's waiting on get a buzz, but nothing is played for anyone: the timer is a nudge, not a rule.
 
 ## Learning the game
 
