@@ -48,9 +48,11 @@ To check the rules, run `npm run simulate` in a second terminal while the dev se
 Vercel functions don't share memory, so rooms are stored in Upstash Redis (free tier).
 
 1. Import this repository at vercel.com/new.
-2. In the Vercel project, open **Storage → Create Database → Upstash for Redis**, choose the free plan and connect it to the project. This adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically. (`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` also work.)
-3. Redeploy so the new environment variables are picked up.
+2. In the Vercel project, open **Storage**, create a Redis database (Upstash for Redis or Vercel's own Redis, both have free plans) and connect it to the project. Tick every environment you deploy to (Production, and Preview if you use preview links).
+3. **Redeploy.** A deployment only gets the variables that existed when it was built, so connecting the store isn't enough on its own.
 
-If Redis isn't connected, creating a room shows an error explaining this.
+The app finds Redis by itself. It accepts Upstash's REST variables (`KV_REST_API_URL` + `KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`, with or without a custom prefix) or a `redis://` connection string in `REDIS_URL`. REST is preferred because it needs no open connection.
+
+If storage still isn't reachable, creating a room shows an error. It names the environment (production or preview) and lists which Redis-related variable names the deployment can see, without their values. "No Redis variables at all" means the store isn't connected to that environment or the deployment predates it. "Can see X but no usable…" means the store is connected but its variables are in an unexpected form.
 
 Rooms expire 12 hours after their last change. Each phone checks for updates about once a second, or every 4 seconds when the tab is in the background. A 10-player game for an hour uses roughly 30k Redis commands, well within Upstash's free tier.

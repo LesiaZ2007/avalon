@@ -11,7 +11,7 @@ Lady of the Lake and assassination. Deployed on Vercel.
 | Framework | Next.js 15 (App Router), React 19, plain JavaScript |
 | Styling | One hand-written stylesheet, `app/globals.css` (no Tailwind) |
 | Fonts | `next/font/google`: Uncial Antiqua (wordmark only), Alegreya SC, Alegreya Sans |
-| Storage | Upstash Redis via its REST API (`fetch`, no SDK); in-memory fallback locally |
+| Storage | Redis: Upstash REST API via `fetch` when available, otherwise a `redis://` URL via the `redis` client; in-memory fallback locally |
 | Realtime | Clients poll `GET /api/room/[code]` about once a second; no websockets |
 | Artwork | Inline SVG in `components/art.js`; no image files |
 
@@ -104,8 +104,11 @@ You can't change Vercel's settings or the Upstash console. When a change needs e
 stop and say so explicitly, with exactly what to do:
 
 - **Environment variables**: name the variable, its purpose and which environments need
-  it, so it can be added in Vercel and mirrored into `.env.local`. Storage reads
-  `KV_REST_API_URL` / `KV_REST_API_TOKEN` (or the `UPSTASH_REDIS_REST_*` equivalents).
+  it, so it can be added in Vercel and mirrored into `.env.local`. Storage accepts, in
+  order: `KV_REST_API_URL` + `KV_REST_API_TOKEN`, `UPSTASH_REDIS_REST_URL` +
+  `UPSTASH_REDIS_REST_TOKEN`, either pair under a custom prefix, then a `redis://` /
+  `rediss://` URL in `REDIS_URL` or `KV_URL`. When none is found on Vercel, the error lists
+  the Redis-related variable *names* the deployment can see, never their values.
 - **Storage changes**: rooms are JSON blobs under `avalon:room:<CODE>` with a 12-hour TTL.
   If you change the room shape, old rooms simply expire, but say so.
 
