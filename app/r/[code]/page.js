@@ -146,18 +146,22 @@ export default function RoomPage() {
 
 function JoinHere({ code, notice, onJoined }) {
   const [name, setName] = useState('');
+  const [rejoin, setRejoin] = useState('');
+  const [mode, setMode] = useState('join'); // join | rejoin
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   useEffect(() => setName(loadName()), []);
 
-  async function join(e) {
+  async function submit(e) {
     e.preventDefault();
     setError('');
-    if (!name.trim()) return setError('Enter your name first.');
+    if (mode === 'join' && !name.trim()) return setError('Enter your name first.');
+    if (mode === 'rejoin' && rejoin.length !== 6) return setError('Rejoin codes are 6 letters.');
     setBusy(true);
     try {
-      saveName(name.trim());
-      const seat = await api('/api/room', { method: 'POST', body: { action: 'join', code, name, avatar: loadAvatar() } });
+      if (mode === 'join') saveName(name.trim());
+      const body = mode === 'join' ? { action: 'join', code, name, avatar: loadAvatar() } : { action: 'rejoin', code, rejoinCode: rejoin };
+      const seat = await api('/api/room', { method: 'POST', body });
       const s = { playerId: seat.playerId, token: seat.token };
       saveSeat(code, s);
       onJoined(s);
@@ -169,16 +173,47 @@ function JoinHere({ code, notice, onJoined }) {
 
   return (
     <main className="shell">
-      <form className="panel" style={{ maxWidth: 440, margin: '8vh auto 0' }} onSubmit={join}>
+      <form className="panel" style={{ maxWidth: 440, margin: '8vh auto 0' }} onSubmit={submit}>
         <p className="eyebrow">Room {code}</p>
         {notice && <p className="banner">{notice}</p>}
-        <h2>Take a seat</h2>
-        <div className="field">
-          <label htmlFor="join-name">Your name</label>
-          <input id="join-name" className="input" value={name} maxLength={20} onChange={(e) => setName(e.target.value)} autoFocus />
+        <div className="pills" role="tablist" aria-label="How are you joining?">
+          <button type="button" role="tab" className="pill" aria-pressed={mode === 'join'} aria-selected={mode === 'join'} onClick={() => setMode('join')}>
+            New player
+          </button>
+          <button type="button" role="tab" className="pill" aria-pressed={mode === 'rejoin'} aria-selected={mode === 'rejoin'} onClick={() => setMode('rejoin')}>
+            Back on a new device
+          </button>
         </div>
+        {mode === 'join' ? (
+          <>
+            <h2>Take a seat</h2>
+            <div className="field">
+              <label htmlFor="join-name">Your name</label>
+              <input id="join-name" className="input" value={name} maxLength={20} onChange={(e) => setName(e.target.value)} autoFocus />
+            </div>
+          </>
+        ) : (
+          <>
+            <h2>Return to your seat</h2>
+            <p className="muted small">Ask the host (or anyone at the table, if you&rsquo;ve been gone a minute) to tap your seat and make a rejoin code.</p>
+            <div className="field">
+              <label htmlFor="rejoin-code">Rejoin code</label>
+              <input
+                id="rejoin-code"
+                className="input input-code"
+                value={rejoin}
+                maxLength={6}
+                autoCapitalize="characters"
+                autoComplete="off"
+                placeholder="ABCDEF"
+                onChange={(e) => setRejoin(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+                autoFocus
+              />
+            </div>
+          </>
+        )}
         <button className="btn btn-primary btn-block" disabled={busy}>
-          {busy ? 'Joining…' : 'Join room'}
+          {busy ? 'One moment…' : mode === 'join' ? 'Join room' : 'Rejoin'}
         </button>
         {error && (
           <p className="error" role="alert">

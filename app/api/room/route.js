@@ -1,5 +1,5 @@
 // POST { action: 'create', name } or { action: 'join', code, name }
-import { createRoom, joinRoom, newCode, normCode } from '@/lib/game';
+import { createRoom, joinRoom, newCode, normCode, redeemRejoin } from '@/lib/game';
 import { insertRoom, withRoom } from '@/lib/store';
 import { GameError } from '@/lib/errors';
 import { errorResponse, json } from '@/lib/http';
@@ -22,6 +22,12 @@ export async function POST(req) {
       const code = normCode(body.code);
       if (code.length !== 4) throw new GameError('Room codes are 4 letters.');
       const { result: player } = await withRoom(code, (room) => joinRoom(room, body.name, body.avatar));
+      return json({ code, playerId: player.id, token: player.token });
+    }
+
+    if (body.action === 'rejoin') {
+      const code = normCode(body.code);
+      const { result: player } = await withRoom(code, (room) => redeemRejoin(room, body.rejoinCode));
       return json({ code, playerId: player.id, token: player.token });
     }
 

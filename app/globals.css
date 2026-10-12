@@ -1967,6 +1967,24 @@ body:has(.scene) .landscape::after {
   font-size: 14px;
 }
 
+/* ---------- Rejoin ---------- */
+.rejoin {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px dashed var(--line);
+}
+.rejoin-code {
+  font-family: var(--font-heading-stack);
+  font-weight: 700;
+  font-size: 34px;
+  letter-spacing: 0.3em;
+  color: var(--brass-hi);
+  text-align: center;
+  user-select: all;
+}
+
 /* ---------- Tutorial ---------- */
 .hero-actions {
   margin-top: 18px;

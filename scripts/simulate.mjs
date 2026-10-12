@@ -84,6 +84,25 @@ async function game(n, mode, lady, strategy) {
   });
   console.log(`  n=${n} mode=${mode} roles:`, Object.values(roles).sort().join(','));
 
+  // Rejoin on a new device: only the host can make a code for a connected player; the code
+  // works once, keeps the player's role, and signs out the old device.
+  {
+    const target = players[2];
+    assert((await act(players[1], { type: 'rejoinCode', target: target.playerId })).status === 400, 'non-host rejoin code refused');
+    assert((await act(players[0], { type: 'rejoinCode', target: target.playerId })).status === 200, 'host rejoin code');
+    const code = (await v(players[0])).rejoinCodes[target.playerId]?.code;
+    assert(code && code.length === 6, 'host sees the code');
+    assert(!(await v(players[1])).rejoinCodes[target.playerId], 'others do not see the code');
+    const before = (await v(target)).game.myRole;
+    assert((await call('/api/room', { body: { action: 'rejoin', code: players[0].code ?? host.data.code, rejoinCode: 'ZZZZZZ' } })).status === 400, 'wrong rejoin code');
+    const back = await call('/api/room', { body: { action: 'rejoin', code: host.data.code, rejoinCode: code } });
+    assert(back.status === 200 && back.data.playerId === target.playerId, 'rejoin works');
+    assert((await call(`/api/room/${code && host.data.code}`, { token: target.token })).status === 403, 'old device signed out');
+    target.token = back.data.token;
+    assert((await v(target)).game.myRole === before, 'same role after rejoin');
+    assert((await call('/api/room', { body: { action: 'rejoin', code: host.data.code, rejoinCode: code } })).status === 400, 'rejoin code is single-use');
+    assert((await v(players[0])).players.every((p) => typeof p.online === 'boolean'), 'presence shown');
+  }
   const byId = Object.fromEntries(players.map(p => [p.playerId, p]));
   let guard = 0;
   while (guard++ < 60) {

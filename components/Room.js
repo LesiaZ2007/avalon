@@ -130,7 +130,7 @@ export default function Room({ view, act, netError }) {
 
       {roleOpen && g?.myRole && <RoleModal view={view} nameOf={nameOf} onClose={() => setRoleOpen(false)} />}
       {inspect && g && (
-        <SeatSheet view={view} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} note={notes[inspect]} setNote={setNote} onClose={() => setInspect(null)} />
+        <SeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} note={notes[inspect]} setNote={setNote} onClose={() => setInspect(null)} />
       )}
       {inspect && !g && view.players.some((p) => p.id === inspect) && (
         <LobbySeatSheet view={view} act={act} id={inspect} nameOf={nameOf} avatarOf={avatarOf} setAvatar={setAvatar} onClose={() => setInspect(null)} />
@@ -643,6 +643,53 @@ function RoleModal({ view, nameOf, onClose }) {
   );
 }
 
+/** Make a one-time code that puts this player back in their seat on another device. */
+function RejoinPanel({ view, act, id, nameOf }) {
+  const player = view.players.find((p) => p.id === id);
+  const isHost = view.hostId === view.you;
+  const code = view.rejoinCodes?.[id];
+  const [busy, setBusy] = useState(false);
+  if (!player || id === view.you) return null;
+  // The server decides for certain; this just hides a button that would be refused.
+  if (!isHost && player.online && !code) return null;
+  const minutes = code ? Math.max(1, Math.round((code.expires - view.now) / 60000)) : 0;
+
+  return (
+    <div className="rejoin">
+      <p className="eyebrow">Phone died or switched devices?</p>
+      {code ? (
+        <>
+          <p className="rejoin-code" aria-label={`Rejoin code ${code.code.split('').join(' ')}`}>
+            {code.code}
+          </p>
+          <p className="muted small">
+            On their new device, {nameOf(id)} opens this room&rsquo;s link, chooses <strong>Back on a new device</strong> and enters this code. It works once, for
+            the next {minutes} minute{minutes === 1 ? '' : 's'}, and signs out their old device.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="muted small">
+            {player.online ? `${nameOf(id)} is connected right now. ` : `${nameOf(id)} hasn’t been seen for a while. `}A rejoin code puts them back in their seat, with
+            their role, on another phone.
+          </p>
+          <button
+            className="btn btn-ghost"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              await act({ type: 'rejoinCode', target: id });
+              setBusy(false);
+            }}
+          >
+            Make a rejoin code for {nameOf(id)}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 /** Tapping a seat in the lobby: your own seat changes your avatar; the host can remove others. */
 function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose }) {
   const isMe = id === view.you;
@@ -692,12 +739,13 @@ function LobbySeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, onClose })
             </button>
           </div>
         )}
+        {!isMe && <RejoinPanel view={view} act={act} id={id} nameOf={nameOf} />}
       </div>
     </div>
   );
 }
 
-function SeatSheet({ view, id, nameOf, avatarOf, setAvatar, note, setNote, onClose }) {
+function SeatSheet({ view, act, id, nameOf, avatarOf, setAvatar, note, setNote, onClose }) {
   const g = view.game;
   const seatIdx = g.seats.indexOf(id);
   const proposals = g.history.map((h, i) => ({ ...h, n: g.history.filter((x, j) => j <= i && x.quest === h.quest).length }));
@@ -774,6 +822,8 @@ function SeatSheet({ view, id, nameOf, avatarOf, setAvatar, note, setNote, onClo
             <p className="muted small">Only you can see this. It shows next to their name.</p>
           </div>
         )}
+
+        {!role && <RejoinPanel view={view} act={act} id={id} nameOf={nameOf} />}
 
         <div>
           <p className="eyebrow" style={{ marginBottom: 8 }}>
