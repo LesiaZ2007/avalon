@@ -921,6 +921,11 @@
 }
 
 /* ---------- TV ---------- */
+/* The join QR code is generated in night's cream for its dark panel; on card stock it's
+   printed in ink instead, dark on light as scanners like best. */
+[data-printed] .tv-qr svg path {
+  stroke: var(--p-ink);
+}
 [data-printed] .tv-waiting {
   color: var(--p-ink-2);
 }
