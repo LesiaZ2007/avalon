@@ -27,6 +27,12 @@ Lady of the Lake and assassination. Deployed on Vercel.
   simultaneous moves can't overwrite each other.
 - `app/api/room/`: create and join. `app/api/room/[code]/`: fetch state (GET) and make a
   move (POST).
+- `lib/jackdaw.js` and `app/api/jackdaw/`: the link from Jackdaw Games. Jackdaw's server
+  (`authorization: Bearer $JACKDAW_LINK_SECRET`) opens a room with its table seated and the
+  roles dealt (`createLinkedRoom()`), then reads the result (`linkedStatus()`, roles only once
+  the game is over), and can end a running game early if Jackdaw's host ends it there
+  (`DELETE`, `endLinkedRoom()`). `app/j/[code]/page.js` takes a seat from the URL fragment and opens the
+  room. Linked rooms show "Back to Jackdaw" and can't be joined by code or restarted.
 - `app/page.js`: home. `app/r/[code]/page.js`: polling, joining and the toast. `app/tv/page.js`: type a room code on a
   TV; `app/tv/[code]/page.js`: the public table view.
 - `components/`: `Room.js` (the tabletop scene, hand, drawers, seat sheets and overlays),
@@ -121,6 +127,8 @@ stop and say so explicitly, with exactly what to do:
   `UPSTASH_REDIS_REST_TOKEN`, either pair under a custom prefix, then a `redis://` /
   `rediss://` URL in `REDIS_URL` or `KV_URL`. When none is found on Vercel, the error lists
   the Redis-related variable *names* the deployment can see, never their values.
+  `JACKDAW_LINK_SECRET` (Production and Preview) turns on the Jackdaw link; Jackdaw needs the
+  same value. CI sets a throwaway value so `simulate` can test the link.
 - **Storage changes**: rooms are JSON blobs under `avalon:room:<CODE>`, and presence is a hash
   under `avalon:seen:<CODE>` (player id -> last check-in), both with a 12-hour TTL. If you
   change the room shape, old rooms simply expire, but say so.
