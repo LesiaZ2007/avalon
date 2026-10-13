@@ -30,7 +30,8 @@ Lady of the Lake and assassination. Deployed on Vercel.
 - `lib/jackdaw.js` and `app/api/jackdaw/`: the link from Jackdaw Games. Jackdaw's server
   (`authorization: Bearer $JACKDAW_LINK_SECRET`) opens a room with its table seated and the
   roles dealt (`createLinkedRoom()`), then reads the result (`linkedStatus()`, roles only once
-  the game is over). `app/j/[code]/page.js` takes a seat from the URL fragment and opens the
+  the game is over), and can end a running game early if Jackdaw's host ends it there
+  (`DELETE`, `endLinkedRoom()`). `app/j/[code]/page.js` takes a seat from the URL fragment and opens the
   room. Linked rooms show "Back to Jackdaw" and can't be joined by code or restarted.
 - `app/page.js`: home. `app/r/[code]/page.js`: polling, joining and the toast. `app/tv/page.js`: type a room code on a
   TV; `app/tv/[code]/page.js`: the public table view.

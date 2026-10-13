@@ -274,9 +274,9 @@ assert(s.game.quests[0].size === 4 && s.game.quests[3].failsNeeded === 2, '15p q
 // arrive with the seats it hands out, and Jackdaw reads the result once the game is over.
 {
   const SECRET = process.env.JACKDAW_LINK_SECRET;
-  const link = (path, { body, secret = SECRET } = {}) =>
+  const link = (path, { body, secret = SECRET, method } = {}) =>
     fetch(BASE + path, {
-      method: body ? 'POST' : 'GET',
+      method: method ?? (body ? 'POST' : 'GET'),
       headers: { 'Content-Type': 'application/json', ...(secret ? { authorization: `Bearer ${secret}` } : {}) },
       body: body ? JSON.stringify(body) : undefined,
     }).then(async (res) => ({ status: res.status, data: await res.json() }));
@@ -393,7 +393,20 @@ assert(s.game.quests[0].size === 4 && s.game.quests[3].failsNeeded === 2, '15p q
       assert((await call(at, { token: host.token, body: { type: 'start' } })).status === 400, 'no restart after an early end');
       console.log('  linked game ended early: reported, not scored');
     }
+    // Jackdaw's host ends it from Jackdaw: the Avalon room closes the same way, unscored.
+    {
+      const made = await link('/api/jackdaw/rooms', { body: request(5) });
+      const at = `/api/room/${made.data.code}`;
+      const other = made.data.seats['jd-2'];
+      assert((await link(`/api/jackdaw/rooms/${made.data.code}`, { method: 'DELETE', secret: 'nope' })).status === 401, 'ending needs the secret');
+      const ended = await link(`/api/jackdaw/rooms/${made.data.code}`, { method: 'DELETE' });
+      assert(ended.status === 200 && ended.data.over && ended.data.endedEarly, 'ended from Jackdaw ' + JSON.stringify(ended.data));
+      const lobby = (await call(at, { token: other.token })).data;
+      assert(lobby.phase === 'lobby' && lobby.scores.good === 0 && lobby.scores.evil === 0, 'nothing scored after Jackdaw ends it');
+      console.log('  linked game ended from Jackdaw: closed, not scored');
+    }
     assert((await link('/api/jackdaw/rooms/ZZZZ')).status === 404, 'unknown room');
+    assert((await link('/api/jackdaw/rooms/ZZZZ', { method: 'DELETE' })).status === 404, 'unknown room to end');
   }
 }
 console.log('ALL PASSED');
