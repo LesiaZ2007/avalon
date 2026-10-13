@@ -123,7 +123,7 @@ export default function Room({ view, act, netError }) {
               <ReactionBar act={act} />
             </div>
             <section className="hand" aria-label="Lobby">
-              <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} />
+              {view.jackdaw ? <JackdawLobby view={view} /> : <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} />}
             </section>
           </div>
         ) : (
@@ -195,9 +195,15 @@ function TopBar({ view, unread, onRole, onHelp, onChat, onLog }) {
 
   return (
     <header className="topbar">
-      <Link href="/" className="topbar-mark">
-        Avalon
-      </Link>
+      {view.jackdaw ? (
+        <a href={view.jackdaw.returnUrl} className="topbar-mark" title="Back to Jackdaw">
+          Avalon
+        </a>
+      ) : (
+        <Link href="/" className="topbar-mark">
+          Avalon
+        </Link>
+      )}
       <div className="topbar-actions">
         {view.game?.myRole && (
           <button className="btn btn-sm btn-primary" onClick={onRole}>
@@ -582,7 +588,11 @@ function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, on
           <button className="btn btn-lg" onClick={onRecap}>
             See the recap
           </button>
-          {view.hostId === me ? (
+          {view.jackdaw ? (
+            <a className="btn btn-primary btn-lg" href={view.jackdaw.returnUrl}>
+              Back to Jackdaw
+            </a>
+          ) : view.hostId === me ? (
             <button className="btn btn-primary btn-lg" onClick={() => send({ type: 'lobby' })}>
               Back to the lobby
             </button>
@@ -1110,7 +1120,26 @@ function Chronicle({ view, act, nameOf, avatarOf, onInspect, onClose }) {
       </div>
       {entries.length ? <ol className="chronicle">{entries.reverse()}</ol> : <p className="muted small">Every proposal and quest will be recorded here.</p>}
       <TvLink code={view.code} />
+      {view.jackdaw && (
+        <a className="btn btn-ghost" href={view.jackdaw.returnUrl}>
+          Back to Jackdaw
+        </a>
+      )}
       {canEnd && <EndGame act={act} />}
+    </div>
+  );
+}
+
+/** A Jackdaw room after the host ended the game early: the table plays on in Jackdaw. */
+function JackdawLobby({ view }) {
+  return (
+    <div className="hand-inner">
+      <p className="eyebrow">The game has ended</p>
+      <h2 className="hand-title">Back to Jackdaw</h2>
+      <p className="hand-text">This table came over from Jackdaw. Head back there to pick the next game, or to play Avalon again.</p>
+      <a className="btn btn-primary btn-lg" href={view.jackdaw.returnUrl}>
+        Back to Jackdaw
+      </a>
     </div>
   );
 }

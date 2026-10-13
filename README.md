@@ -57,6 +57,10 @@ Each room is one tabletop scene rather than a page of boxes.
 
 The server decides what each phone receives, so nobody can find another player's role in the browser's developer tools. Votes stay hidden until everyone has voted. Once revealed, a vote stays on the seats while its quest runs (or until the next team is proposed after a rejection), then only the tally is kept: who voted which way is yours to remember until the game ends and the recap shows every vote. Quest cards are shuffled so only the number of Fails is shown. Good and evil players see the same two quest cards: a glance at someone's screen gives nothing away, and the server rejects a Fail from a loyal player.
 
+## Playing from Jackdaw
+
+[Jackdaw Games](https://github.com/LesiaZ2007/jackdaw-games) can gather a table in its own lobby and hand it over to Avalon. When the Jackdaw host starts Avalon, everyone is seated here with their Jackdaw names, crests and colours, the chosen roles and look are applied, and the roles are dealt at once. Each phone lands in its own seat without typing a code. When the game ends, **Back to Jackdaw** takes everyone back, and Jackdaw records the result. A room opened from Jackdaw can't be joined by code or restarted here; the next game is started in Jackdaw.
+
 ## Install it like an app
 
 Avalon can be added to a phone's home screen, where it opens full-screen with its own icon and no browser bar. On Android and in Chrome or Edge, tap **Install the app** on the home page. On an iPhone, the home page explains the Safari steps (Share, then Add to Home Screen). It's still the same website underneath, so updates arrive by themselves.
@@ -83,6 +87,8 @@ Vercel functions don't share memory, so rooms are stored in Upstash Redis (free 
 The app finds Redis by itself. It accepts Upstash's REST variables (`KV_REST_API_URL` + `KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`, with or without a custom prefix) or a `redis://` connection string in `REDIS_URL`. REST is preferred because it needs no open connection.
 
 If storage still isn't reachable, creating a room shows an error. It names the environment (production or preview) and lists which Redis-related variable names the deployment can see, without their values. "No Redis variables at all" means the store isn't connected to that environment or the deployment predates it. "Can see X but no usable…" means the store is connected but its variables are in an unexpected form.
+
+To let Jackdaw Games open rooms, set `JACKDAW_LINK_SECRET` (a long random string) in Production and Preview, and give Jackdaw the same value. Without it, the `/api/jackdaw/*` routes refuse every request. For `npm run simulate` to test the link locally, set it for both the dev server and the simulation.
 
 Rooms expire 12 hours after their last change. Phones check for updates every 1.5 seconds while things are happening, slowing to 3 seconds during long discussions, 2.5 to 4 seconds in the lobby, and 8 seconds in a background tab.
 
