@@ -84,8 +84,21 @@ async function game(n, mode, lady, strategy) {
   assert((await act(players[2], { type: 'react', icon: '<img>' })).status === 400, 'unknown reaction refused');
   // chat
   await act(players[2], { type: 'chat', text: 'hello table' });
+  // Seating: only the host rearranges, junk ids are dropped, and anyone left out keeps a seat at the end.
+  const joinOrder = players.map((p) => p.playerId);
+  const seatOrder = [...joinOrder.slice(1).reverse(), joinOrder[0]];
+  assert((await act(players[1], { type: 'seats', order: seatOrder })).status === 400, 'non-host seating refused');
+  assert((await act(players[0], { type: 'seats', order: 'everyone' })).status === 400, 'junk seating refused');
+  assert((await act(players[0], { type: 'seats', order: [joinOrder[2], 'nobody', joinOrder[2]] })).status === 200, 'partial seating');
+  let seated = (await v(players[1])).players.map((p) => p.id);
+  assert(seated[0] === joinOrder[2] && seated.length === joinOrder.length && new Set(seated).size === seated.length, 'partial seating keeps everyone once ' + seated);
+  assert((await act(players[0], { type: 'seats', order: seatOrder })).status === 200, 'host seating');
+  seated = (await v(players[1])).players.map((p) => p.id);
+  assert(seated.join() === seatOrder.join(), 'seating seen by everyone');
   const st = await act(players[0], { type: 'start' });
   assert(st.status === 200, 'start ' + JSON.stringify(st.data));
+  assert((await v(players[0])).game.seats.join() === seatOrder.join(), 'game deals in the arranged seating');
+  assert((await act(players[0], { type: 'seats', order: joinOrder })).status === 400, 'seating locked once dealt');
   // The look is cosmetic, so it can change mid-game too.
   assert((await act(players[0], { type: 'theme', theme: 'night' })).status === 200, 'theme mid-game');
 

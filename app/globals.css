@@ -845,6 +845,20 @@ body:has(.scene) .landscape::after {
 .seat-node.is-picked .avatar {
   transform: scale(1.1);
 }
+/* Rearranging the seats: they slide into their new places, and the one in hand follows the finger. */
+.table-wrap.is-arranging .seat-node {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: grab;
+  transition: left 0.25s ease, top 0.25s ease;
+}
+.table-wrap.is-arranging .seat-node.is-dragging {
+  z-index: 3;
+  cursor: grabbing;
+  transition: none;
+}
 .badge-icon {
   position: absolute;
   display: grid;

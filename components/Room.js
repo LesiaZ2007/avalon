@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { LobbyHand, LobbyTable } from './Lobby';
+import { ArrangeHand, LobbyHand, LobbyTable } from './Lobby';
 import RoundTable from './RoundTable';
 import Avatar, { AvatarPicker, nameColors } from './Avatar';
 import { saveAvatar } from '@/lib/client';
@@ -67,6 +67,7 @@ export default function Room({ view, act, netError }) {
   const [learning, setLearning] = useState(false);
   const [inspect, setInspect] = useState(null);
   const [recapOpen, setRecapOpen] = useState(false);
+  const [arranging, setArranging] = useState(null); // the host's seating order while rearranging
   const [revealing, setRevealing] = useState(false);
   const celebrating = useCelebration(view, revealing);
   const wide = useWide();
@@ -84,6 +85,9 @@ export default function Room({ view, act, netError }) {
   useEffect(() => {
     if (view.phase !== 'over') setRecapOpen(false);
   }, [view.phase]);
+  useEffect(() => {
+    if (view.phase !== 'lobby' || view.hostId !== view.you) setArranging(null);
+  }, [view.phase, view.hostId, view.you]);
 
   // Unread chat badge.
   const lastChatId = view.chat.at(-1)?.id ?? 0;
@@ -119,11 +123,17 @@ export default function Room({ view, act, netError }) {
         {view.phase === 'lobby' ? (
           <div className="stage">
             <div className="table-zone">
-              <LobbyTable view={view} nameOf={nameOf} avatarOf={avatarOf} onInspect={setInspect} />
+              <LobbyTable view={view} nameOf={nameOf} avatarOf={avatarOf} onInspect={setInspect} arranging={arranging} onArrange={setArranging} />
               <ReactionBar act={act} />
             </div>
-            <section className="hand" aria-label="Lobby">
-              {view.jackdaw ? <JackdawLobby view={view} /> : <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} />}
+            <section className="hand" aria-label={arranging ? 'Seating' : 'Lobby'}>
+              {view.jackdaw ? (
+                <JackdawLobby view={view} />
+              ) : arranging ? (
+                <ArrangeHand view={view} act={act} arranging={arranging} onDone={() => setArranging(null)} />
+              ) : (
+                <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} onRearrange={() => setArranging(view.players.map((p) => p.id))} />
+              )}
             </section>
           </div>
         ) : (
