@@ -215,7 +215,8 @@ export default function TvView({ code }) {
               <span className="evil-text">Evil {view.scores.evil}</span>
             </p>
           )}
-          {(!g || view.phase === 'over') && (
+          {/* A room opened from Jackdaw can't be joined by code: people join in Jackdaw instead. */}
+          {(!g || view.phase === 'over') && !view.jackdaw && (
             <div className="tv-join">
               <div className="tv-join-row">
                 {qr && <div className="tv-qr" dangerouslySetInnerHTML={{ __html: qr }} aria-label="QR code to join this room" />}
