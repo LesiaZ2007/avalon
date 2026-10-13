@@ -182,8 +182,11 @@ async function game(n, mode, lady, strategy) {
     const g = s.game;
     // Past votes stay hidden mid-game: only the latest, while the seats show it.
     const onSeats = s.phase === 'quest' || (s.phase === 'team' && g.rejects > 0);
-    for (const seen of [g, (await call(`/api/room/${host.data.code}/tv`)).data.game]) {
+    for (const room of [s, (await call(`/api/room/${host.data.code}/tv`)).data]) {
+      const seen = room.game;
       assert(seen.history.every((h, i) => typeof h.yes === 'number' && 'votes' in h === (onSeats && i === seen.history.length - 1)), 'past votes hidden ' + s.phase);
+      // The last vote's event carries who voted which way only while the seats show it.
+      if (room.event?.type === 'vote') assert('votes' in room.event === onSeats, 'vote event hidden ' + s.phase);
     }
     if (s.phase === 'team') {
       const leader = byId[g.leader];
@@ -208,6 +211,7 @@ async function game(n, mode, lady, strategy) {
           // others' votes hidden mid-vote
           const peek = await v(players[0]);
           assert(!('votes' in peek.game) && peek.phase === 'vote' && peek.game.voted.length > 0, 'votes hidden');
+          assert(!peek.event || !('votes' in peek.event), 'last vote event hidden mid-vote');
           assert(peek.game.phaseAt === g.phaseAt, 'a vote does not restart the clock');
         }
       }

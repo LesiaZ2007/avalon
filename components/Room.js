@@ -1141,7 +1141,8 @@ export function EventOverlay({ view, nameOf, avatarOf, onRole, onShown, tv = fal
     } catch {}
     // Don't replay an old result when someone reloads the page.
     if (seen === null || ev.id <= seen) return;
-    if (ev.type === 'vote' || ev.type === 'quest' || (ev.type === 'start' && !tv)) setShown(ev);
+    // A vote seen too late (its votes no longer sent, see view() in lib/game.js) isn't replayed.
+    if ((ev.type === 'vote' && ev.votes) || ev.type === 'quest' || (ev.type === 'start' && !tv)) setShown(ev);
   }, [ev?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The reveal that ends the game steps aside sooner, for the celebration (components/Celebration.js).
