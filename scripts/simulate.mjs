@@ -270,4 +270,130 @@ assert(s.game.quests[0].size === 4 && s.game.quests[3].failsNeeded === 2, '15p q
   assert(new Set(full.players.map((p) => p.avatar.tint)).size === 15, 'fifteen players, fifteen colours');
   console.log('Room caps at 15 players');
 }
+// Jackdaw link: Jackdaw's server opens a room with the table seated and roles dealt, players
+// arrive with the seats it hands out, and Jackdaw reads the result once the game is over.
+{
+  const SECRET = process.env.JACKDAW_LINK_SECRET;
+  const link = (path, { body, secret = SECRET } = {}) =>
+    fetch(BASE + path, {
+      method: body ? 'POST' : 'GET',
+      headers: { 'Content-Type': 'application/json', ...(secret ? { authorization: `Bearer ${secret}` } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    }).then(async (res) => ({ status: res.status, data: await res.json() }));
+  const ICONS = ['helm', 'crown', 'swords', 'shield', 'tower', 'key', 'rose', 'sun', 'moon', 'fleur', 'oak', 'owl', 'wolf', 'fox', 'stag'];
+  const NAMES = ['Lesia', 'Bran', 'Cerys', 'Dafydd', 'Elin', 'Ffion', 'Gwen', 'Hywel', 'Iolo', 'Jac', 'Lowri', 'Mared', 'Nia', 'Owain', 'Rhys'];
+  const tableOf = (n) => Array.from({ length: n }, (_, i) => ({ id: `jd-${i}`, name: NAMES[i], avatar: { icon: ICONS[i], tint: i } }));
+  const request = (n, extra = {}) => ({
+    jackdawCode: 'QGYR',
+    returnUrl: 'https://jackdaw.example/r/QGYR',
+    hostId: 'jd-1',
+    players: tableOf(n),
+    settings: { mode: 'full', lady: n >= 7, timers: { talk: 0, vote: 30 }, theme: 'night' },
+    ...extra,
+  });
+
+  if (!SECRET) {
+    const refused = (await link('/api/jackdaw/rooms', { body: request(5), secret: 'anything' })).status;
+    assert(refused === 503 || refused === 401, 'link refused without the secret');
+    console.log('Jackdaw link: skipped (set JACKDAW_LINK_SECRET on the server and here to test it)');
+  } else {
+    // Only Jackdaw's server, with the secret, can open or read a linked room.
+    assert((await link('/api/jackdaw/rooms', { body: request(5), secret: null })).status === 401, 'missing secret refused');
+    assert((await link('/api/jackdaw/rooms', { body: request(5), secret: SECRET + 'x' })).status === 401, 'wrong secret refused');
+    assert((await link('/api/jackdaw/rooms', { body: request(4) })).status === 400, 'too few players refused');
+    assert((await link('/api/jackdaw/rooms', { body: request(5, { returnUrl: 'javascript:alert(1)' }) })).status === 400, 'bad return link refused');
+
+    async function linkedGame(n, strategy) {
+      const made = await link('/api/jackdaw/rooms', { body: request(n) });
+      assert(made.status === 200, 'linked room ' + JSON.stringify(made.data));
+      const { code, seats } = made.data;
+      assert(Object.keys(seats).length === n, 'a seat for everyone');
+      assert((await link(`/api/jackdaw/rooms/${code}`, { secret: 'nope' })).status === 401, 'status needs the secret');
+      const table = tableOf(n).map((p) => ({ ...p, ...seats[p.id] }));
+      const act = (p, body) => call(`/api/room/${code}`, { token: p.token, body });
+      const v = async (p) => (await call(`/api/room/${code}`, { token: p.token })).data;
+
+      const first = await v(table[0]);
+      assert(first.phase === 'team' && first.game, 'roles dealt at once');
+      assert(first.hostId === seats['jd-1'].playerId, 'Jackdaw host is the host');
+      assert(first.settings.mode === 'full' && first.settings.theme === 'night' && first.settings.timers.vote === 30, 'settings applied');
+      assert(first.settings.lady === n >= 7 && Boolean(first.game.lady) === n >= 7, 'Lady as asked');
+      assert(first.jackdaw?.linked === true && first.jackdaw.returnUrl === 'https://jackdaw.example/r/QGYR', 'the way back');
+      assert(!JSON.stringify(first).includes('jd-'), 'Jackdaw ids stay on the server');
+      for (const p of table) {
+        const shown = first.players.find((x) => x.id === p.playerId);
+        assert(shown.name === p.name && shown.avatar.icon === p.avatar.icon && shown.avatar.tint === p.avatar.tint, 'name and avatar kept');
+      }
+      const tv = (await call(`/api/room/${code}/tv`)).data;
+      assert(tv.jackdaw?.linked && !JSON.stringify(tv).includes('"token"'), 'tv sees no seats');
+      const joined = await call('/api/room', { body: { action: 'join', code, name: 'Stranger' } });
+      assert(joined.status === 400 && /Jackdaw/.test(joined.data.error), 'joining by code refused');
+
+      const roles = {};
+      for (const p of table) roles[p.playerId] = (await v(p)).game.myRole;
+      const ids = table.map((p) => p.playerId);
+      const byId = Object.fromEntries(table.map((p) => [p.playerId, p]));
+      let guard = 0;
+      while (guard++ < 60) {
+        const status = await link(`/api/jackdaw/rooms/${code}`);
+        const s = await v(table[0]);
+        if (s.phase === 'over') {
+          assert(status.status === 200 && status.data.over && !status.data.endedEarly && status.data.winner === s.game.winner, 'result ' + JSON.stringify(status.data));
+          assert(status.data.reason === s.game.reason, 'reason');
+          assert(status.data.players.length === n, 'everyone in the result');
+          for (const r of status.data.players) {
+            const p = table.find((x) => x.id === r.id);
+            assert(p, 'result uses Jackdaw ids');
+            assert(r.role === roles[p.playerId] && r.side === (EVIL.includes(r.role) ? 'evil' : 'good') && r.won === (r.side === s.game.winner), 'side and role ' + JSON.stringify(r));
+          }
+          assert((await act(byId[s.hostId], { type: 'lobby' })).status === 200, 'host leaves the end screen');
+          assert((await link(`/api/jackdaw/rooms/${code}`)).data.winner === s.game.winner, 'result kept after the end screen');
+          assert((await act(byId[s.hostId], { type: 'start' })).status === 400, 'next game is started in Jackdaw');
+          console.log(`  linked n=${n} -> ${s.game.winner} wins: ${s.game.reason}`);
+          return;
+        }
+        assert(status.status === 200 && status.data.over === false && status.data.phase === s.phase, 'running ' + JSON.stringify(status.data));
+        assert(!JSON.stringify(status.data).includes('role'), 'no roles mid-game');
+        const g = s.game;
+        if (s.phase === 'team') {
+          const team = strategy.team(ids, roles, g.quests[g.questIdx].size);
+          assert((await act(byId[g.leader], { type: 'propose', team })).status === 200, 'propose');
+        } else if (s.phase === 'vote') {
+          for (const p of table) await act(p, { type: 'vote', approve: true });
+        } else if (s.phase === 'quest') {
+          for (const id of g.team) await act(byId[id], { type: 'quest', success: !EVIL.includes(roles[id]) || !strategy.evilFails });
+        } else if (s.phase === 'lady') {
+          const target = ids.find((id) => id !== g.lady.holder && !g.lady.held.includes(id));
+          assert((await act(byId[g.lady.holder], { type: 'lady', target })).status === 200, 'lady');
+        } else if (s.phase === 'assassin') {
+          const target = ids.find((id) => roles[id] === (strategy.assassinHits ? 'merlin' : 'servant'));
+          assert((await act(byId[ids.find((id) => roles[id] === 'assassin')], { type: 'assassinate', target })).status === 200, 'assassinate');
+        }
+      }
+      throw new Error('linked game did not end');
+    }
+
+    console.log('Jackdaw link:');
+    await linkedGame(5, { team: goodTeam, evilFails: false, assassinHits: true });
+    await linkedGame(9, { team: goodTeam, evilFails: false, assassinHits: false });
+    await linkedGame(15, { team: anyTeam, evilFails: true });
+
+    // The host ends a linked game early: Jackdaw hears it, and nothing is scored.
+    {
+      const made = await link('/api/jackdaw/rooms', { body: request(6) });
+      const host = made.data.seats['jd-1'];
+      const other = made.data.seats['jd-2'];
+      const at = `/api/room/${made.data.code}`;
+      assert((await call(at, { token: other.token, body: { type: 'lobby' } })).status === 400, 'only the host ends it');
+      assert((await call(at, { token: host.token, body: { type: 'lobby' } })).status === 200, 'host ends early');
+      const status = await link(`/api/jackdaw/rooms/${made.data.code}`);
+      assert(status.data.over === true && status.data.endedEarly === true && !status.data.winner, 'early end reported ' + JSON.stringify(status.data));
+      const lobby = (await call(at, { token: other.token })).data;
+      assert(lobby.phase === 'lobby' && lobby.jackdaw.linked && lobby.scores.good === 0 && lobby.scores.evil === 0, 'nothing scored');
+      assert((await call(at, { token: host.token, body: { type: 'start' } })).status === 400, 'no restart after an early end');
+      console.log('  linked game ended early: reported, not scored');
+    }
+    assert((await link('/api/jackdaw/rooms/ZZZZ')).status === 404, 'unknown room');
+  }
+}
 console.log('ALL PASSED');
