@@ -85,6 +85,7 @@ export function ArrangeHand({ view, act, arranging, onDone }) {
       <p className="hand-text">
         Match the table to where people are actually sitting, going clockwise around the room. The leader&rsquo;s crown passes from seat to seat in
         this order.
+        {view.game && ' The crown stays where it is for now. Nothing else in the game changes.'}
       </p>
       <p className="hand-text small">You can also tap a player, then tap the seat they belong in.</p>
       <div className="row row-center">

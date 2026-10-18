@@ -109,6 +109,19 @@
 [data-printed] body:has(.scene) .landscape::after {
   display: none;
 }
+/* Installed on an iPhone, the status bar's clock and battery are white (statusBarStyle
+   black-translucent in app/layout.js, fixed at launch) and would vanish on cream. An ink band
+   behind the bar keeps them readable. It is only as tall as the status bar inset, which is 0
+   everywhere else, and is fixed, so nothing moves. */
+[data-printed] body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--p-ink);
+  z-index: 100;
+  pointer-events: none;
+}
 [data-printed] :focus-visible {
   outline-color: var(--p-vert);
 }

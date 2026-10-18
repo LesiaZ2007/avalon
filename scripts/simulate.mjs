@@ -98,7 +98,16 @@ async function game(n, mode, lady, strategy) {
   const st = await act(players[0], { type: 'start' });
   assert(st.status === 200, 'start ' + JSON.stringify(st.data));
   assert((await v(players[0])).game.seats.join() === seatOrder.join(), 'game deals in the arranged seating');
-  assert((await act(players[0], { type: 'seats', order: joinOrder })).status === 400, 'seating locked once dealt');
+  // Mid-game the host can still fix the seating: the leader keeps the crown, and it passes on in the new order.
+  {
+    const before = (await v(players[1])).game;
+    assert((await act(players[1], { type: 'seats', order: joinOrder })).status === 400, 'non-host seating refused mid-game');
+    assert((await act(players[0], { type: 'seats', order: joinOrder })).status === 200, 'host seating mid-game');
+    const after = (await v(players[1])).game;
+    assert(after.seats.join() === joinOrder.join(), 'game follows the new seating');
+    assert(after.leader === before.leader, 'leader keeps the crown when the seats move');
+    assert((await v(players[1])).players.map((p) => p.id).join() === joinOrder.join(), 'room keeps the new seating');
+  }
   // The look is cosmetic, so it can change mid-game too.
   assert((await act(players[0], { type: 'theme', theme: 'night' })).status === 200, 'theme mid-game');
 
@@ -187,6 +196,7 @@ async function game(n, mode, lady, strategy) {
     if (s.phase === 'over') {
       console.log(`  -> ${s.game.winner} wins: ${s.game.reason}`);
       assert(s.game.roles, 'roles revealed at end');
+      assert((await act(players[0], { type: 'seats', order: [...s.game.seats].reverse() })).status === 400, 'no seating once the game is over');
       assert(s.game.history.every((h) => h.votes && h.yes === Object.values(h.votes).filter(Boolean).length), 'every vote in the recap');
       assert((await call(`/api/room/${host.data.code}/tv`)).data.game.roles, 'tv shows roles at the end');
       await checkScores(s);

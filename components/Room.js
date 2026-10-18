@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrangeHand, LobbyHand, LobbyTable } from './Lobby';
+import { ArrangeHand, LobbyHand, LobbyTable, seatingOf } from './Lobby';
 import RoundTable from './RoundTable';
 import Avatar, { AvatarPicker, nameColors } from './Avatar';
 import { saveAvatar } from '@/lib/client';
@@ -85,9 +85,14 @@ export default function Room({ view, act, netError }) {
   useEffect(() => {
     if (view.phase !== 'over') setRecapOpen(false);
   }, [view.phase]);
+  // Seating can be changed in the lobby and during a game, but not once a game is over. Moving
+  // between the lobby and a game, or losing the host's seat, drops a half-made arrangement.
+  const inGame = Boolean(view.game);
   useEffect(() => {
-    if (view.phase !== 'lobby' || view.hostId !== view.you) setArranging(null);
+    if (view.phase === 'over' || view.hostId !== view.you) setArranging(null);
   }, [view.phase, view.hostId, view.you]);
+  useEffect(() => setArranging(null), [inGame]);
+  const startArranging = () => setArranging(view.players.map((p) => p.id));
 
   // Unread chat badge.
   const lastChatId = view.chat.at(-1)?.id ?? 0;
@@ -132,12 +137,23 @@ export default function Room({ view, act, netError }) {
               ) : arranging ? (
                 <ArrangeHand view={view} act={act} arranging={arranging} onDone={() => setArranging(null)} />
               ) : (
-                <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} onRearrange={() => setArranging(view.players.map((p) => p.id))} />
+                <LobbyHand view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} onRearrange={startArranging} />
               )}
             </section>
           </div>
         ) : (
-          <GameStage view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} notes={notes} onInspect={setInspect} onRecap={() => setRecapOpen(true)} />
+          <GameStage
+            view={view}
+            act={act}
+            nameOf={nameOf}
+            avatarOf={avatarOf}
+            notes={notes}
+            onInspect={setInspect}
+            onRecap={() => setRecapOpen(true)}
+            arranging={arranging}
+            setArranging={setArranging}
+            onRearrange={startArranging}
+          />
         )}
 
         <aside className={`drawer drawer-chat ${drawer === 'chat' ? 'is-open' : ''}`} aria-label="Table talk">
@@ -251,7 +267,7 @@ function pickRules(view) {
   return null;
 }
 
-function GameStage({ view, act, nameOf, avatarOf, notes, onInspect, onRecap }) {
+function GameStage({ view, act, nameOf, avatarOf, notes, onInspect, onRecap, arranging, setArranging, onRearrange }) {
   const g = view.game;
   const rules = pickRules(view);
   const leaderPicking = view.phase === 'team' && g.leader === view.you;
@@ -276,11 +292,26 @@ function GameStage({ view, act, nameOf, avatarOf, notes, onInspect, onRecap }) {
   return (
     <div className="stage">
       <div className="table-zone">
-        <GameTable view={view} nameOf={nameOf} avatarOf={avatarOf} rules={rules} picked={picked} setPicked={setPicked} notes={notes} onInspect={onInspect} />
+        <GameTable
+          view={view}
+          nameOf={nameOf}
+          avatarOf={avatarOf}
+          rules={rules}
+          picked={picked}
+          setPicked={setPicked}
+          notes={notes}
+          onInspect={onInspect}
+          arranging={arranging}
+          onArrange={setArranging}
+        />
         <ReactionBar act={act} />
       </div>
-      <section className="hand" aria-label="Your move">
-        <ActionPanel view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} rules={rules} picked={picked} setPicked={setPicked} onRecap={onRecap} />
+      <section className="hand" aria-label={arranging ? 'Seating' : 'Your move'}>
+        {arranging ? (
+          <ArrangeHand view={view} act={act} arranging={arranging} onDone={() => setArranging(null)} />
+        ) : (
+          <ActionPanel view={view} act={act} nameOf={nameOf} avatarOf={avatarOf} rules={rules} picked={picked} setPicked={setPicked} onRecap={onRecap} onRearrange={onRearrange} />
+        )}
       </section>
     </div>
   );
@@ -311,7 +342,7 @@ export function QuestRow({ view, open, setOpen }) {
   );
 }
 
-function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, onInspect }) {
+function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, onInspect, arranging, onArrange }) {
   const g = view.game;
   const [open, setOpen] = useState(null);
   useEffect(() => {
@@ -388,7 +419,8 @@ function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, on
 
   return (
     <RoundTable
-      seats={g.seats}
+      seats={arranging ? seatingOf(view, arranging).filter((id) => g.seats.includes(id)) : g.seats}
+      onArrange={arranging ? onArrange : undefined}
       nameOf={nameOf}
       avatarOf={avatarOf}
       you={view.you}
@@ -413,7 +445,7 @@ function GameTable({ view, nameOf, avatarOf, rules, picked, setPicked, notes, on
   );
 }
 
-function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, onRecap }) {
+function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, onRecap, onRearrange }) {
   const g = view.game;
   const me = view.you;
   const [busy, setBusy] = useState(false);
@@ -637,7 +669,7 @@ function ActionPanel({ view, act, nameOf, avatarOf, rules, picked, setPicked, on
           })}
         </p>
       )}
-      {view.hostId === me && view.phase !== 'over' && <EndGame act={act} compact />}
+      {view.hostId === me && view.phase !== 'over' && <EndGame act={act} compact onRearrange={onRearrange} />}
     </div>
   );
 }
@@ -1018,7 +1050,7 @@ function Chat({ view, act, avatarOf, onClose }) {
   );
 }
 
-function EndGame({ act, compact = false }) {
+function EndGame({ act, compact = false, onRearrange }) {
   const [confirm, setConfirm] = useState(false);
   useEffect(() => {
     if (!confirm) return;
@@ -1030,7 +1062,17 @@ function EndGame({ act, compact = false }) {
       {confirm ? 'Tap again to end the game for everyone' : 'End game early'}
     </button>
   );
-  if (compact) return <div className="host-end">{button}</div>;
+  if (compact)
+    return (
+      <div className="host-end row row-center">
+        {onRearrange && (
+          <button className="btn btn-sm btn-ghost" onClick={onRearrange}>
+            Rearrange players
+          </button>
+        )}
+        {button}
+      </div>
+    );
   return (
     <div className="host-tools">
       <p className="eyebrow">Host</p>
