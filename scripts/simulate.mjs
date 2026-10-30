@@ -358,6 +358,13 @@ assert(s.game.quests[0].size === 4 && s.game.quests[3].failsNeeded === 2, '15p q
           assert(status.status === 200 && status.data.over && !status.data.endedEarly && status.data.winner === s.game.winner, 'result ' + JSON.stringify(status.data));
           assert(status.data.reason === s.game.reason, 'reason');
           assert(status.data.players.length === n, 'everyone in the result');
+          const known = new Set(table.map((x) => x.id));
+          const d = status.data;
+          assert(d.quests.length === s.game.quests.length && d.quests.every((q) => 'result' in q && 'fails' in q && q.failsNeeded >= 1), 'quests in the result');
+          assert(d.proposals.length > 0 && d.proposals.every((p) => known.has(p.leader) && p.team.every((x) => known.has(x)) && p.approve.length + p.reject.length === n && [...p.approve, ...p.reject].every((x) => known.has(x)) && typeof p.approved === 'boolean'), 'proposals use Jackdaw ids');
+          assert(d.lady.every((c) => known.has(c.holder) && known.has(c.target) && typeof c.evil === 'boolean'), 'lady uses Jackdaw ids');
+          assert(d.assassin === null || (known.has(d.assassin.by) && known.has(d.assassin.target)), 'assassin uses Jackdaw ids');
+          if (s.game.reason.toLowerCase().includes('assassin') || d.assassin) assert(d.assassin && d.assassin.by === table.find((x) => roles[x.playerId] === 'assassin').id, 'assassin pick reported');
           for (const r of status.data.players) {
             const p = table.find((x) => x.id === r.id);
             assert(p, 'result uses Jackdaw ids');

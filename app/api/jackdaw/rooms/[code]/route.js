@@ -1,5 +1,6 @@
 // GET (from Jackdaw's server) -> how a linked game stands: { phase, over } while it runs, then
-// the winner, reason and every player's side and role, or { endedEarly: true }.
+// the winner, reason, every player's side and role and the quest story (quests, proposals and
+// votes, Lady checks, the assassin's pick), or { endedEarly: true }.
 // DELETE (from Jackdaw's server) -> Jackdaw's host ended the game there; a running game ends early.
 import { endLinkedRoom, linkedStatus, normCode } from '@/lib/game';
 import { loadRoomShared, withRoom } from '@/lib/store';
